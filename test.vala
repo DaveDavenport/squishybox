@@ -242,7 +242,11 @@ class NowPlaying : GLib.Object, BasicDrawer
                         current_song_id = status.song_id;
                     }
                 }else{
-                    got_current_song(null);
+                    title_label.set_text("Music Player Daemon");
+                    album_label.set_text(null);
+                    if(status.state == MPD.Status.State.STOP) {
+                        artist_label.set_text("Stopped");
+                    }
                     current_song_id = -1;
                 }
         });
