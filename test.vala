@@ -10,7 +10,6 @@ class Main : GLib.Object
     public MPD.Interaction MI = new MPD.Interaction();
 
     private unowned Screen screen; 
-    private Font normal_font;
     private GLib.MainLoop loop = new GLib.MainLoop();
 
     private BasicDrawer bg;
@@ -54,12 +53,6 @@ class Main : GLib.Object
         if(screen == null) {
             GLib.error("failed to create screen\n");
 
-        }
-
-        GLib.debug("Load font");
-        normal_font = new Font("test.ttf", 40);
-        if(normal_font == null) {
-            GLib.error("failed to load font\n");
         }
 
         /* Create background drawer */
@@ -169,17 +162,11 @@ class BackgroundDrawer : GLib.Object, BasicDrawer
     private Surface sf;
     private weak Main m;
 
-    private void update_background()
-    {
-        /* Update the background, if needed */
-    }
-
     public BackgroundDrawer(Main m,int w, int h, int bpp)
     {
         this.m = m;
-        sf = SDLImage.load("test.png");//new Surface.RGB(SurfaceFlag.SWSURFACE|SurfaceFlag.SRCALPHA, w,h,bpp,0,0,0,0);
+        sf = SDLImage.load("test.png");
         sf = sf.DisplayFormat();
-        this.update_background();
     }
 
     /* Return the surface it needs to draw */
@@ -231,6 +218,8 @@ class NowPlaying : GLib.Object, BasicDrawer
     private SDLMpc.Label artist_label;
     private SDLMpc.Label album_label;
 
+    private int current_song_id = -1;
+
 
     public NowPlaying(Main m,int w, int h, int bpp)
     {
@@ -243,8 +232,19 @@ class NowPlaying : GLib.Object, BasicDrawer
 
         m.MI.player_get_current_song(got_current_song);
         m.MI.player_status_changed.connect((source, status) => {
-                /* Update the text */
-                m.MI.player_get_current_song(got_current_song);
+                if((status.state == MPD.Status.State.PLAY ||
+                    status.state == MPD.Status.State.PAUSE) 
+                    )
+                {
+                    /* Update the text */
+                    if(status.song_id != current_song_id) {
+                        m.MI.player_get_current_song(got_current_song);
+                        current_song_id = status.song_id;
+                    }
+                }else{
+                    got_current_song(null);
+                    current_song_id = -1;
+                }
         });
 
 
