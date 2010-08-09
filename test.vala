@@ -2,6 +2,7 @@ using SDL;
 using SDLTTF;
 using SDLImage;
 using MPD;
+using Posix;
 
 
 
@@ -15,11 +16,18 @@ class Main : GLib.Object
     private BasicDrawer bg;
     private BasicDrawer frame;
     private BasicDrawer np;
+    private BasicDrawer sp;
 
-    private GLib.Timer tt = new GLib.Timer();
 
     private uint32 t = 0;
     private int changed = 1;
+
+    private Queue<SDLMpc.Event> events= new Queue<SDLMpc.Event>();
+
+    public void push_event(owned SDLMpc.Event event)
+    {
+        events.push_tail((owned)event);
+    }
 
 
     public void redraw()
@@ -47,7 +55,7 @@ class Main : GLib.Object
         SDL.Key.enable_unicode(1);
         SDL.Key.set_repeat(100,100);
         GLib.debug("Set Video mode");
-        screen = SDL.Screen.set_video_mode(480,272, 32,SDL.SurfaceFlag.DOUBLEBUF|SDL.SurfaceFlag.HWSURFACE/*|SDL.SurfaceFlag.FULLSCREEN*/);
+        screen = SDL.Screen.set_video_mode(480,272, 32,SDL.SurfaceFlag.DOUBLEBUF|SDL.SurfaceFlag.HWSURFACE|SDL.SurfaceFlag.FULLSCREEN);
         //screen.set_alpha(0,Opacity.OPAQUE);
 
         if(screen == null) {
@@ -59,12 +67,12 @@ class Main : GLib.Object
         GLib.debug("Create background draw object");
         bg = new BackgroundDrawer(this,480, 272,32);
 
-        frame = new DrawFrame (this,480, 272,32);
-        np = new NowPlaying (this,480, 272,32);
+        frame = new DrawFrame   (this,480, 272,32);
+        np = new NowPlaying     (this,480, 272,32);
+        sp = new SongProgress   (this,480, 272,32);
 
 
         GLib.debug("Add timeout");
-        tt.start();
         GLib.Timeout.add(1000/10, main_draw);
 
         GLib.debug("Connect to mpd");
@@ -83,65 +91,82 @@ class Main : GLib.Object
         SDL.Event event = SDL.Event();
         /* Clear the screen */
 
-        SDL.Rect rect = {0,0,0,0};
-        SDL.Color b = {255,255,255};
 
 
         np.Tick();
+        sp.Tick();
 
         if(changed > 0){
             bg.draw(screen);
             frame.draw(screen);
 
             np.draw(screen);
+            sp.draw(screen);
             changed = 0;
             screen.flip();
+        }
+        
+        SDLMpc.Event ev,pev = null;
+        while((ev= events.pop_head()) != null)
+        {
+            /*remove duplicate events.. this not going to work, as node 0 is not skipped.*/
+            if(pev != null) {
+                if(pev.type == SDLMpc.EventType.INVALID) 
+                    continue;
+                if(pev.type == ev.type && ev.code == pev.code && pev.value == ev.value) continue;
+
+            }
+            /* Handle event */
+
+            /* Handle incoming remote events */
+            if(ev.type == SDLMpc.EventType.IR_KEY) {
+                switch(ev.value) {
+                    case 1988698335:
+                        MI.player_toggle_pause(); 
+                        break;
+                    case 1988730975:
+                        MI.player_next();
+                        break;
+                    case 1988739135:
+                        MI.player_previous();
+                        break;
+                    case 1988694255:
+                        MI.player_play();
+                        break;
+                    default:
+                        break;
+                }
+                pev = (owned)ev;
+            }
+
+
         }
         while(SDL.Event.poll(event)>0){
             switch(event.type)
             {
                 case SDL.EventType.QUIT:
+                        loop.quit();
+                        np = null;
+                        MI = null;
+                        return false;
                 case SDL.EventType.KEYUP:
-                    loop.quit();
-                    np = null;
-                    MI = null;
-                    return false;
+                    if(event.key.keysym.sym == KeySymbol.q)
+                    {
+                        loop.quit();
+                        np = null;
+                        MI = null;
+                        return false;
+                    }
                     break;
                 default:
                     break;
 
             }
         }
-        if(t == 100)
-        {
-            double elapsed = tt.elapsed();
-            stdout.printf("fps: %f\n", 1.0/(elapsed/100.0));
-            tt.reset();    
-            tt.start();
-            t = 0;
-        }
         return true;
     }
 }
 
-/**
- * @params argv the command line arguments
- *
- * The entry point of the program  
- */
-
-static int main (string[] argv)
-{
-    GLib.debug("Starting main");
-    /* Create mainloop */
-    Main m = new Main();
-    /* Run */
-    GLib.debug("Run main loop");
-    m.run();
-    SDL.quit();
-
-    return 0;
-}
 
 
 public interface BasicDrawer : GLib.Object
@@ -255,7 +280,6 @@ class NowPlaying : GLib.Object, BasicDrawer
     }
     public int draw(Surface screen)
     {
-        int16 offset = 2;
         SDL.Rect rect = {0,0,0,0};
 
         rect.y = 5;
@@ -272,8 +296,6 @@ class NowPlaying : GLib.Object, BasicDrawer
 
     private void got_current_song(MPD.Song? song)
     {
-        SDL.Color b = {255,255,255};
-        SDL.Color d = {0,0,0};
         GLib.debug("Got current song");
 
         if(song != null)
@@ -302,11 +324,6 @@ class NowPlaying : GLib.Object, BasicDrawer
         }
         m.redraw();
     }
-    /* Private */
-    private void update_frame()
-    {
-
-    }
 
     public void Tick()
     {
@@ -319,8 +336,106 @@ class NowPlaying : GLib.Object, BasicDrawer
     }
 }
 
+/**
+ * TODO: make this precise (ms - precise)
+ */
+
+class SongProgress : GLib.Object, BasicDrawer
+{
+    private weak Main m;
+    private SDLMpc.Label elapsed_label;
+    private SDLMpc.Label total_label;
+    private int current_song_id = -1;
+
+    private uint32 elapsed_time = 0;
+    private uint32 total_time = 0;
+    private bool progressing = false;
+
+    public SongProgress (Main m,int w, int h, int bpp)
+    {
+        this.m = m;
+
+        elapsed_label = new SDLMpc.Label(this.m,20);
+        total_label = new SDLMpc.Label(this.m,20);
+
+        /* initialize */
+        m.MI.player_status_changed.connect((source, status) => {
+                elapsed_time = status.get_elapsed_time(); 
+                total_time = status.get_total_time(); 
+
+                /* Update total time string */
+                string a = "- %02u:%02u".printf(total_time/60, total_time%60);
+                total_label.set_text(a);
+
+                if(current_song_id != status.song_id)
+                {
+                    current_song_id = status.song_id;
+                }
+                if(status.state == MPD.Status.State.PLAY) progressing = true;
+                else progressing = false;
+                update_time();
+                });
+
+
+    }
+    public int draw(Surface screen)
+    {
+        SDL.Rect rect = {0,0,0,0};
+
+        rect.y = (int16)(screen.h-30-elapsed_label.height());
+        rect.x = 5;
+
+        elapsed_label.render(screen,  5, rect.y);
+        total_label.render(screen, 10+elapsed_label.width(), rect.y);
+
+
+        return 0;
+    }
+    private void update_time()
+    {
+        string a = "%02u:%02u".printf(elapsed_time/60, elapsed_time%60);
+        elapsed_label.set_text(a);
+
+        m.redraw();
+    }
+
+
+    private time_t last_time = time_t(); 
+    public void Tick()
+    {
+        var now = time_t();
+        if(last_time != now){
+            if(progressing) {
+                GLib.stdout.printf("Tick time\n");
+                elapsed_time++;
+                update_time();
+            }
+
+            last_time = now; 
+        }
+    }
+}
+
 namespace SDLMpc
 {
+    public enum EventType {
+        INVALID,
+        IR_KEY,
+        IR_NEARNESS
+
+    }
+    [Compact]
+    public class Event {
+        public Posix.timeval    time;
+        public EventType        type;
+        public uint32           code;
+        public uint32           value; 
+
+    }
+
+
+
+
 
     /**
      * This Widget will display a text, scroll if needed.
@@ -331,7 +446,6 @@ namespace SDLMpc
     {
         private Main        m;
         private Font        font;
-        private Font        font_shadow;
         private Surface     sf;
         private Surface     sf_shadow;
 
@@ -387,12 +501,6 @@ namespace SDLMpc
             m.redraw();
         }
 
-        private bool queue_redraw()
-        {
-            m.redraw();
-            return false;
-        }
-
         public void render(Surface screen, int x, int y)
         {
             SDL.Rect shadow_dst_rect = {0,0,0,0};
@@ -434,4 +542,25 @@ namespace SDLMpc
         }
 
     }
+}
+
+/**
+ * @params argv the command line arguments
+ *
+ * The entry point of the program  
+ */
+
+static int main (string[] argv)
+{
+    GLib.debug("Starting main");
+    /* Create mainloop */
+    Main m = new Main();
+    IREvent e  = new IREvent(m);
+    /* Run */
+    GLib.debug("Run main loop");
+    m.run();
+    e = null;
+    SDL.quit();
+
+    return 0;
 }

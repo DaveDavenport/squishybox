@@ -281,7 +281,7 @@ namespace MPD
 		{
             /*lock(watch_id)*/
             {
-                GLib.warning("watch callback called");
+                GLib.warning("watch callback called %i", condition);
                 if(watch_id == 0) {
                     GLib.warning("Idle canceld, ignoring");
                     return false;
