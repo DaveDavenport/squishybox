@@ -32,15 +32,21 @@ class IREvent : GLib.Object
      */
     private bool watch_callback(IOChannel source, IOCondition condition)
     {
+        /* If there is data to read */
         if((condition&IOCondition.IN) == IOCondition.IN)
         {
+            /* Read 1! event every time. if more are available the callback is called again anyway */
             Linux.Input.Event event = Linux.Input.Event();
+            /* Get File descriptor so we can do a nice read off Event */
             int fd = source.unix_get_fd();
+            /* Read the event */
             ssize_t s = Posix.read(fd, &event, sizeof(Linux.Input.Event)); 
             if (s > 0 ) 
             {
                 GLib.debug("Input data: %lu %lu %u %u %i", event.time.tv_sec, event.time.tv_usec, 
                         event.type, event.code, event.value);
+                
+                /* Create SDLMpc event and insert into Main */
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.time = event.time;
                 if(event.type == 5) ev.type = SDLMpc.EventType.IR_NEARNESS;
@@ -49,7 +55,6 @@ class IREvent : GLib.Object
                 ev.code = event.code;
                 ev.value = event.value;
                 m.push_event((owned)ev);
-
             }
         }else if((condition&IOCondition.ERR) == IOCondition.ERR ||
             (condition&IOCondition.ERR) == IOCondition.ERR)
