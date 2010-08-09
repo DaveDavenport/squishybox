@@ -3,8 +3,15 @@ using Posix;
 using Linux;
 
 
+/**
+ * This class will listen on the remote control event device and insert SDLMpc.Event's into the main object
+ * When an IR event is recieved.
+ *
+ * It supports recieving IR_Key events and IR_Nearness events.
+ */
 class IREvent : GLib.Object
 {
+    private uint watch_id {get; set; default=0;}
     private GLib.IOChannel io_channel = null;
     private Main m;
 
@@ -13,8 +20,16 @@ class IREvent : GLib.Object
         io_channel = null;
     }
 
-    private uint watch_id {get; set; default=0;}
 
+    /**
+     * @params source the Source iochannel.
+     * @params conditions the conditions that occured 
+     * Handle Watch events.
+     *
+     * @returns if watch should be continued. in this case always false.
+     * A new watch will be created.
+     *
+     */
     private bool watch_callback(IOChannel source, IOCondition condition)
     {
         if((condition&IOCondition.IN) == IOCondition.IN)
@@ -50,6 +65,10 @@ class IREvent : GLib.Object
         create_watch();
         return false;
     }
+
+    /**
+     * Create a watch for the iochannel 
+     */
     private void create_watch()
     {
         if(watch_id == 0) {
@@ -62,6 +81,11 @@ class IREvent : GLib.Object
         }
     }
 
+    /**
+     * @param m The Main object this lib should insert events into.
+     *
+     * Create IREvent object.
+     */
     public IREvent(Main m)
     {
         this.m = m;
@@ -73,8 +97,4 @@ class IREvent : GLib.Object
         }
 
     }
-
-
-
-
 }
