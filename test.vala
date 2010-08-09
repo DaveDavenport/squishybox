@@ -22,6 +22,8 @@ class Main : GLib.Object
     private uint32 t = 0;
     private int changed = 1;
 
+    private SDLMpc.Event pev = null;
+
     private Queue<SDLMpc.Event> events= new Queue<SDLMpc.Event>();
 
     public void push_event(owned SDLMpc.Event event)
@@ -106,14 +108,20 @@ class Main : GLib.Object
             screen.flip();
         }
         
-        SDLMpc.Event ev,pev = null;
+        SDLMpc.Event ev;
         while((ev= events.pop_head()) != null)
         {
-            /*remove duplicate events.. this not going to work, as node 0 is not skipped.*/
+            if(ev.type == SDLMpc.EventType.INVALID) 
+                continue;
+            /*remove duplicate events.. */
             if(pev != null) {
-                if(pev.type == SDLMpc.EventType.INVALID) 
+                uint32 diff = (uint32)((ev.time.tv_sec*1000+ev.time.tv_usec/1000)-(pev.time.tv_sec*1000+pev.time.tv_usec/1000));
+                GLib.debug("time diff: %u", diff);
+                if(diff > 200) pev = null;
+
+                if(pev != null && pev.type == ev.type && ev.code == pev.code && pev.value == ev.value){
                     continue;
-                if(pev.type == ev.type && ev.code == pev.code && pev.value == ev.value) continue;
+                }
 
             }
             /* Handle event */
