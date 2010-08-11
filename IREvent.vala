@@ -50,7 +50,7 @@ class IREvent : GLib.Object
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.time = event.time;
                 if(event.type == 5) ev.type = SDLMpc.EventType.IR_NEARNESS;
-                if(event.type == 4) ev.type = SDLMpc.EventType.IR_KEY;
+                else if(event.type == 4) ev.type = SDLMpc.EventType.IR_KEY;
                 else ev.type = SDLMpc.EventType.INVALID;
                 ev.code = event.code;
                 ev.value = event.value;

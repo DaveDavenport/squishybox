@@ -17,10 +17,26 @@ class Main : GLib.Object
     private BasicDrawer frame;
     private BasicDrawer np;
     private BasicDrawer sp;
+    private BasicDrawer ss;
+    private DisplayControl display_control = new DisplayControl();
+
+
+    private bool _screensaver = false;
+    public bool screensaver { 
+            get { 
+                return _screensaver;
+            }
+            set {
+                GLib.debug("Standby");
+                _screensaver = value;
+                redraw();
+            }
+    }
 
 
     private uint32 t = 0;
     private int changed = 1;
+    private bool user_near = false;
 
     private SDLMpc.Event pev = null;
 
@@ -58,7 +74,6 @@ class Main : GLib.Object
         SDL.Key.set_repeat(100,100);
         GLib.debug("Set Video mode");
         screen = SDL.Screen.set_video_mode(480,272, 32,SDL.SurfaceFlag.DOUBLEBUF|SDL.SurfaceFlag.HWSURFACE|SDL.SurfaceFlag.FULLSCREEN);
-        //screen.set_alpha(0,Opacity.OPAQUE);
 
         if(screen == null) {
             GLib.error("failed to create screen\n");
@@ -72,6 +87,8 @@ class Main : GLib.Object
         frame = new DrawFrame   (this,480, 272,32);
         np = new NowPlaying     (this,480, 272,32);
         sp = new SongProgress   (this,480, 272,32);
+
+        ss = new ScreenSaver (this,480, 272,32);
 
 
         GLib.debug("Add timeout");
@@ -87,6 +104,8 @@ class Main : GLib.Object
         GLib.debug("Running SDL.quit()");
         SDL.quit();
     }
+
+
     private bool main_draw()
     {
         t++;
@@ -94,18 +113,24 @@ class Main : GLib.Object
         /* Clear the screen */
 
 
-
+        bg.Tick();
         np.Tick();
         sp.Tick();
 
         if(changed > 0){
-            bg.draw(screen);
-            frame.draw(screen);
+            if(screensaver) {
+                ss.draw(screen);
+                screen.flip();
+            }else{
+                bg.draw(screen);
+                if(user_near)
+                    frame.draw(screen);
 
-            np.draw(screen);
-            sp.draw(screen);
-            changed = 0;
-            screen.flip();
+                np.draw(screen);
+                sp.draw(screen);
+                changed = 0;
+                screen.flip();
+            }
         }
         
         SDLMpc.Event ev;
@@ -125,7 +150,11 @@ class Main : GLib.Object
 
             }
             /* Handle event */
-
+            if(ev.type == SDLMpc.EventType.IR_NEARNESS) {
+                GLib.debug("User is near: %i", (int)this.user_near);
+                this.user_near = (ev.value == 0)?false:true;
+                redraw();
+            }
             /* Handle incoming remote events */
             if(ev.type == SDLMpc.EventType.IR_KEY) {
                 switch(ev.value) {
@@ -140,6 +169,27 @@ class Main : GLib.Object
                         break;
                     case 1988694255:
                         MI.player_play();
+                        break;
+                    case 1988706495:
+                        GLib.debug("Set Display\n"); 
+                        display_control.setEnabled(!display_control.getEnabled());
+                        if(!display_control.getEnabled())
+                        {
+                            screensaver = true; 
+                            MI.player_stop();
+                        }else{
+                            screensaver = false; 
+                        }
+                        break;
+                    case 1988737095:
+                        {
+                            var b = display_control.getBrightness();
+                            if(b == 255)
+                                b = 55;
+                            else 
+                                b+=50;
+                            display_control.setBrightness(b);
+                        }
                         break;
                     default:
                         break;
@@ -165,8 +215,13 @@ class Main : GLib.Object
                         MI = null;
                         return false;
                     }
+                    else if (event.key.keysym.sym == KeySymbol.s)
+                    {
+                        GLib.debug("Set Screensaver: %i", (int)screensaver);
+                        screensaver = !screensaver;
+                    }
                     break;
-                default:
+                 default:
                     break;
 
             }
@@ -190,24 +245,108 @@ public interface BasicDrawer : GLib.Object
 /** 
  * Background object.
  */
-class BackgroundDrawer : GLib.Object, BasicDrawer
+
+class ScreenSaver : GLib.Object, BasicDrawer
 {
     private Surface sf;
     private weak Main m;
+    public ScreenSaver(Main m,int w, int h, int bpp)
+    {
+        this.m = m;
+        sf = new Surface.RGB(0, w,h,bpp,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+        sf = sf.DisplayFormat();
+        SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
+
+        sf.fill(rect, sf.format.map_rgb(0,0,0)); 
+    }
+    public int draw(Surface screen)
+    {
+        SDL.Rect rect = {0,0,(uint16)screen.w,(uint16)screen.h};
+        sf.blit_surface(null, screen, rect);
+        return 0;
+    }
+}
+
+
+
+
+class BackgroundDrawer : GLib.Object, BasicDrawer
+{
+    private Surface sf;
+    private Surface next = null;
+    private weak Main m;
+
+
+    private List<string>  backgrounds       = null;
+    private weak List<string> current_bg    = null;
+    private string directory = "Wallpapers/";
 
     public BackgroundDrawer(Main m,int w, int h, int bpp)
     {
         this.m = m;
-        sf = SDLImage.load("test.png");
+
+        /* */
+        GLib.Dir a = GLib.Dir.open(directory);
+        for(var file = a.read_name(); file != null; file = a.read_name())
+        {
+            backgrounds.append(file); 
+        }
+
+        if(backgrounds.length() > 0) {
+            current_bg = backgrounds.first();
+            sf = SDLImage.load(directory+current_bg.data);
+        }else {
+            /* Failsafe */
+            sf = SDLImage.load("test.png");
+        }
         sf = sf.DisplayFormat();
     }
 
     /* Return the surface it needs to draw */
+    private uint16 fade = 0 ;
     public int draw(Surface screen)
     {
         SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
-        sf.blit_surface(null, screen, rect);
+        if(fade > 0)
+        {
+            fade += 5;
+
+            sf.set_alpha(SDL.SurfaceFlag.SRCALPHA, 255);
+            sf.blit_surface(null, screen, rect);
+            if(next != null) {
+                next.set_alpha(SDL.SurfaceFlag.SRCALPHA, (uchar)fade);
+                next.blit_surface(null, screen, rect);
+                if(fade > 254 ) {
+                    sf = (owned)next;
+                }
+            }
+        }else{
+            sf.blit_surface(null, screen, rect);
+        }
+        m.redraw();
         return 0;
+    }
+
+
+    private time_t last_time = time_t(); 
+    public void Tick()
+    {
+        if(current_bg == null) return;
+        if(fade > 0) m.redraw();
+        var now = time_t();
+        if((now - last_time)  > 30){
+            if(current_bg.next != null) {
+                current_bg = current_bg.next;
+            }else{
+                current_bg = current_bg.first();
+            }
+
+            sf = SDLImage.load(directory+current_bg.data);
+            sf = sf.DisplayFormat();
+            m.redraw();
+          //  fade = 5;
+            last_time = now; 
+        }
     }
 }
 
@@ -218,13 +357,12 @@ class DrawFrame : GLib.Object, BasicDrawer
     public DrawFrame(Main m,int w, int h, int bpp)
     {
         this.m = m;
-        sf = new Surface.RGB(0, w,30,bpp,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+        sf = new Surface.RGB(0, w,32,bpp,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
         sf = sf.DisplayFormatAlpha();
         SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
 
         rect.h = 30;
         sf.fill(rect, sf.format.map_rgba(128,0,0,128)); 
-        this.update_frame();
     }
     public int draw(Surface screen)
     {
@@ -232,12 +370,6 @@ class DrawFrame : GLib.Object, BasicDrawer
         rect.y = (int16)screen.h-30;
         sf.blit_surface(null, screen, rect);
         return 0;
-    }
-
-    /* Private */
-    private void update_frame()
-    {
-
     }
 }
 
@@ -440,10 +572,6 @@ namespace SDLMpc
         public uint32           value; 
 
     }
-
-
-
-
 
     /**
      * This Widget will display a text, scroll if needed.
