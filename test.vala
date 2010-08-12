@@ -558,20 +558,6 @@ class SongProgress : GLib.Object, BasicDrawer
 
 namespace SDLMpc
 {
-    public enum EventType {
-        INVALID,
-        IR_KEY,
-        IR_NEARNESS
-
-    }
-    [Compact]
-    public class Event {
-        public Posix.timeval    time;
-        public EventType        type;
-        public uint32           code;
-        public uint32           value; 
-
-    }
 
     /**
      * This Widget will display a text, scroll if needed.
