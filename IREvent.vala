@@ -15,8 +15,12 @@ class IREvent : GLib.Object
     private GLib.IOChannel io_channel = null;
     private Main m;
 
+	/**
+	 * Destruction function
+	 */
     ~IREvent() 
     {
+		GLib.debug("Destroying IREvent");
         io_channel = null;
     }
 
@@ -45,15 +49,9 @@ class IREvent : GLib.Object
             {
                 GLib.debug("Input data: %lu %lu %u %u %i", event.time.tv_sec, event.time.tv_usec, 
                         event.type, event.code, event.value);
-                
-                /* Create SDLMpc event and insert into Main */
-                SDLMpc.Event ev = new SDLMpc.Event();
-                ev.time = event.time;
-                if(event.type == 5) ev.type = SDLMpc.EventType.IR_NEARNESS;
-                else if(event.type == 4) ev.type = SDLMpc.EventType.IR_KEY;
-                else ev.type = SDLMpc.EventType.INVALID;
-                ev.code = event.code;
-                ev.value = event.value;
+    			/* Translate the event into a SDLMpc event */
+				SDLMpc.Event ev = translate_event(event);
+				/* Push the event into the event queue */
                 m.push_event((owned)ev);
             }
         }else if((condition&IOCondition.ERR) == IOCondition.ERR ||
@@ -102,4 +100,23 @@ class IREvent : GLib.Object
         }
 
     }
+	/**
+	 * @param event a Linux.Input.Event to translate.
+	 *
+	 * This function translates the IR event into a SDLMpc Event.
+	 *
+	 * @returns a SDLMpc.Event.
+	 */
+	private SDLMpc.Event translate_event(Linux.Input.Event event)
+	{
+		/* Create SDLMpc event and insert into Main */
+		SDLMpc.Event ev = new SDLMpc.Event();
+		ev.time = event.time;
+		if(event.type == 5) ev.type = SDLMpc.EventType.IR_NEARNESS;
+		else if(event.type == 4) ev.type = SDLMpc.EventType.IR_KEY;
+		else ev.type = SDLMpc.EventType.INVALID;
+		ev.code = event.code;
+		ev.value = event.value;
+		return ev;
+	}
 }

@@ -73,7 +73,7 @@ class Main : GLib.Object
         SDL.Key.enable_unicode(1);
         SDL.Key.set_repeat(100,100);
         GLib.debug("Set Video mode");
-        screen = SDL.Screen.set_video_mode(480,272, 32,SDL.SurfaceFlag.DOUBLEBUF|SDL.SurfaceFlag.HWSURFACE|SDL.SurfaceFlag.FULLSCREEN);
+        screen = SDL.Screen.set_video_mode(480,272, 32,SDL.SurfaceFlag.DOUBLEBUF|SDL.SurfaceFlag.HWSURFACE/*|SDL.SurfaceFlag.FULLSCREEN*/);
 
         if(screen == null) {
             GLib.error("failed to create screen\n");
@@ -584,14 +584,15 @@ namespace SDLMpc
         private Font        font;
         private Surface     sf;
         private Surface     sf_shadow;
+		private int16 		shadow_offset 	= 2;
 
 
         /* Inidicates if scrolling is needed, if enabled make sure screen get regular updates */
-        public bool             scrolling = false;
+        public bool             scrolling 	= false;
         /* Scrolling variables. */
-        private int             step = 2;
-        private int             end_delay = 10;
-        private int             offset = 0;
+        private int             step 		= 2;
+        private int             end_delay 	= 10;
+        private int             offset 		= 0;
 
         /* Shadow color */
         private const SDL.Color c_shadow = {0,0,0};
@@ -601,13 +602,13 @@ namespace SDLMpc
 
         public int width()
         {
-            return sf.w;
+            return sf.w+shadow_offset;
         }
 
         public int height()
         {
             /* Height off text + shadow */
-            return sf.h+2;
+            return sf.h+shadow_offset;
         }
 
         public Label(Main m, uint16 size)
@@ -617,6 +618,9 @@ namespace SDLMpc
             font = new Font("test.ttf", size);
             sf = font.render_blended_utf8(" ",b); 
             sf_shadow = font.render_blended_utf8(" ", c_shadow);
+			
+//			if(size <30) shadow_offset = 1;
+
         }
 
         public void set_text(string? a)
@@ -647,9 +651,9 @@ namespace SDLMpc
             dst_rect.x = (int16) x;
             dst_rect.y = (int16) y;
 
-            /* Shadow has an offset of 2 */
-            shadow_dst_rect.x = (int16) x+2;
-            shadow_dst_rect.y = (int16) y+2;
+            /* Shadow has an offset of shadow_offset */
+            shadow_dst_rect.x = (int16) x+shadow_offset;
+            shadow_dst_rect.y = (int16) y+shadow_offset;
            
            /* Check if we need todo scrolling, if so, scroll */
             if(sf.w > (screen.w-x)) {
