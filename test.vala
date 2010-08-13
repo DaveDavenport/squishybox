@@ -3,6 +3,7 @@ using SDLTTF;
 using SDLImage;
 using MPD;
 using Posix;
+using SDLMpc;
 
 
 
@@ -36,7 +37,6 @@ class Main : GLib.Object
 
     private uint32 t = 0;
     private int changed = 1;
-    private bool user_near = false;
 
     private SDLMpc.Event pev = null;
 
@@ -123,8 +123,7 @@ class Main : GLib.Object
                 screen.flip();
             }else{
                 bg.draw(screen);
-                if(user_near)
-                    frame.draw(screen);
+                frame.draw(screen);
 
                 np.draw(screen);
                 sp.draw(screen);
@@ -132,45 +131,62 @@ class Main : GLib.Object
                 screen.flip();
             }
         }
-        
-        SDLMpc.Event ev;
+        SDLMpc.Event ev; 
+        /** 
+         * Translate SDL Events 
+         */
+        while(SDL.Event.poll(event)>0){
+            switch(event.type)
+            {
+                case SDL.EventType.QUIT:
+                     ev = new SDLMpc.Event();
+                     ev.type = SDLMpc.EventType.COMMANDS;
+                     ev.command = EventCommand.QUIT;
+                     push_event((owned)ev);
+                     break;
+                case SDL.EventType.KEYUP:
+                    if(event.key.keysym.sym == KeySymbol.q)
+                    {
+                        ev = new SDLMpc.Event();
+                        ev.type = SDLMpc.EventType.COMMANDS;
+                        ev.command = EventCommand.QUIT;
+                        push_event((owned)ev);
+                    }
+                    else if (event.key.keysym.sym == KeySymbol.s)
+                    {
+                    }
+                    break;
+                 default:
+                    break;
+
+            }
+        }
+
         while((ev= events.pop_head()) != null)
         {
             if(ev.type == SDLMpc.EventType.INVALID) 
                 continue;
-            /*remove duplicate events.. */
-            if(pev != null) {
-                uint32 diff = (uint32)((ev.time.tv_sec*1000+ev.time.tv_usec/1000)-(pev.time.tv_sec*1000+pev.time.tv_usec/1000));
-                GLib.debug("time diff: %u", diff);
-                if(diff > 200) pev = null;
-
-                if(pev != null && pev.type == ev.type && ev.code == pev.code && pev.value == ev.value){
-                    continue;
-                }
-
-            }
-            /* Handle event */
-            if(ev.type == SDLMpc.EventType.IR_NEARNESS) {
-                GLib.debug("User is near: %i", (int)this.user_near);
-                this.user_near = (ev.value == 0)?false:true;
-                redraw();
-            }
             /* Handle incoming remote events */
-            if(ev.type == SDLMpc.EventType.IR_KEY) {
-                switch(ev.value) {
-                    case 1988698335:
+            if(ev.type == SDLMpc.EventType.COMMANDS) {
+                switch(ev.command) {
+                    case EventCommand.QUIT:
+                        loop.quit();
+                        np = null;
+                        MI = null;
+                        return false;
+                    case EventCommand.PAUSE:
                         MI.player_toggle_pause(); 
                         break;
-                    case 1988730975:
+                    case EventCommand.NEXT:
                         MI.player_next();
                         break;
-                    case 1988739135:
+                    case EventCommand.PREVIOUS:
                         MI.player_previous();
                         break;
-                    case 1988694255:
+                    case EventCommand.PLAY:
                         MI.player_play();
                         break;
-                    case 1988706495:
+                    case EventCommand.POWER:
                         GLib.debug("Set Display\n"); 
                         display_control.setEnabled(!display_control.getEnabled());
                         if(!display_control.getEnabled())
@@ -181,7 +197,7 @@ class Main : GLib.Object
                             screensaver = false; 
                         }
                         break;
-                    case 1988737095:
+                    case EventCommand.SLEEP:
                         {
                             var b = display_control.getBrightness();
                             if(b == 255)
@@ -198,33 +214,6 @@ class Main : GLib.Object
             }
 
 
-        }
-        while(SDL.Event.poll(event)>0){
-            switch(event.type)
-            {
-                case SDL.EventType.QUIT:
-                        loop.quit();
-                        np = null;
-                        MI = null;
-                        return false;
-                case SDL.EventType.KEYUP:
-                    if(event.key.keysym.sym == KeySymbol.q)
-                    {
-                        loop.quit();
-                        np = null;
-                        MI = null;
-                        return false;
-                    }
-                    else if (event.key.keysym.sym == KeySymbol.s)
-                    {
-                        GLib.debug("Set Screensaver: %i", (int)screensaver);
-                        screensaver = !screensaver;
-                    }
-                    break;
-                 default:
-                    break;
-
-            }
         }
         return true;
     }
@@ -354,21 +343,36 @@ class DrawFrame : GLib.Object, BasicDrawer
 {
     private Surface sf;
     private weak Main m;
+
+    private SDLMpc.Button prev_button;
+    private SDLMpc.Button pause_button;
+    private SDLMpc.Button next_button;
     public DrawFrame(Main m,int w, int h, int bpp)
     {
         this.m = m;
         sf = new Surface.RGB(0, w,32,bpp,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
         sf = sf.DisplayFormatAlpha();
-        SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
 
+        SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
         rect.h = 30;
-        sf.fill(rect, sf.format.map_rgba(128,0,0,128)); 
+        sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
+
+        prev_button = new SDLMpc.Button(m,40, 30, "◂◂");
+        pause_button = new SDLMpc.Button(m,40, 30, "▶");
+        next_button = new SDLMpc.Button(m,40, 30, "▸▸");
     }
     public int draw(Surface screen)
     {
-        SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)30};
-        rect.y = (int16)screen.h-30;
-        sf.blit_surface(null, screen, rect);
+        SDL.Rect dest_rect = {0,0,(uint16)sf.w,(uint16)30};
+        dest_rect.y = (int16)screen.h-30;
+
+
+
+        sf.blit_surface(null, screen, dest_rect);
+        prev_button.render(screen,0,dest_rect.y);
+        pause_button.render(screen,41,dest_rect.y);
+        next_button.render(screen,82,dest_rect.y);
+
         return 0;
     }
 }
@@ -556,119 +560,6 @@ class SongProgress : GLib.Object, BasicDrawer
     }
 }
 
-namespace SDLMpc
-{
-
-    /**
-     * This Widget will display a text, scroll if needed.
-     * Ment for single line.
-     *
-     */
-    class Label
-    {
-        private Main        m;
-        private Font        font;
-        private Surface     sf;
-        private Surface     sf_shadow;
-		private int16 		shadow_offset 	= 2;
-
-
-        /* Inidicates if scrolling is needed, if enabled make sure screen get regular updates */
-        public bool             scrolling 	= false;
-        /* Scrolling variables. */
-        private int             step 		= 2;
-        private int             end_delay 	= 10;
-        private int             offset 		= 0;
-
-        /* Shadow color */
-        private const SDL.Color c_shadow = {0,0,0};
-        /* Text color */
-        private const SDL.Color fg_shadow = {255,255,255};
-
-
-        public int width()
-        {
-            return sf.w+shadow_offset;
-        }
-
-        public int height()
-        {
-            /* Height off text + shadow */
-            return sf.h+shadow_offset;
-        }
-
-        public Label(Main m, uint16 size)
-        {
-            SDL.Color b = {255,255,255};
-            this.m = m;
-            font = new Font("test.ttf", size);
-            sf = font.render_blended_utf8(" ",b); 
-            sf_shadow = font.render_blended_utf8(" ", c_shadow);
-			
-//			if(size <30) shadow_offset = 1;
-
-        }
-
-        public void set_text(string? a)
-        {
-            SDL.Color b = {255,255,255};
-            if(a != null && a.length > 0) {
-                sf = font.render_blended_utf8(a,b); 
-                sf_shadow = font.render_blended_utf8(a, c_shadow);
-            }else{
-                sf = font.render_blended_utf8(" ",b); 
-                sf_shadow = font.render_blended_utf8(" ", c_shadow);
-            }
-            scrolling = false;
-            /* Reset everything */
-            offset = 0;
-            step = step.abs();
-            end_delay = 10;
-            m.redraw();
-        }
-
-        public void render(Surface screen, int x, int y)
-        {
-            SDL.Rect shadow_dst_rect = {0,0,0,0};
-            SDL.Rect src_rect = {0,0,0,0};
-            SDL.Rect dst_rect = {0,0,0,0};
-
-
-            dst_rect.x = (int16) x;
-            dst_rect.y = (int16) y;
-
-            /* Shadow has an offset of shadow_offset */
-            shadow_dst_rect.x = (int16) x+shadow_offset;
-            shadow_dst_rect.y = (int16) y+shadow_offset;
-           
-           /* Check if we need todo scrolling, if so, scroll */
-            if(sf.w > (screen.w-x)) {
-                /* Scroll */
-                if((screen.w-x) > (sf.w-offset)  || offset < 0 ) {
-                    if((end_delay--)  == 0) {
-                        step = -step;
-                        offset += step;
-                        end_delay = 10;
-                    }
-                }
-                else offset+=step;
-                scrolling = true;
-            }
-
-
-
-            src_rect.x = (int16) (0+offset);
-            src_rect.y = (int16) 0;
-            src_rect.w = (int16) (screen.w-x);
-            src_rect.h = (int16) (screen.h-y);
-
-            sf_shadow.blit_surface(src_rect, screen, shadow_dst_rect);
-            sf.blit_surface(src_rect, screen, dst_rect);
-
-        }
-
-    }
-}
 
 /**
  * @params argv the command line arguments

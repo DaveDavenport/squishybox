@@ -15,7 +15,8 @@ class IREvent : GLib.Object
     private GLib.IOChannel io_channel = null;
     private Main m;
 
-	/**
+    Linux.Input.Event old_event = Linux.Input.Event();
+    /**
 	 * Destruction function
 	 */
     ~IREvent() 
@@ -45,14 +46,24 @@ class IREvent : GLib.Object
             int fd = source.unix_get_fd();
             /* Read the event */
             ssize_t s = Posix.read(fd, &event, sizeof(Linux.Input.Event)); 
-            if (s > 0 ) 
+            if (s > 0  && event.type != 0) 
             {
-                GLib.debug("Input data: %lu %lu %u %u %i", event.time.tv_sec, event.time.tv_usec, 
+                GLib.debug("Input data: %lu %lu %u %u %x", event.time.tv_sec, event.time.tv_usec, 
                         event.type, event.code, event.value);
     			/* Translate the event into a SDLMpc event */
 				SDLMpc.Event ev = translate_event(event);
+                {
+                    uint32 diff = (uint32)((event.time.tv_sec*1000+event.time.tv_usec/1000)-(old_event.time.tv_sec*1000+old_event.time.tv_usec/1000));
+                    if(diff > 200) old_event.type = -1;
+                    if(old_event.type == ev.type && ev.code == old_event.code && old_event.value == ev.value){
+                        ev = null;
+                    }
+                }
 				/* Push the event into the event queue */
-                m.push_event((owned)ev);
+                if(ev != null) {
+                    m.push_event((owned)ev);
+                }
+                old_event = event;
             }
         }else if((condition&IOCondition.ERR) == IOCondition.ERR ||
             (condition&IOCondition.ERR) == IOCondition.ERR)
@@ -112,11 +123,153 @@ class IREvent : GLib.Object
 		/* Create SDLMpc event and insert into Main */
 		SDLMpc.Event ev = new SDLMpc.Event();
 		ev.time = event.time;
-		if(event.type == 5) ev.type = SDLMpc.EventType.IR_NEARNESS;
-		else if(event.type == 4) ev.type = SDLMpc.EventType.IR_KEY;
-		else ev.type = SDLMpc.EventType.INVALID;
-		ev.code = event.code;
-		ev.value = event.value;
-		return ev;
+
+
+		if(event.type == 5)
+        {
+            ev.type = SDLMpc.EventType.OTHER;
+            if(ev.value == 1)
+                ev.other = SDLMpc.EventOther.MOTION_NEAR;
+            else
+                ev.other = SDLMpc.EventOther.MOTION_LEFT;
+        
+        }
+		else if(event.type == 4)
+        {   
+            ev.type = SDLMpc.EventType.COMMANDS;
+            switch(event.value)
+            {
+                case 0x7689b847: // SLEEP
+                    GLib.debug("IR::Sleep");
+                    ev.command = SDLMpc.EventCommand.SLEEP;
+                    break;
+                case 0x768940BF: // POWER
+                    GLib.debug("IR::Power");
+                    ev.command = SDLMpc.EventCommand.POWER;
+                    break;
+                case  0x7689e01f: // UP
+                    GLib.debug("IR::UP");
+                    ev.command = SDLMpc.EventCommand.UP;
+                    break;
+                case 0x7689906f: // Key LEFT
+                    GLib.debug("IR::LEFT");
+                    ev.command = SDLMpc.EventCommand.LEFT;
+                    break;
+                case 0x7689d02f: // Key RIGHT
+                    GLib.debug("IR::RIGHT");
+                    ev.command = SDLMpc.EventCommand.RIGHT;
+                    break;
+                case 0x7689b04f: // Key DOWN
+                    GLib.debug("IR::DOWN");
+                    ev.command = SDLMpc.EventCommand.DOWN;
+                    break;
+                case 0x7689f00f: // 1
+                    GLib.debug("IR::1");
+                    ev.command = SDLMpc.EventCommand.K_1;
+                    break;
+                case 0x768908f7: // 2
+                    GLib.debug("IR::2");
+                    ev.command = SDLMpc.EventCommand.K_2;
+                    break;
+                case 0x76898877: // 3
+                    GLib.debug("IR::3");
+                    ev.command = SDLMpc.EventCommand.K_3;
+                    break;
+                case 0x768948b7: // 4
+                    GLib.debug("IR::4");
+                    ev.command = SDLMpc.EventCommand.K_4;
+                    break;
+                case 0x7689c837: // 5
+                    GLib.debug("IR::5");
+                    ev.command = SDLMpc.EventCommand.K_5;
+                    break;
+                case 0x768928d7: // 6
+                    GLib.debug("IR::6");
+                    ev.command = SDLMpc.EventCommand.K_6;
+                    break;
+                case 0x7689a857: // 7
+                    GLib.debug("IR::7");
+                    ev.command = SDLMpc.EventCommand.K_7;
+                    break;
+                case 0x76896897: // 8
+                    GLib.debug("IR::8");
+                    ev.command = SDLMpc.EventCommand.K_8;
+                    break;
+                case 0x7689e817: // 9
+                    GLib.debug("IR::9");
+                    ev.command = SDLMpc.EventCommand.K_9;
+                    break;
+                case 0x76899867: // 0
+                    GLib.debug("IR::0");
+                    ev.command = SDLMpc.EventCommand.K_0;
+                    break;
+                case 0x7689629D: // Search
+                    GLib.debug("IR::SEARCH");
+                    ev.command = SDLMpc.EventCommand.SEARCH;
+                    break;
+                case 0x768922dd: // Browse
+                    GLib.debug("IR::BROWSE");
+                    ev.command = SDLMpc.EventCommand.BROWSE;
+                    break;
+                case 0x7689d827: // Shuffle
+                    GLib.debug("IR::SHUFFLE");
+                    ev.command = SDLMpc.EventCommand.SHUFFLE;
+                    break;
+                case 0x768938c7: // Repeat
+                    GLib.debug("IR::REPEAT");
+                    ev.command = SDLMpc.EventCommand.REPEAT;
+                    break;
+                case 0x7689e21d: // Favorites
+                    GLib.debug("IR::FAVORITES");
+                    ev.command = SDLMpc.EventCommand.FAVORITES;
+                    break;
+                case 0x7689A25D: // Now Playing
+                    GLib.debug("IR::NOW_PLAYING");
+                    ev.command = SDLMpc.EventCommand.NOW_PLAYING;
+                    break;
+                case 0x7689f807: // Size
+                    GLib.debug("IR::SIZE");
+                    ev.command = SDLMpc.EventCommand.SIZE;
+                    break;
+                case 0x768904fb: // Brightness 
+                    GLib.debug("IR::BRIGHTNESS");
+                    ev.command = SDLMpc.EventCommand.BRIGHTNESS;
+                    break;
+                case 0x7689807f: // VOL Up
+                    GLib.debug("IR::VOL_UP");
+                    ev.command = SDLMpc.EventCommand.VOL_UP;
+                    break;
+                case 0x768900ff: // Vol Down
+                    GLib.debug("IR::VOL_DOWN");
+                    ev.command = SDLMpc.EventCommand.VOL_DOWN;
+                    break;
+                case 0x7689609f: // More
+                    GLib.debug("IR::MORE");
+                    ev.command = SDLMpc.EventCommand.MORE;
+                    break;
+                case 0x768910ef: // Play
+                    GLib.debug("IR::PLAY");
+                    ev.command = SDLMpc.EventCommand.PLAY;
+                    break;
+                case 0x7689c03f: // Rew
+                    GLib.debug("IR::PREVIOUS");
+                    ev.command = SDLMpc.EventCommand.PREVIOUS;
+                    break;
+                case 0x7689a05f: // FWD
+                    GLib.debug("IR::NEXT");
+                    ev.command = SDLMpc.EventCommand.NEXT;
+                    break;
+                case 0x768920df: // Pause
+                    GLib.debug("IR::PAUSE");
+                    ev.command = SDLMpc.EventCommand.PAUSE;
+                    break;
+                default:
+                    GLib.debug("IR::UNKNOWN");
+                    ev.command = SDLMpc.EventCommand.UNKNOWN;
+                    break;
+            }
+        }
+        else ev.type = SDLMpc.EventType.INVALID;
+        return ev;
 	}
 }
