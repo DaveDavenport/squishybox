@@ -54,8 +54,11 @@ class IREvent : GLib.Object
 				SDLMpc.Event ev = translate_event(event);
                 {
                     uint32 diff = (uint32)((event.time.tv_sec*1000+event.time.tv_usec/1000)-(old_event.time.tv_sec*1000+old_event.time.tv_usec/1000));
-                    if(diff > 200) old_event.type = -1;
-                    if(old_event.type == ev.type && ev.code == old_event.code && old_event.value == ev.value){
+                    if(diff > 300){
+                        GLib.debug("timeout key");
+                        old_event.type = -1;
+                    }else if(old_event.type == event.type && event.code == old_event.code && old_event.value == event.value){
+                        GLib.debug("skip key");
                         ev = null;
                     }
                 }
