@@ -22,6 +22,11 @@ class Main : GLib.Object
     private DisplayControl display_control = new DisplayControl();
 
 
+    private Surface mouse_sf;
+    
+    SDL.Rect mo_rect;
+
+
     private bool _screensaver = false;
     public bool screensaver { 
             get { 
@@ -91,6 +96,12 @@ class Main : GLib.Object
         ss = new ScreenSaver (this,480, 272,32);
 
 
+
+        mouse_sf = new Surface.RGB(0, 10,10,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+        SDL.Rect rect = {0,0,(uint16)10,(uint16)10};
+        mouse_sf.fill(rect, mouse_sf.format.map_rgb(255,255,255)); 
+
+
         GLib.debug("Add timeout");
         GLib.Timeout.add(1000/10, main_draw);
 
@@ -108,6 +119,7 @@ class Main : GLib.Object
 
     private bool main_draw()
     {
+        bool cc = false;
         t++;
         SDL.Event event = SDL.Event();
         /* Clear the screen */
@@ -120,7 +132,8 @@ class Main : GLib.Object
         if(changed > 0){
             if(screensaver) {
                 ss.draw(screen);
-                screen.flip();
+//                screen.flip();
+                cc = true;
             }else{
                 bg.draw(screen);
                 frame.draw(screen);
@@ -128,7 +141,8 @@ class Main : GLib.Object
                 np.draw(screen);
                 sp.draw(screen);
                 changed = 0;
-                screen.flip();
+//                screen.flip();
+                cc = true;
             }
         }
         SDLMpc.Event ev; 
@@ -138,6 +152,13 @@ class Main : GLib.Object
         while(SDL.Event.poll(event)>0){
             switch(event.type)
             {
+                case SDL.EventType.MOUSEMOTION:
+                    ev = new SDLMpc.Event();
+                    ev.type = SDLMpc.EventType.MOUSE_MOTION;
+                    ev.motion.x = event.motion.x;
+                    ev.motion.y = event.motion.y;
+                    push_event((owned)ev);
+                    break;
                 case SDL.EventType.QUIT:
                      ev = new SDLMpc.Event();
                      ev.type = SDLMpc.EventType.COMMANDS;
@@ -212,8 +233,26 @@ class Main : GLib.Object
                 }
                 pev = (owned)ev;
             }
+            else if(ev.type == SDLMpc.EventType.MOUSE_MOTION) {
+                if(ev.motion.pushed) {
+                    mo_rect.x = (int16) ev.motion.x;
+                    mo_rect.y = (int16) ev.motion.y;
+                    GLib.debug("push %i %i", ev.motion.x, ev.motion.y); 
+                }
+                else if (ev.motion.released) {
+                    mo_rect.x = 0;
+                    mo_rect.y = 0;
+                    GLib.debug("push release %i %i", ev.motion.x, ev.motion.y); 
+                } else {
+                    mo_rect.x = (int16) ev.motion.x;
+                    mo_rect.y = (int16) ev.motion.y;
+                }
+            }
 
-
+        }
+        if(cc){
+            mouse_sf.blit_surface(null, screen, mo_rect);
+            screen.flip();
         }
         return true;
     }
@@ -357,9 +396,9 @@ class DrawFrame : GLib.Object, BasicDrawer
         rect.h = 30;
         sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
 
-        prev_button = new SDLMpc.Button(m,40, 30, "◂◂");
-        pause_button = new SDLMpc.Button(m,40, 30, "▶");
-        next_button = new SDLMpc.Button(m,40, 30, "▸▸");
+        prev_button = new SDLMpc.Button(m,  50, 30, "◂◂");
+        pause_button = new SDLMpc.Button(m, 50, 30, "▶");
+        next_button = new SDLMpc.Button(m,  50, 30, "▸▸");
     }
     public int draw(Surface screen)
     {
@@ -370,8 +409,8 @@ class DrawFrame : GLib.Object, BasicDrawer
 
         sf.blit_surface(null, screen, dest_rect);
         prev_button.render(screen,0,dest_rect.y);
-        pause_button.render(screen,41,dest_rect.y);
-        next_button.render(screen,82,dest_rect.y);
+        pause_button.render(screen,51,dest_rect.y);
+        next_button.render(screen,102,dest_rect.y);
 
         return 0;
     }
@@ -573,6 +612,7 @@ static int main (string[] argv)
     /* Create mainloop */
     Main m = new Main();
     IREvent e  = new IREvent(m);
+    TCEvent tc = new TCEvent(m);
     /* Run */
     GLib.debug("Run main loop");
     m.run();

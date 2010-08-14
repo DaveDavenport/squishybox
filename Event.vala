@@ -7,6 +7,7 @@ namespace SDLMpc
         IR_KEY,
         IR_NEARNESS,
 		COMMANDS,
+        MOUSE_MOTION,
         OTHER
 	}
 	public enum EventCommand
@@ -55,6 +56,14 @@ namespace SDLMpc
         MOTION_LEFT
     }
 
+    public struct EventMotion
+    {
+        public uint16   x;
+        public uint16   y;
+        public bool     pushed;
+        public bool     released;
+    }
+
     [Compact]
     public class Event {
         public Posix.timeval    time;
@@ -63,6 +72,7 @@ namespace SDLMpc
         public uint32           value; 
 		public EventCommand	    command;
         public EventOther       other;
+        public EventMotion      motion;
 
     }
 
