@@ -73,12 +73,17 @@ class Main : GLib.Object
         GLib.debug("SDLTTF.init");
         SDLTTF.init();
 
-      //  SDL.Cursor.show(0);
 
         SDL.Key.enable_unicode(1);
         SDL.Key.set_repeat(100,100);
         GLib.debug("Set Video mode");
+
+#if PC
         screen = SDL.Screen.set_video_mode(480,272, 32,SDL.SurfaceFlag.DOUBLEBUF|SDL.SurfaceFlag.HWSURFACE/*|SDL.SurfaceFlag.FULLSCREEN*/);
+#else
+        SDL.Cursor.show(0);
+        screen = SDL.Screen.set_video_mode(480,272, 32,SDL.SurfaceFlag.DOUBLEBUF|SDL.SurfaceFlag.HWSURFACE|SDL.SurfaceFlag.FULLSCREEN);
+#endif
 
         if(screen == null) {
             GLib.error("failed to create screen\n");
@@ -270,7 +275,8 @@ class Main : GLib.Object
 
         }
         if(cc){
-            mouse_sf.blit_surface(null, screen, mo_rect);
+            if(mo_rect.x > 0 && mo_rect.y > 0)
+                mouse_sf.blit_surface(null, screen, mo_rect);
             screen.flip();
         }
         return true;
