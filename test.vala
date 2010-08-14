@@ -14,11 +14,11 @@ class Main : GLib.Object
     private unowned Screen screen; 
     private GLib.MainLoop loop = new GLib.MainLoop();
 
-    private BasicDrawer bg;
-    private BasicDrawer frame;
-    private BasicDrawer np;
-    private BasicDrawer sp;
-    private BasicDrawer ss;
+    private SDLWidgetDrawing bg;
+    private SDLWidgetDrawing frame;
+    private SDLWidgetDrawing np;
+    private SDLWidgetDrawing sp;
+    private SDLWidgetDrawing ss;
     private DisplayControl display_control = new DisplayControl();
 
 
@@ -92,13 +92,19 @@ class Main : GLib.Object
 
         /* Create background drawer */
         GLib.debug("Create background draw object");
-        bg = new BackgroundDrawer(this,480, 272,32);
 
-        frame = new DrawFrame   (this,480, 272,32);
-        np = new NowPlaying     (this,480, 272,32);
-        sp = new SongProgress   (this,480, 272,32);
 
-        ss = new ScreenSaver (this,480, 272,32);
+        /* Prepare basic widget */
+        bg      = new BackgroundDrawer  (this,  0,      0,  480, 272, 32);
+
+        /* Add player Control */
+
+        frame   = new PlayerControl     (this,  0, 272-32,  480, 32,  32);
+        bg.children.append(frame);
+
+        np      = new NowPlaying        (this,480, 272, 32);
+        sp      = new SongProgress      (this,480, 272, 32);
+        ss      = new ScreenSaver       (this,480, 272, 32);
 
 
 
@@ -137,16 +143,13 @@ class Main : GLib.Object
         if(changed > 0){
             if(screensaver) {
                 ss.draw(screen);
-//                screen.flip();
                 cc = true;
             }else{
                 bg.draw(screen);
-                frame.draw(screen);
 
                 np.draw(screen);
                 sp.draw(screen);
                 changed = 0;
-//                screen.flip();
                 cc = true;
             }
         }
@@ -262,8 +265,11 @@ class Main : GLib.Object
                     mo_rect.x = (int16) ev.motion.x;
                     mo_rect.y = (int16) ev.motion.y;
                     GLib.debug("push %i %i", ev.motion.x, ev.motion.y); 
+
+                    bg.clicked(mo_rect.x, mo_rect.y, true);
                 }
                 else if (ev.motion.released) {
+                    bg.clicked(mo_rect.x, mo_rect.y, false);
                     mo_rect.x = 0;
                     mo_rect.y = 0;
                     GLib.debug("push release %i %i", ev.motion.x, ev.motion.y); 
@@ -285,21 +291,11 @@ class Main : GLib.Object
 
 
 
-public interface BasicDrawer : GLib.Object
-{
-    public abstract int draw(Surface screen);
-
-    public virtual void Tick()
-    {
-
-    }
-}
-
 /** 
  * Background object.
  */
 
-class ScreenSaver : GLib.Object, BasicDrawer
+class ScreenSaver : SDLWidget, SDLWidgetDrawing
 {
     private Surface sf;
     private weak Main m;
@@ -312,18 +308,17 @@ class ScreenSaver : GLib.Object, BasicDrawer
 
         sf.fill(rect, sf.format.map_rgb(0,0,0)); 
     }
-    public int draw(Surface screen)
+    public void draw_drawing(Surface screen)
     {
         SDL.Rect rect = {0,0,(uint16)screen.w,(uint16)screen.h};
         sf.blit_surface(null, screen, rect);
-        return 0;
     }
 }
 
 
 
 
-class BackgroundDrawer : GLib.Object, BasicDrawer
+class BackgroundDrawer : SDLWidget, SDLWidgetDrawing
 {
     private Surface sf;
     private Surface next = null;
@@ -334,9 +329,17 @@ class BackgroundDrawer : GLib.Object, BasicDrawer
     private weak List<string> current_bg    = null;
     private string directory = "Wallpapers/";
 
-    public BackgroundDrawer(Main m,int w, int h, int bpp)
+
+
+
+    public BackgroundDrawer(Main m,int x, int y, int w, int h, int bpp)
     {
         this.m = m;
+
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
 
         /* */
         GLib.Dir a = GLib.Dir.open(directory);
@@ -357,7 +360,7 @@ class BackgroundDrawer : GLib.Object, BasicDrawer
 
     /* Return the surface it needs to draw */
     private uint16 fade = 0 ;
-    public int draw(Surface screen)
+    public void draw_drawing(Surface screen)
     {
         SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
         if(fade > 0)
@@ -376,8 +379,7 @@ class BackgroundDrawer : GLib.Object, BasicDrawer
         }else{
             sf.blit_surface(null, screen, rect);
         }
-        m.redraw();
-        return 0;
+    //    m.redraw();
     }
 
 
@@ -403,7 +405,7 @@ class BackgroundDrawer : GLib.Object, BasicDrawer
     }
 }
 
-class DrawFrame : GLib.Object, BasicDrawer
+class PlayerControl : SDLWidget, SDLWidgetDrawing
 {
     private Surface sf;
     private weak Main m;
@@ -411,39 +413,113 @@ class DrawFrame : GLib.Object, BasicDrawer
     private SDLMpc.Button prev_button;
     private SDLMpc.Button pause_button;
     private SDLMpc.Button next_button;
-    public DrawFrame(Main m,int w, int h, int bpp)
+
+
+    private bool pressed = false;
+
+
+    public PlayerControl(Main m,int x, int y, int w, int h, int bpp)
     {
         this.m = m;
-        sf = new Surface.RGB(0, w,32,bpp,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+
+        this.x = x; this.y  = y; this.w = w; this.h = h;
+
+
+        sf = new Surface.RGB(0, w,h,bpp,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
         sf = sf.DisplayFormatAlpha();
 
         SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
-        rect.h = 30;
-        sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
+        rect.h = (uint16)this.h;
+        if(pressed) {
+            sf.fill(rect, sf.format.map_rgba(200,30,30,128)); 
+        }else{
+            sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
+        }
 
-        prev_button = new SDLMpc.Button(m,  50, 30, "◂◂");
-        pause_button = new SDLMpc.Button(m, 50, 30, "▶");
-        next_button = new SDLMpc.Button(m,  50, 30, "▸▸");
+        prev_button = new SDLMpc.Button(m, (int16) this.x+ 1,(int16) this.y+1,  50, 30, "◂◂");
+        prev_button.clicked.connect((source) => {
+                SDLMpc.Event ev = new SDLMpc.Event();
+                ev.type = SDLMpc.EventType.COMMANDS;
+                ev.command = SDLMpc.EventCommand.NEXT;
+                m.push_event((owned)ev);
+                });
+        pause_button = new SDLMpc.Button(m,(int16) this.x+ 52,(int16) this.y+1, 50, 30, "▶");
+        pause_button.clicked.connect((source) => {
+                SDLMpc.Event ev = new SDLMpc.Event();
+                ev.type = SDLMpc.EventType.COMMANDS;
+                ev.command = SDLMpc.EventCommand.PAUSE;
+                m.push_event((owned)ev);
+                });
+        next_button = new SDLMpc.Button(m, (int16) this.x+ 103,(int16) this.y+1, 50, 30, "▸▸");
+        next_button.clicked.connect((source) => {
+                SDLMpc.Event ev = new SDLMpc.Event();
+                ev.type = SDLMpc.EventType.COMMANDS;
+                ev.command = SDLMpc.EventCommand.NEXT;
+                m.push_event((owned)ev);
+                });
+
+
+
+        m.MI.player_status_changed.connect((source, status) => {
+                if(status.state == MPD.Status.State.PLAY) {
+                    pause_button.update_text("▮▮");
+                }else {
+                    pause_button.update_text("▶");
+                }
+        });
+
+
+        this.children.append(prev_button);
+        this.children.append(pause_button);
+        this.children.append(next_button);
     }
-    public int draw(Surface screen)
+    public void draw_drawing(Surface screen)
     {
-        SDL.Rect dest_rect = {0,0,(uint16)sf.w,(uint16)30};
-        dest_rect.y = (int16)screen.h-30;
+        SDL.Rect dest_rect = {0,0,0,0};
+
+        dest_rect.x = (int16)this.x;
+        dest_rect.y = (int16)this.y;
+        dest_rect.w = (uint16)this.w;
+        dest_rect.h = (uint16)this.h;
 
 
 
         sf.blit_surface(null, screen, dest_rect);
-        prev_button.render(screen,0,dest_rect.y);
-        pause_button.render(screen,51,dest_rect.y);
-        next_button.render(screen,102,dest_rect.y);
+        prev_button.draw(screen);
+        pause_button.draw(screen);
+        next_button.draw(screen);
+    }
+    public override void button_press()
+    {
+        if(!pressed)
+        {
+            SDL.Rect rect = {0,0,(uint16)this.w,(uint16)this.h};
+            GLib.debug("PlayerControl bg press");
+            pressed =true;
+            sf.fill(rect, sf.format.map_rgba(200,30,30,128)); 
+            m.redraw();
+        }
+    }
+    public override void button_release(bool inside)
+    {
+        if(pressed) {
+            SDL.Rect rect = {0,0,(uint16)this.w,(uint16)this.h};
+            GLib.debug("PlayerControl bg release");
+            sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
+            pressed = false;
 
-        return 0;
+            if(inside) {
+                /* Button release */
+
+            }
+            m.redraw();
+        }
     }
 }
 
 
 
-class NowPlaying : GLib.Object, BasicDrawer
+class NowPlaying : SDLWidget, SDLWidgetDrawing
 {
     private weak Main m;
 
@@ -486,7 +562,7 @@ class NowPlaying : GLib.Object, BasicDrawer
 
 
     }
-    public int draw(Surface screen)
+    public void draw_drawing(Surface screen)
     {
         SDL.Rect rect = {0,0,0,0};
 
@@ -498,8 +574,6 @@ class NowPlaying : GLib.Object, BasicDrawer
 
         rect.y += (int16)artist_label.height();
         album_label.render(screen, 5, rect.y);
-
-        return 0;
     }
 
     private void got_current_song(MPD.Song? song)
@@ -548,7 +622,7 @@ class NowPlaying : GLib.Object, BasicDrawer
  * TODO: make this precise (ms - precise)
  */
 
-class SongProgress : GLib.Object, BasicDrawer
+class SongProgress : SDLWidget, SDLWidgetDrawing
 {
     private weak Main m;
     private SDLMpc.Label elapsed_label;
@@ -586,7 +660,7 @@ class SongProgress : GLib.Object, BasicDrawer
 
 
     }
-    public int draw(Surface screen)
+    public void draw_drawing(Surface screen)
     {
         SDL.Rect rect = {0,0,0,0};
 
@@ -595,9 +669,6 @@ class SongProgress : GLib.Object, BasicDrawer
 
         elapsed_label.render(screen,  5, rect.y);
         total_label.render(screen, 10+elapsed_label.width(), rect.y);
-
-
-        return 0;
     }
     private void update_time()
     {
@@ -629,7 +700,6 @@ class SongProgress : GLib.Object, BasicDrawer
  *
  * The entry point of the program  
  */
-
 static int main (string[] argv)
 {
     GLib.debug("Starting main");
