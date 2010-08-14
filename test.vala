@@ -73,7 +73,7 @@ class Main : GLib.Object
         GLib.debug("SDLTTF.init");
         SDLTTF.init();
 
-        SDL.Cursor.show(0);
+      //  SDL.Cursor.show(0);
 
         SDL.Key.enable_unicode(1);
         SDL.Key.set_repeat(100,100);
@@ -153,10 +153,29 @@ class Main : GLib.Object
             switch(event.type)
             {
                 case SDL.EventType.MOUSEMOTION:
+                    if(event.motion.state > 0)
+                    {
+                        ev = new SDLMpc.Event();
+                        ev.type = SDLMpc.EventType.MOUSE_MOTION;
+                        ev.motion.x = event.motion.x;
+                        ev.motion.y = event.motion.y;
+                        push_event((owned)ev);
+                    }
+                    break;
+                 case SDL.EventType.MOUSEBUTTONDOWN:
                     ev = new SDLMpc.Event();
                     ev.type = SDLMpc.EventType.MOUSE_MOTION;
                     ev.motion.x = event.motion.x;
                     ev.motion.y = event.motion.y;
+                    ev.motion.pushed = true;
+                    push_event((owned)ev);
+                    break;
+                 case SDL.EventType.MOUSEBUTTONUP:
+                    ev = new SDLMpc.Event();
+                    ev.type = SDLMpc.EventType.MOUSE_MOTION;
+                    ev.motion.x = event.motion.x;
+                    ev.motion.y = event.motion.y;
+                    ev.motion.released = true;
                     push_event((owned)ev);
                     break;
                 case SDL.EventType.QUIT:
@@ -589,7 +608,6 @@ class SongProgress : GLib.Object, BasicDrawer
         var now = time_t();
         if(last_time != now){
             if(progressing) {
-                GLib.stdout.printf("Tick time\n");
                 elapsed_time++;
                 update_time();
             }
