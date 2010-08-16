@@ -411,11 +411,15 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
     private weak Main m;
 
     private SDLMpc.Button prev_button;
+
     private SDLMpc.Button pause_button;
     private SDLMpc.Button next_button;
 
+    private SDLMpc.Button quit_button;
 
     private bool pressed = false;
+    private bool stopped = false;
+
 
 
     public PlayerControl(Main m,int x, int y, int w, int h, int bpp)
@@ -447,7 +451,11 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         pause_button.clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
-                ev.command = SDLMpc.EventCommand.PAUSE;
+                if(stopped) {
+                    ev.command = SDLMpc.EventCommand.PLAY;
+                }else{
+                    ev.command = SDLMpc.EventCommand.PAUSE;
+                }
                 m.push_event((owned)ev);
                 });
         next_button = new SDLMpc.Button(m, (int16) this.x+ 103,(int16) this.y+1, 50, 30, "▸▸");
@@ -458,13 +466,26 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
                 m.push_event((owned)ev);
                 });
 
+        quit_button = new SDLMpc.Button(m, (int16) this.w- 51,(int16) this.y+1, 50, 30, "Q");
+        quit_button.clicked.connect((source) => {
+                SDLMpc.Event ev = new SDLMpc.Event();
+                ev.type = SDLMpc.EventType.COMMANDS;
+                ev.command = SDLMpc.EventCommand.POWER;
+                m.push_event((owned)ev);
+                });
+
+
 
 
         m.MI.player_status_changed.connect((source, status) => {
+                stopped = false;
                 if(status.state == MPD.Status.State.PLAY) {
                     pause_button.update_text("▮▮");
                 }else {
                     pause_button.update_text("▶");
+                    if(status.state == MPD.Status.State.STOP){
+                        stopped = true;
+                    }
                 }
         });
 
@@ -472,6 +493,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         this.children.append(prev_button);
         this.children.append(pause_button);
         this.children.append(next_button);
+        this.children.append(quit_button);
     }
     public void draw_drawing(Surface screen)
     {
@@ -482,12 +504,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         dest_rect.w = (uint16)this.w;
         dest_rect.h = (uint16)this.h;
 
-
-
         sf.blit_surface(null, screen, dest_rect);
-        prev_button.draw(screen);
-        pause_button.draw(screen);
-        next_button.draw(screen);
     }
     public override void button_press()
     {
