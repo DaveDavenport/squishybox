@@ -99,7 +99,7 @@ class Main : GLib.Object
 
         /* Add player Control */
 
-        frame   = new PlayerControl     (this,  0, 272-32,  480, 32,  32);
+        frame   = new PlayerControl     (this,  0, 272-42,  480, 42,  32);
         bg.children.append(frame);
 
         np      = new NowPlaying        (this,480, 272, 32);
@@ -440,14 +440,14 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
             sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
         }
 
-        prev_button = new SDLMpc.Button(m, (int16) this.x+ 1,(int16) this.y+1,  50, 30, "◂◂");
+        prev_button = new SDLMpc.Button(m, (int16) this.x+ 1,(int16) this.y+1,  50, 40, "◂◂");
         prev_button.clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
                 ev.command = SDLMpc.EventCommand.NEXT;
                 m.push_event((owned)ev);
                 });
-        pause_button = new SDLMpc.Button(m,(int16) this.x+ 52,(int16) this.y+1, 50, 30, "▶");
+        pause_button = new SDLMpc.Button(m,(int16) this.x+ 52,(int16) this.y+1, 50, 40, "▶");
         pause_button.clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
@@ -458,7 +458,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
                 }
                 m.push_event((owned)ev);
                 });
-        next_button = new SDLMpc.Button(m, (int16) this.x+ 103,(int16) this.y+1, 50, 30, "▸▸");
+        next_button = new SDLMpc.Button(m, (int16) this.x+ 103,(int16) this.y+1, 50, 40, "▸▸");
         next_button.clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
@@ -466,7 +466,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
                 m.push_event((owned)ev);
                 });
 
-        quit_button = new SDLMpc.Button(m, (int16) this.w- 51,(int16) this.y+1, 50, 30, "Q");
+        quit_button = new SDLMpc.Button(m, (int16) this.w- 51,(int16) this.y+1, 50, 40, "Q");
         quit_button.clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
@@ -681,7 +681,7 @@ class SongProgress : SDLWidget, SDLWidgetDrawing
     {
         SDL.Rect rect = {0,0,0,0};
 
-        rect.y = (int16)(screen.h-30-elapsed_label.height());
+        rect.y = (int16)(screen.h-40-elapsed_label.height());
         rect.x = 5;
 
         elapsed_label.render(screen,  5, rect.y);

@@ -47,7 +47,7 @@ namespace SDLMpc
 
             sf = new Surface.RGB(0, width,height,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
             sf = sf.DisplayFormatAlpha();
-            l = new Label(m, 10);
+            l = new Label(m, 15);
             update_text(text);
         }
 
