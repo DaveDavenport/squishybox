@@ -79,13 +79,13 @@ namespace SDLMpc
 
 				if(inside) {
 					/* Button release */
-					clicked();
+					b_clicked();
 				}
 				update_text(null);
 				m.redraw();
 			}
 		}
 
-		public signal void clicked();
+		public signal void b_clicked();
     }
 }

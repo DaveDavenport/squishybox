@@ -12,6 +12,12 @@ namespace SDLMpc
 		public List<SDLWidget> children;
 
 
+        public virtual weak string get_name()
+        {
+            return "Not Set";
+        }
+
+
 		private bool inside(int x, int y)
 		{
 			if(x > this.x && (x) < (this.x+this.w)) 
@@ -69,14 +75,43 @@ namespace SDLMpc
 
 		}
 
+        public virtual void Tick(time_t now)
+        {
+        }
+
+        public void do_Tick(time_t t)
+        {
+            this.Tick(t);
+			foreach ( var child in children) 
+			{
+				child.do_Tick(t);
+			}
+        }
+
+        public virtual bool Event(Event ev)
+        {
+            /* By default do not block */
+            return false;
+        }
+
+        /**
+         *
+         * @returns: try to stop. 
+         */
+        public bool do_Event(Event ev)
+        {
+            if(this.Event(ev)) return true;
+			foreach ( var child in children) 
+			{
+				if(child.do_Event(ev)) {
+                    return true;
+                }
+			}
+            return false;
+        }
 	}
 	public interface SDLWidgetDrawing : SDLWidget  
 	{
 		public abstract void draw_drawing(Surface screen);
-
-		public virtual void Tick()
-		{
-
-		}
 	}
 }

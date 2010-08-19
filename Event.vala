@@ -76,8 +76,4 @@ namespace SDLMpc
 
     }
 
- 	class EventQueue
-	{
-		private Queue<Event> event_queue;
-	}
 }
