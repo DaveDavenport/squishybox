@@ -15,10 +15,23 @@ namespace SDLMpc
         private Main        m;
         private Label       l;
         private Surface     sf;
-
 		private bool pressed = false;
 
-        public void update_text(string? text)
+        private double _x_align =0.5;
+        public double x_align
+        {
+            set { 
+                _x_align = value;
+                update();
+            }
+            get
+            {
+                return _x_align;
+            }
+        }
+
+
+        private void update()
         {
             SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
 			sf.fill(rect, sf.format.map_rgba(255,255,255,170)); 
@@ -28,11 +41,15 @@ namespace SDLMpc
 			}else {
 				sf.fill(rect, sf.format.map_rgba(0,0,0,170)); 
 			}
+			l.render(sf, (int)((sf.w -l.width())*_x_align), (sf.h-l.height())/2);
+            m.redraw();
+        }
+        public void update_text(string? text)
+        {
 			if(text != null) {
 	            l.set_text(text);
 			}
-			l.render(sf, (sf.w -l.width())/2, (sf.h-l.height())/2);
-
+            update();
         }
 
         public Button(Main m,int16 x, int16 y, uint16 width, uint16 height, string text)
@@ -47,7 +64,7 @@ namespace SDLMpc
 
             sf = new Surface.RGB(0, width,height,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
             sf = sf.DisplayFormatAlpha();
-            l = new Label(m, 15);
+            l = new Label(m, height-10);
             update_text(text);
         }
 

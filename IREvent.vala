@@ -139,7 +139,7 @@ class IREvent : GLib.Object
         }
 		else if(event.type == 4)
         {   
-            ev.type = SDLMpc.EventType.COMMANDS;
+            ev.type = SDLMpc.EventType.KEY;
             switch(event.value)
             {
                 case 0x7689b847: // SLEEP

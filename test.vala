@@ -14,12 +14,13 @@ class Main : GLib.Object
     private unowned Screen screen; 
     private GLib.MainLoop loop = new GLib.MainLoop();
 
-    private SDLWidgetDrawing bg;
-    private SDLWidgetDrawing np;
+    private SDLWidget bg;
+    private SDLWidget np;
+    private SDLWidget selector;  
     /**
      * Object to set backlight 
      */
-    private DisplayControl display_control = new DisplayControl();
+    public DisplayControl display_control = new DisplayControl();
 
 
     SDL.Rect mo_rect;
@@ -103,12 +104,15 @@ class Main : GLib.Object
 
 
         /* Prepare basic widget */
-        bg      = new BackgroundDrawer  (this,  0,      0,  480, 272, 32);
+        bg       = new BackgroundDrawer  (this,  0,      0,  480, 272, 32);
 
+        selector = new Selector (this,  0,      0,  480, 272, 32);
 
         np      = new NowPlaying        (this,480, 272, 32);
 
-        bg.children.append(np);
+        (selector as Selector).add_item(np);
+        (selector as Selector).add_item(new Standby(this));
+        bg.children.append(selector);
 
 
 
@@ -192,6 +196,21 @@ class Main : GLib.Object
                         ev.command = EventCommand.QUIT;
                         push_event((owned)ev);
                     }
+                    else if (event.key.keysym.sym == KeySymbol.h)
+                    {
+                        ev = new SDLMpc.Event();
+                        ev.type = SDLMpc.EventType.COMMANDS;
+                        ev.command = EventCommand.BROWSE;
+                        push_event((owned)ev);
+                    }
+                    else if (event.key.keysym.sym == KeySymbol.z)
+                    {
+                        GLib.debug("insert z event");
+                        ev = new SDLMpc.Event();
+                        ev.type = SDLMpc.EventType.KEY;
+                        ev.command = EventCommand.PREVIOUS;
+                        push_event((owned)ev);
+                    }
                     else if (event.key.keysym.sym == KeySymbol.s)
                     {
                     }
@@ -214,11 +233,10 @@ class Main : GLib.Object
             if(ev.type == SDLMpc.EventType.COMMANDS) {
                 switch(ev.command) {
                     case EventCommand.QUIT:
+                        GLib.debug("request quit");
                         loop.quit();
-                        np = null;
                         MI = null;
                         return false;
-                    /*
                     case EventCommand.PAUSE:
                         MI.player_toggle_pause(); 
                         break;
@@ -231,7 +249,12 @@ class Main : GLib.Object
                     case EventCommand.PLAY:
                         MI.player_play();
                         break;
-                        */
+                    case EventCommand.STOP:
+                        MI.player_stop();
+                        break;
+                    case EventCommand.BROWSE:
+                        (selector as Selector).Home();
+                        break;
                     case EventCommand.POWER:
                         GLib.debug("Set Display\n"); 
                         display_control.setEnabled(!display_control.getEnabled());
@@ -276,6 +299,9 @@ class Main : GLib.Object
                     mo_rect.x = (int16) ev.motion.x;
                     mo_rect.y = (int16) ev.motion.y;
                 }
+            }
+            else {
+                bg.do_Event(ev);
             }
 
         }

@@ -20,6 +20,10 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
 
     private int current_song_id = -1;
 
+    public override unowned string get_name()
+    {
+        return "Now playing";
+    }
 
     public NowPlaying(Main m,int w, int h, int bpp)
     {
@@ -251,11 +255,11 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
                 m.push_event((owned)ev);
                 });
 
-        quit_button = new SDLMpc.Button(m, (int16) this.w- 51,(int16) this.y+1, 50, 40, "Q");
+        quit_button = new SDLMpc.Button(m, (int16) this.w- 51,(int16) this.y+1, 50, 40, "⌂");
         quit_button.b_clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
-                ev.command = SDLMpc.EventCommand.POWER;
+                ev.command = SDLMpc.EventCommand.BROWSE;
                 m.push_event((owned)ev);
                 });
 
@@ -325,20 +329,16 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
      */
     public override bool Event(SDLMpc.Event ev)
     {
-        if(ev.type == SDLMpc.EventType.COMMANDS) {
+        if(ev.type == SDLMpc.EventType.KEY) {
             switch(ev.command)
             {
                 case EventCommand.PAUSE:
-                    m.MI.player_toggle_pause(); 
-                    return true;
                 case EventCommand.NEXT:
-                    m.MI.player_next();
-                    return true;
-                case EventCommand.PREVIOUS:
-                    m.MI.player_previous();
-                    return true;
                 case EventCommand.PLAY:
-                    m.MI.player_play();
+                case EventCommand.PREVIOUS:
+                    var pev = ev.Copy(); 
+                    pev.type = SDLMpc.EventType.COMMANDS;
+                    m.push_event((owned)pev);
                     return true;
                 default:
                     break;

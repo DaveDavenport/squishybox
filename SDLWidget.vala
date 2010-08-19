@@ -12,7 +12,7 @@ namespace SDLMpc
 		public List<SDLWidget> children;
 
 
-        public virtual weak string get_name()
+        public virtual unowned string get_name()
         {
             return "Not Set";
         }
@@ -79,7 +79,7 @@ namespace SDLMpc
         {
         }
 
-        public void do_Tick(time_t t)
+        public virtual void do_Tick(time_t t)
         {
             this.Tick(t);
 			foreach ( var child in children) 
@@ -114,4 +114,8 @@ namespace SDLMpc
 	{
 		public abstract void draw_drawing(Surface screen);
 	}
+    public interface SDLWidgetActivate : SDLWidget
+    {
+        public abstract void activate();
+    }
 }

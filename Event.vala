@@ -4,8 +4,8 @@ namespace SDLMpc
 {
 	public enum EventType {
         INVALID,
-        IR_KEY,
         IR_NEARNESS,
+        KEY,
 		COMMANDS,
         MOUSE_MOTION,
         OTHER
@@ -73,6 +73,19 @@ namespace SDLMpc
 		public EventCommand	    command;
         public EventOther       other;
         public EventMotion      motion;
+
+        public Event Copy()
+        {
+            var ret = new Event();
+            ret.time = this.time;
+            ret.type = this.type;
+            ret.command = this.command;
+            ret.code = this.code;
+            ret.value =this.value;
+            ret.other = this.other;
+            ret.motion = this.motion;
+            return ret;
+        }
 
     }
 
