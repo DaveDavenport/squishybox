@@ -211,8 +211,26 @@ class Main : GLib.Object
                         ev.command = EventCommand.PREVIOUS;
                         push_event((owned)ev);
                     }
-                    else if (event.key.keysym.sym == KeySymbol.s)
+                    else if (event.key.keysym.sym == KeySymbol.UP)
                     {
+                        ev = new SDLMpc.Event();
+                        ev.type = SDLMpc.EventType.KEY;
+                        ev.command = EventCommand.UP;
+                        push_event((owned)ev);
+                    }
+                    else if (event.key.keysym.sym == KeySymbol.DOWN)
+                    {
+                        ev = new SDLMpc.Event();
+                        ev.type = SDLMpc.EventType.KEY;
+                        ev.command = EventCommand.DOWN;
+                        push_event((owned)ev);
+                    }
+                    else if (event.key.keysym.sym == KeySymbol.RIGHT)
+                    {
+                        ev = new SDLMpc.Event();
+                        ev.type = SDLMpc.EventType.KEY;
+                        ev.command = EventCommand.RIGHT;
+                        push_event((owned)ev);
                     }
                     break;
                  default:
@@ -283,6 +301,7 @@ class Main : GLib.Object
                 pev = (owned)ev;
             }
             else if(ev.type == SDLMpc.EventType.MOUSE_MOTION) {
+                bg.do_Motion(ev.motion.x, ev.motion.y, ev.motion.pushed, ev.motion.released);
                 if(ev.motion.pushed) {
                     mo_rect.x = (int16) ev.motion.x;
                     mo_rect.y = (int16) ev.motion.y;

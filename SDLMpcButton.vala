@@ -16,6 +16,7 @@ namespace SDLMpc
         private Label       l;
         private Surface     sf;
 		private bool pressed = false;
+        private bool highlight = false;
 
         private double _x_align =0.5;
         public double x_align
@@ -31,11 +32,22 @@ namespace SDLMpc
         }
 
 
+        public void set_highlight(bool val)
+        {
+            highlight = val;
+            update();
+        }
+
         private void update()
         {
             SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
-			sf.fill(rect, sf.format.map_rgba(255,255,255,170)); 
-			rect.x = 1; rect.y=1; rect.w-=2;rect.h-=2;
+
+            if(highlight){ 
+    			sf.fill(rect, sf.format.map_rgba(0,255,255,170)); 
+            }else{
+    			sf.fill(rect, sf.format.map_rgba(255,255,255,170)); 
+            }
+            rect.x = 1; rect.y=1; rect.w-=2;rect.h-=2;
 			if(pressed) {
 				sf.fill(rect, sf.format.map_rgba(0,255,255,170)); 
 			}else {

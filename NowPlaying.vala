@@ -116,6 +116,10 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
             return;
         }
     }
+    public override bool Event(SDLMpc.Event ev)
+    {
+        return false;
+    }
 }
 
 
@@ -233,7 +237,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         prev_button.b_clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
-                ev.command = SDLMpc.EventCommand.NEXT;
+                ev.command = SDLMpc.EventCommand.PREVIOUS;
                 m.push_event((owned)ev);
                 });
         pause_button = new SDLMpc.Button(m,(int16) this.x+ 52,(int16) this.y+1, 50, 40, "▶");

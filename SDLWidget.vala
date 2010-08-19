@@ -109,6 +109,22 @@ namespace SDLMpc
 			}
             return false;
         }
+
+        public bool do_Motion(int x, int y, bool pressed, bool released)
+        {
+            
+			foreach ( var child in children) 
+			{
+				if(child.do_Motion(x,y,pressed, released)) {
+                    return true;
+                }
+			}
+            if(this is SDLWidgetMotion)
+            {
+                if((this as SDLWidgetMotion).motion(x,y,pressed, released)) return true;
+            }
+            return false;
+        }
 	}
 	public interface SDLWidgetDrawing : SDLWidget  
 	{
@@ -117,5 +133,10 @@ namespace SDLMpc
     public interface SDLWidgetActivate : SDLWidget
     {
         public abstract void activate();
+    }
+
+    public interface SDLWidgetMotion : SDLWidget
+    {
+        public abstract bool motion(int x, int y, bool pushed, bool released);
     }
 }

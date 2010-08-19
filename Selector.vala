@@ -14,11 +14,11 @@ private class Item
 }
 
 
-class Selector : SDLWidget, SDLWidgetDrawing
+class Selector : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
 {
-    private weak Main m;
+    private Main m;
     private List<Item> entries;
-    private unowned Item current= null;
+    private unowned List<unowned Item> current= null;
 
     public Selector(Main m, int x, int y, int w, int h, int bpp)
     {
@@ -44,6 +44,7 @@ class Selector : SDLWidget, SDLWidgetDrawing
 
         i.button.b_clicked.connect((source) => {
             this.children = null;
+            this.current = null;
             this.children.append(item);
             if(item is SDLMpc.SDLWidgetActivate) {
                 (item as SDLMpc.SDLWidgetActivate).activate();
@@ -69,14 +70,89 @@ class Selector : SDLWidget, SDLWidgetDrawing
     public void Home()
     {
         this.children=  null;
-        int top = 0;
+        int top = offset;
         foreach (Item i in entries)
         {
             i.button.y = top;
+            i.button.set_highlight(false);
             this.children.append(i.button);
             top += i.button.h+5;
         }
+        current = entries.first();
+        if(current != null)
+        {
+            current.data.button.set_highlight(true);
+        }
         m.redraw();
+
+    }
+    
+    public override bool Event(SDLMpc.Event ev)
+    {
+        if(ev.type == SDLMpc.EventType.KEY)
+        {
+            if (ev.command == EventCommand.BROWSE) {
+                Home();
+                return true;
+            }
+        }
+        if(current == null) return false;
+        if(ev.type == SDLMpc.EventType.KEY)
+        {
+            if(ev.command == SDLMpc.EventCommand.UP)
+            {
+                if(current.prev != null)
+                {
+                    current.data.button.set_highlight(false);
+                    current = current.prev;
+                    current.data.button.set_highlight(true);
+                }
+                return true;
+            }
+            else if(ev.command == SDLMpc.EventCommand.DOWN)
+            {
+                if(current.next != null)
+                {
+                    current.data.button.set_highlight(false);
+                    current = current.next;
+                    current.data.button.set_highlight(true);
+                }
+                return true;
+            } else if(ev.command == SDLMpc.EventCommand.RIGHT)
+            {
+                GLib.debug("Select: %s", current.data.widget.get_name());
+                this.children = null;
+                this.children.append(current.data.widget);
+                if(current.data.widget is SDLMpc.SDLWidgetActivate) {
+                    (current.data.widget as SDLMpc.SDLWidgetActivate).activate();
+                }
+                this.current = null;
+                m.redraw();
+                return true;
+            }
+        }
+        return false;
     }
 
+
+    /**
+     * Handle dragging events
+     */
+    private int start = -1;
+    private int offset = 0;
+    public bool motion(int x, int y, bool pushed, bool released)
+    {
+        if(current == null) return false;
+        if(pushed) start = y;
+        offset = y-start;
+        if(released){
+            offset = 0;
+            start = 0;
+        }
+        if(offset > 10) {
+            Home();
+            m.redraw();
+        }
+        return false;
+    }
 }
