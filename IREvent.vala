@@ -52,7 +52,7 @@ class IREvent : GLib.Object
                         event.type, event.code, event.value);
     			/* Translate the event into a SDLMpc event */
 				SDLMpc.Event ev = translate_event(event);
-                {
+                if(ev != null){
                     uint32 diff = (uint32)((event.time.tv_sec*1000+event.time.tv_usec/1000)-(old_event.time.tv_sec*1000+old_event.time.tv_usec/1000));
                     if(diff > 300){
                         GLib.debug("timeout key");
@@ -267,9 +267,11 @@ class IREvent : GLib.Object
                     ev.command = SDLMpc.EventCommand.PAUSE;
                     break;
                 default:
+                    return null;
+                    /*
                     GLib.debug("IR::UNKNOWN");
                     ev.command = SDLMpc.EventCommand.UNKNOWN;
-                    break;
+                    break;*/
             }
         }
         else ev.type = SDLMpc.EventType.INVALID;
