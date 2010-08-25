@@ -100,13 +100,17 @@ namespace SDLMpc
          */
         public bool do_Event(Event ev)
         {
-            if(this.Event(ev)) return true;
 			foreach ( var child in children) 
 			{
 				if(child.do_Event(ev)) {
                     return true;
                 }
 			}
+            GLib.debug("handle event: %s", this.get_name());
+            if(this.Event(ev)) {
+                GLib.debug("Took event: %s", this.get_name());
+                return true;
+            }
             return false;
         }
 

@@ -14,7 +14,7 @@ private class Item
 }
 
 
-class Selector : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
+class Selector : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion, SDLWidgetActivate
 {
     private Main m;
     private List<Item> entries;
@@ -75,6 +75,7 @@ class Selector : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
         {
             i.button.y = top;
             i.button.set_highlight(false);
+            i.button.update_text(i.widget.get_name());
             this.children.append(i.button);
             top += i.button.h+5;
         }
@@ -89,9 +90,10 @@ class Selector : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
     
     public override bool Event(SDLMpc.Event ev)
     {
-        if(ev.type == SDLMpc.EventType.KEY)
+        if(current == null && ev.type == SDLMpc.EventType.KEY)
         {
             if (ev.command == EventCommand.BROWSE) {
+                GLib.debug("Return home: %s", this.get_name());
                 Home();
                 return true;
             }
@@ -154,5 +156,12 @@ class Selector : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
             m.redraw();
         }
         return false;
+    }
+
+    public void activate()
+    {
+        GLib.debug("Selector activate");
+        offset = 0;start =0;
+        this.Home();
     }
 }

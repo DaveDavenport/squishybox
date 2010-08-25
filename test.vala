@@ -16,6 +16,7 @@ class Main : GLib.Object
 
     private SDLWidget bg;
     private SDLWidget np;
+    private SDLWidget server_menu;
     private SDLWidget selector;  
     /**
      * Object to set backlight 
@@ -110,7 +111,10 @@ class Main : GLib.Object
 
         np      = new NowPlaying        (this,480, 272, 32);
 
+        server_menu = new ServerMenu(this,0,0,480,272,32);
+
         (selector as Selector).add_item(np);
+        (selector as Selector).add_item(server_menu);
         (selector as Selector).add_item(new Standby(this));
         bg.children.append(selector);
 
@@ -199,7 +203,7 @@ class Main : GLib.Object
                     else if (event.key.keysym.sym == KeySymbol.h)
                     {
                         ev = new SDLMpc.Event();
-                        ev.type = SDLMpc.EventType.COMMANDS;
+                        ev.type = SDLMpc.EventType.KEY;
                         ev.command = EventCommand.BROWSE;
                         push_event((owned)ev);
                     }
@@ -270,9 +274,6 @@ class Main : GLib.Object
                     case EventCommand.STOP:
                         MI.player_stop();
                         break;
-                    case EventCommand.BROWSE:
-                        (selector as Selector).Home();
-                        break;
                     case EventCommand.POWER:
                         GLib.debug("Set Display\n"); 
                         display_control.setEnabled(!display_control.getEnabled());
@@ -320,6 +321,7 @@ class Main : GLib.Object
                 }
             }
             else {
+                GLib.debug("Key event");
                 bg.do_Event(ev);
             }
 
