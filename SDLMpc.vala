@@ -9,14 +9,22 @@ using SDLMpc;
 
 class Main : GLib.Object
 {
+    /**
+     * The main screen 
+     */
+    private unowned Screen screen; 
+
+    /**
+     * MPD Interaction object. 
+     */
     public MPD.Interaction MI = new MPD.Interaction();
 
-    private unowned Screen screen; 
+    /**
+     * The mainloop 
+     */
     private GLib.MainLoop loop = new GLib.MainLoop();
 
     private SDLWidget bg;
-    private SDLWidget np;
-    private SDLWidget server_menu;
     private SDLWidget selector;  
     /**
      * Object to set backlight 
@@ -27,6 +35,9 @@ class Main : GLib.Object
     SDL.Rect mo_rect;
 
 
+    /**
+     * Screensaver
+     */
     private bool _screensaver = false;
     public bool screensaver { 
             get { 
@@ -40,26 +51,41 @@ class Main : GLib.Object
     }
 
 
-    private uint32 t = 0;
-    private int changed = 1;
+    /**
+     * Redraw required
+     */
+    private int redraw_required = 1;
 
-    private SDLMpc.Event pev = null;
+    /**
+     * Queue a redraw 
+     */
+    public void redraw()
+    {
+        redraw_required = 1;
+    }
 
+    /**
+     * Main event queue
+     * Event queue.
+     */
     private Queue<SDLMpc.Event> events= new Queue<SDLMpc.Event>();
 
+    /**
+     * Add push event
+     */
     public void push_event(owned SDLMpc.Event event)
     {
         events.push_tail((owned)event);
     }
 
 
-    public void redraw()
-    {
-        changed = 1;
-    }
 
+    /**
+     * run the main loop
+     */
     public void run()
     {
+        GLib.debug("Run mainloop");
         loop.run();
     }
 
@@ -70,22 +96,37 @@ class Main : GLib.Object
         /* Initialize SDL */
         GLib.debug("SDL.init");
         SDL.init(SDL.InitFlag.VIDEO);
+        /* Initialize font system */
         GLib.debug("SDLTTF.init");
         SDLTTF.init();
 
 
+        /**
+         * Set unicode support 
+         */
         SDL.Key.enable_unicode(1);
+        /**
+         * Set key repeat 
+         */
         SDL.Key.set_repeat(100,100);
+
+        /**
+         * Setup the screen. This is different for PC 
+         * and embedded mode 
+         */
         GLib.debug("Set Video mode");
 
 #if PC
+        /* Set doublebuffered and hw, not fullscreen */
         screen = SDL.Screen.set_video_mode(
                 480,
                 272,
                 32,
                 SDL.SurfaceFlag.DOUBLEBUF|SDL.SurfaceFlag.HWSURFACE);
 #else
+        /* Disable the cursor */
         SDL.Cursor.show(0);
+        /* Setup fullscreen video mode */
         screen = SDL.Screen.set_video_mode(
                 480,
                 272,
@@ -94,10 +135,9 @@ class Main : GLib.Object
                 SDL.SurfaceFlag.HWSURFACE|
                 SDL.SurfaceFlag.FULLSCREEN);
 #endif
-
+        /* Error check */
         if(screen == null) {
             GLib.error("failed to create screen\n");
-
         }
 
         /* Create background drawer */
@@ -105,21 +145,22 @@ class Main : GLib.Object
 
 
         /* Prepare basic widget */
+        /* Create a background widget that always draws the background */
         bg       = new BackgroundDrawer  (this,  0,      0,  480, 272, 32);
 
+        /* Main menu */
         selector = new Selector (this,  0,      0,  480, 272, 32);
 
-        np      = new NowPlaying        (this,480, 272, 32);
-
-        server_menu = new ServerMenu(this,0,0,480,272,32);
-
-        (selector as Selector).add_item(np);
-        (selector as Selector).add_item(server_menu);
+        /* Add items */
+        (selector as Selector).add_item(new NowPlaying (this, 480, 272, 32));
+        (selector as Selector).add_item(new ServerMenu (this,0,0,480,272,32));
         (selector as Selector).add_item(new Standby(this));
+
+        /* Add main selector to background */
         bg.children.append(selector);
 
 
-
+        /* Add interface update timeout, 10fps */
         GLib.debug("Add timeout");
         GLib.Timeout.add(1000/10, main_draw);
 
@@ -127,6 +168,9 @@ class Main : GLib.Object
         MI.mpd_connect();
     }
 
+    /**
+     * Quit
+     */
     ~Main()
     {
 
@@ -134,26 +178,27 @@ class Main : GLib.Object
         SDL.quit();
     }
 
-
+    /**
+     * Main loop itteration
+     */
     private bool main_draw()
     {
         bool cc = false;
-        t++;
+
         SDL.Event event = SDL.Event();
+        SDLMpc.Event ev; 
+
         /* Clear the screen */
-
-
         bg.do_Tick(time_t());
 
-        if(changed > 0){
+        if(redraw_required > 0){
             if(screensaver) {
             }else{
                 bg.draw(screen);
-                changed = 0;
+                redraw_required = 0;
                 cc = true;
             }
         }
-        SDLMpc.Event ev; 
         /** 
          * Translate SDL Events 
          */
@@ -299,7 +344,6 @@ class Main : GLib.Object
                         bg.do_Event(ev);
                         break;
                 }
-                pev = (owned)ev;
             }
             else if(ev.type == SDLMpc.EventType.MOUSE_MOTION) {
                 bg.do_Motion(ev.motion.x, ev.motion.y, ev.motion.pushed, ev.motion.released);
@@ -344,12 +388,15 @@ class Main : GLib.Object
 static int main (string[] argv)
 {
     GLib.debug("Starting main");
-    /* Create mainloop */
+    /* Create Main object */
     Main m = new Main();
+    /* Infrared input event handling. */
     IREvent e  = new IREvent(m);
+    /* Touchscreen input event handling */
     TCEvent tc = new TCEvent(m);
     /* Run */
     GLib.debug("Run main loop");
+    /* Run the main loop */
     m.run();
     /* Cleanup */
     e = null;
