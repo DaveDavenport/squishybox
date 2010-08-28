@@ -136,7 +136,7 @@ namespace SDLMpc
 	}
     public interface SDLWidgetActivate : SDLWidget
     {
-        public abstract void activate();
+        public abstract bool activate();
     }
 
     public interface SDLWidgetMotion : SDLWidget

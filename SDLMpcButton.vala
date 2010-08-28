@@ -80,6 +80,10 @@ namespace SDLMpc
             update_text(text);
         }
 
+        ~Button()
+        {
+            GLib.debug("finalize button");
+        }
 
         public void draw_drawing(Surface screen)
         {
@@ -116,5 +120,12 @@ namespace SDLMpc
 		}
 
 		public signal void b_clicked();
+
+        public override void Tick(time_t t)
+        {
+            if(l.scrolling){
+                update();
+            }
+        }
     }
 }

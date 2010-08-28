@@ -45,13 +45,14 @@ class Standby : SDLMpc.SDLWidget, SDLMpc.SDLWidgetActivate
 
     }
 
-    public void activate()
+    public bool activate()
     {
         this.m.display_control.setEnabled(false);
         var ev = new SDLMpc.Event();
         ev.type = SDLMpc.EventType.COMMANDS;
         ev.command = EventCommand.STOP;
         m.push_event((owned)ev);
+        return false;
     }
 }
 

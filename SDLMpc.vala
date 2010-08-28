@@ -153,6 +153,7 @@ class Main : GLib.Object
 
         /* Add items */
         (selector as Selector).add_item(new NowPlaying (this, 480, 272, 32));
+        (selector as Selector).add_item(new MpdPlaylistView (this,0,0,480,272,32));
         (selector as Selector).add_item(new ServerMenu (this,0,0,480,272,32));
         (selector as Selector).add_item(new Standby(this));
 
@@ -301,8 +302,13 @@ class Main : GLib.Object
                 switch(ev.command) {
                     case EventCommand.QUIT:
                         GLib.debug("request quit");
-                        loop.quit();
                         MI = null;
+                        bg = null;
+                        (selector as Selector).clear();
+                        selector = null;
+                        display_control = null;
+                        loop.quit();
+                        loop = null;
                         return false;
                     case EventCommand.PAUSE:
                         MI.player_toggle_pause(); 

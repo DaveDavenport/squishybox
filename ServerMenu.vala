@@ -32,9 +32,10 @@ class ServerMenu : SDLWidget, SDLWidgetActivate
 
 
 
-    public void activate()
+    public bool activate()
     {
         this.s.activate();
+        return false;
     }
 }
 
@@ -60,9 +61,9 @@ class ConnectButton : SDLWidget, SDLWidgetActivate
             return "Connect";
         }
     }
-    public void activate()
+    public bool activate()
     {
         GLib.debug("activate");
-
+        return true;
     }
 }
