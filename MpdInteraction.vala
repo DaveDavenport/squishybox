@@ -7,6 +7,7 @@ namespace MPD
         DISCONNECT,
         PLAYER_PLAY,
         PLAYER_PLAY_ID,
+        PLAYER_PLAY_POS,
         PLAYER_NEXT,
         PLAYER_PREVIOUS,
         PLAYER_PAUSE,
@@ -166,6 +167,14 @@ namespace MPD
             t.type = TaskType.PLAYER_PLAY_ID;
             t.param = GLib.Value(typeof(uint));
             t.param.set_uint(id);
+            command_queue.push(t);
+        }
+		public void player_play_pos(uint pos)
+		{
+            Task t = new Task();
+            t.type = TaskType.PLAYER_PLAY_POS;
+            t.param = GLib.Value(typeof(uint));
+            t.param.set_uint(pos);
             command_queue.push(t);
         }
         public void player_fetch_status()
@@ -527,7 +536,12 @@ namespace MPD
                             do_error_callback("failed to get playlist: %s".
                                     printf(connection.get_error_message()));
                         }
-
+                    } else if (t.type == TaskType.PLAYER_PLAY_POS) {
+                        if(!connection.player_run_play_pos(t.param.get_uint()))
+                        {
+                            do_error_callback("failed to get playlist: %s".
+                                    printf(connection.get_error_message()));
+                        }
                     } else if (t.type == TaskType.PLAYER_GET_QUEUE) {
                         if(connection.send_list_queue_meta())
                         {

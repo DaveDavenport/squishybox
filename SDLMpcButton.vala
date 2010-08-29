@@ -53,7 +53,7 @@ namespace SDLMpc
 			}else {
 				sf.fill(rect, sf.format.map_rgba(0,0,0,170)); 
 			}
-			l.render(sf, (int)((sf.w -l.width())*_x_align), (sf.h-l.height())/2);
+			l.render(sf, (int)((sf.w -l.width())*_x_align)+1 , (sf.h-l.height())/2);
             m.redraw();
         }
         public void update_text(string? text)
