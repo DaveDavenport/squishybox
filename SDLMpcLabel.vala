@@ -30,12 +30,17 @@ namespace SDLMpc
         /* Text color */
         private const SDL.Color fg_shadow = {255,255,255};
 
-
+        /**
+         * Get the Width off the label 
+         */
         public int width()
         {
             return sf.w+shadow_offset;
         }
 
+        /**
+         * Get the height off the label 
+         */
         public int height()
         {
             /* Height off text + shadow */

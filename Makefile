@@ -13,3 +13,8 @@ source:  $(sdlmpc_SOURCES)
 clean:
 	@rm $(PROGRAMS)
 	@rm $(sdlmpc_SOURCES:.vala=.c)
+
+
+.PHONY: doc
+doc:
+	valadoc --package-name=SDLMpc  --force --no-protected --internal --private -b ./ --doclet=html -o doc/test/html *.vala --vapidir=./vapi/ --pkg=sdl --pkg=sdl-image --pkg=sdl-ttf --pkg=linux --pkg=posix --pkg=libmpdclient

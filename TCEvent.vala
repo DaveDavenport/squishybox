@@ -31,11 +31,12 @@ class TCEvent : GLib.Object
 
 
     /**
-     * @params source the Source iochannel.
-     * @params conditions the conditions that occured 
+     * Watch callback
+     * params source the Source iochannel.
+     * params conditions the conditions that occured 
      * Handle Watch events.
      *
-     * @returns if watch should be continued. in this case always false.
+     * returns if watch should be continued. in this case always false.
      * A new watch will be created.
      *
      */
@@ -133,7 +134,7 @@ class TCEvent : GLib.Object
     }
 
     /**
-     * @param m The Main object this lib should insert events into.
+     * param m The Main object this lib should insert events into.
      *
      * Create TCEvent object.
      */

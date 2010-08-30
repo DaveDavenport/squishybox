@@ -11,11 +11,24 @@ using Linux;
  */
 class IREvent : GLib.Object
 {
-    private uint watch_id {get; set; default=0;}
-    private GLib.IOChannel io_channel = null;
+    /** 
+     * Pointer to the main object 
+     */
     private Main m;
+    /**
+     * ID off the GLib.io_watch
+     */
+    private uint watch_id  = 0;
+    /**
+     * The GLib.IOChannel used to read the IR events.
+     */
+    private GLib.IOChannel io_channel = null;
 
-    Linux.Input.Event old_event = Linux.Input.Event();
+    /**
+     * Old event, used to track key-repeats
+     */
+    private Linux.Input.Event old_event = Linux.Input.Event();
+
     /**
 	 * Destruction function
 	 */
@@ -27,13 +40,15 @@ class IREvent : GLib.Object
 
 
     /**
-     * @params source the Source iochannel.
-     * @params conditions the conditions that occured 
      * Handle Watch events.
+     * 
+     * 
      *
-     * @returns if watch should be continued. in this case always false.
-     * A new watch will be created.
+     *      * A new watch will be created.
      *
+     * @param source the source iochannel.
+     * @param conditions the conditions that occured 
+     * @return if watch should be continued. in this case always false.
      */
     private bool watch_callback(IOChannel source, IOCondition condition)
     {
@@ -85,6 +100,9 @@ class IREvent : GLib.Object
 
     /**
      * Create a watch for the iochannel 
+     * 
+     * This watch listens for new incoming events and calls watch_callback.
+     * This integrates in the main-loop.
      */
     private void create_watch()
     {
@@ -99,9 +117,12 @@ class IREvent : GLib.Object
     }
 
     /**
-     * @param m The Main object this lib should insert events into.
-     *
      * Create IREvent object.
+     *
+     * Creates a new IREvent object that will listen for IR events.
+     * If an event is detected, it will push this to the event queue of m
+     *
+     * @param m The Main object this lib should insert events into.
      */
     public IREvent(Main m)
     {
@@ -115,13 +136,12 @@ class IREvent : GLib.Object
 
     }
 	/**
-	 * @param event a Linux.Input.Event to translate.
-	 *
 	 * This function translates the IR event into a SDLMpc Event.
 	 *
-	 * @returns a SDLMpc.Event.
+     * @param event a Linux.Input.Event to translate.
+	 * @return a SDLMpc.Event.
 	 */
-	private SDLMpc.Event translate_event(Linux.Input.Event event)
+	private SDLMpc.Event? translate_event(Linux.Input.Event event)
 	{
 		/* Create SDLMpc event and insert into Main */
 		SDLMpc.Event ev = new SDLMpc.Event();

@@ -95,8 +95,8 @@ namespace SDLMpc
         }
 
         /**
-         *
-         * @returns: try to stop. 
+         * test
+         * returns: try to stop. 
          */
         public bool do_Event(Event ev)
         {

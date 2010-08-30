@@ -1,3 +1,14 @@
+/**
+ * Testing
+ *
+ * Todo list:
+ * 
+ *  # Create a set of fixed font sizes widgets can use.
+ *  # Make better scrolling by touch.
+ *  # Fix event handling.
+ *
+ */
+
 using SDL;
 using SDLTTF;
 using SDLImage;
@@ -387,7 +398,7 @@ class Main : GLib.Object
 
 
 /**
- * @params argv the command line arguments
+ * param argv the command line arguments
  *
  * The entry point of the program  
  */
