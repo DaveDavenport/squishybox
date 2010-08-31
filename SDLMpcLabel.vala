@@ -11,7 +11,7 @@ namespace SDLMpc
      */
     class Label
     {
-        private Main        m;
+        private SDLMpc.Main        m;
         static Font        font;
         private Surface     sf;
         private Surface     sf_shadow;

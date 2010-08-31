@@ -1,10 +1,11 @@
 using GLib;
 using Posix;
 using Linux;
+using SDLMpc;
 
 
 /**
- * This class will listen on the remote control event device and insert SDLMpc.Event's into the main object
+ * This class will listen on touchscreen event device and insert SDLMpc.Event's into the main object
  * When an IR event is recieved.
  *
  * It supports recieving IR_Key events and IR_Nearness events.

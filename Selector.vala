@@ -134,7 +134,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
     
     public override bool Event(SDLMpc.Event ev)
     {
-        if(current == null && ev.type == SDLMpc.EventType.KEY)
+        if(current == null && (ev.type == SDLMpc.EventType.KEY || ev.type == SDLMpc.EventType.COMMANDS))
         {
             if (ev.command == EventCommand.BROWSE) {
                 GLib.debug("Return home: %s", this.get_name());
