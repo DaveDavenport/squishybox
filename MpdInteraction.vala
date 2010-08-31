@@ -289,10 +289,17 @@ namespace MPD
 		private bool watch_callback(IOChannel source, IOCondition condition)
 		{
             /*lock(watch_id)*/
+            command_queue.lock();
+            if(condition == GLib.IOCondition.HUP) {
+                GLib.warning("Error occured. %u", watch_id);
+            }
             {
-                GLib.warning("watch callback called %i", condition);
+                GLib.warning("watch callback called %i %i:%i:%i:%i:%i", condition,
+                        GLib.IOCondition.IN,GLib.IOCondition.OUT,GLib.IOCondition.PRI,GLib.IOCondition.ERR, GLib.IOCondition.HUP);
+
                 if(watch_id == 0) {
                     GLib.warning("Idle canceld, ignoring");
+                    command_queue.unlock();
                     return false;
                 }
                 MPD.Async.Event event = convert_io_condition(condition);;
@@ -301,6 +308,7 @@ namespace MPD
                 if(!success){
                     GLib.warning("failed to read: %s", async.error_message);
                     do_error_callback("failed to read: %s".printf(async.error_message));
+                    command_queue.unlock();
                     return false;
                 }
 
@@ -329,6 +337,7 @@ namespace MPD
                         do_error_callback("failed to send idle: %s".printf(async.get_error_message()));
                         GLib.critical("failed to send idle: %s", 
                                 async.get_error_message());
+                        command_queue.unlock();
                         return false;
                     }
                 }
@@ -340,6 +349,7 @@ namespace MPD
 
                 if(events == 0){
                     watch_id = 0;
+                    command_queue.unlock();
                     return false;
                 }
 
@@ -347,6 +357,7 @@ namespace MPD
                         watch_callback);
 
             }
+            command_queue.unlock();
 			return false;
 		}
 		private void start_idle()
@@ -388,7 +399,6 @@ namespace MPD
                 if(watch_id == 0){
                     watch_id = io_channel.add_watch(
                             GLib.IOCondition.IN|
-                            GLib.IOCondition.OUT|
                             GLib.IOCondition.ERR|
                             GLib.IOCondition.HUP,
                             watch_callback);
@@ -452,12 +462,20 @@ namespace MPD
             void *res = null;
             while(true)
             {
+                var end = new TimeVal();
+                /* Wait 50 ms before dropping into idle mode */
+                end.add(50000);
                 /* Go back in idle when there is nothing todo */
-                if(connection != null && command_queue.length() == 0)
-                    start_idle();
-                /* Get the next command to process */
-                /* Block! */
-                Task t = command_queue.pop();
+//                if(connection != null && command_queue.length() == 0)
+//                    start_idle();
+                Task t = command_queue.timed_pop(ref end);
+                if(t == null)
+                {
+                    if(connection != null) start_idle();
+                    /* Get the next command to process */
+                    /* Block! */
+                    t = command_queue.pop();
+                }
 
                 /* Stop idle mode if we are in it */
                 if(connection != null)

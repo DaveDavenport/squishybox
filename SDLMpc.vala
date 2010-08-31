@@ -119,7 +119,7 @@ class Main : GLib.Object
         /**
          * Set key repeat 
          */
-        SDL.Key.set_repeat(100,100);
+        SDL.Key.set_repeat(10,10);
 
         /**
          * Setup the screen. This is different for PC 
@@ -249,7 +249,7 @@ class Main : GLib.Object
                      ev.command = EventCommand.QUIT;
                      push_event((owned)ev);
                      break;
-                case SDL.EventType.KEYUP:
+                case SDL.EventType.KEYDOWN:
                     if(event.key.keysym.sym == KeySymbol.q)
                     {
                         ev = new SDLMpc.Event();
