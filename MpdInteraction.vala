@@ -399,6 +399,7 @@ namespace MPD
                 if(watch_id == 0){
                     watch_id = io_channel.add_watch(
                             GLib.IOCondition.IN|
+                            GLib.IOCondition.OUT|
                             GLib.IOCondition.ERR|
                             GLib.IOCondition.HUP,
                             watch_callback);
