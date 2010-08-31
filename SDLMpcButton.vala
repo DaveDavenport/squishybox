@@ -13,7 +13,7 @@ namespace SDLMpc
     class Button : SDLWidget, SDLWidgetDrawing
     {
         private Main        m;
-        private Label       l;
+        public Label       l;
         private Surface     sf;
 		private bool pressed = false;
         private bool highlight = false;

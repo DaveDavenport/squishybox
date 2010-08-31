@@ -5,20 +5,26 @@ using MPD;
 using Posix;
 using SDLMpc;
 
+
+/**
+ * A playlist view. 
+ *
+ */
 class MpdPlaylistView : SDLWidget, SDLWidgetActivate
 {
 
     private Main m;
     private Selector s;
     private int top = 0;
+    private uint length = 0;
+    private uint num_items = 0;
+    private uint current_song = 0;
 
     public override unowned string get_name()
     {
         return "Playlist";
     }
 
-    private uint length = 0;
-private uint num_items = 0;
     public MpdPlaylistView (Main m, int x, int y, int w, int h, int bpp)
     {
         this.m = m;
@@ -30,35 +36,38 @@ private uint num_items = 0;
 
         num_items = this.h/28;
 
-        /*for(var i=0; i < num_items;i++)
-        {
-            var b = new MenuButton(this.m,(int16)x,(int16)( y+i*42),(uint16) w, (uint16)28, i);
-            this.children.append(b);
-        }
-*/
         m.MI.player_status_changed.connect((source, status) => {
-            if(status.queue_length != length)
-            {
+                if(status.queue_length != length)
+                {
                 length = status.queue_length;
                 this.children = null;
                 for(var i=0; i < num_items && i < length;i++)
                 {
-                    var b = new MenuButton(this.m,(int16)x,(int16)( y+i*30),(uint16) w, (uint16)28, i);
-                    this.children.append(b);
+                var b = new MenuButton(this.m,(int16)x,(int16)( y+i*30),(uint16) w-30, (uint16)28, i);
+                this.children.append(b);
                 }
-            }
-        });
+                }
+                if(status.song_pos != current_song) 
+                {
+                    current_song = status.song_pos;
+                    top = (int)(current_song-num_items/2);
+                    if(top > length-num_items) {
+                        top = (int)(length-num_items); 
+                    }
+                    update();
+                }
+                });
         m.MI.player_connection_changed.connect((source, connect) => {
-            if(connect) {
+                if(connect) {
                 top = 0;
                 var i = 0;
                 foreach(var child in this.children)
                 {
-                    (child as MenuButton).set_pos(i);
-                    i++;
+                (child as MenuButton).set_pos(i);
+                i++;
                 }
-            }
-        });
+                }
+                });
 
     }
     private void update()
@@ -78,9 +87,22 @@ private uint num_items = 0;
             if(ev.command == SDLMpc.EventCommand.UP)
             {
                 top -= 1;
-                if (top < 0) top = 0;
-                else
-                    update();
+                if(top < 0){
+                    top = 0;
+                    return true;
+                }
+               
+
+                unowned List<unowned SDLWidget> a = this.children.last();
+                while(a != null && a.prev!= null)
+                {
+                    GLib.debug("new: %s", (a.prev.data as MenuButton).name);
+                    (a.data as MenuButton).update_entry((a.prev.data as MenuButton).pos, (a.prev.data as MenuButton).name);
+                    a = a.prev;
+                }
+                if(a != null) (a.data as MenuButton).set_pos(top);
+                m.redraw();
+
                 return true;
             }
             else if(ev.command == SDLMpc.EventCommand.DOWN)
@@ -89,9 +111,19 @@ private uint num_items = 0;
                 if(top+num_items >  (length))
                 {
                     top -=1;
+                    return true;
                 }
-                else
-                    update();
+
+                unowned List<unowned SDLWidget> a = this.children.first();
+                while(a != null && a.next!= null)
+                {
+                    GLib.debug("new: %s", (a.next.data as MenuButton).name);
+                    (a.data as MenuButton).update_entry((a.next.data as MenuButton).pos, (a.next.data as MenuButton).name);
+                    a = a.next;
+                }
+                if(a != null) (a.data as MenuButton).set_pos(top+num_items-1);
+                m.redraw();
+
                 return true;
             } else if(ev.command == SDLMpc.EventCommand.RIGHT)
             {
@@ -112,10 +144,18 @@ private uint num_items = 0;
 class MenuButton : SDLWidget, SDLWidgetActivate
 {
     private Main m;
-    private string name;
-    private uint pos = 0;
+    public string name;
+    public uint pos = 0;
     private Button b; 
-        public override unowned string get_name()
+
+    public void update_entry(uint pos, string name)
+    {
+        this.pos = pos;
+        this.name = name;
+        this.b.update_text(this.name);
+    }
+
+    public override unowned string get_name()
     {
         return name;
     }
@@ -143,6 +183,7 @@ class MenuButton : SDLWidget, SDLWidgetActivate
         this.pos = pos;
         this.name = "%u - loading".printf(pos);
         this.b = new  Button(m, x, y,w, h, this.name);
+        this.b.l.do_scrolling = false;
         this.b.x_align = 0.0;
         this.children.append(b);
         this.m.MI.player_get_queue_pos(get_song, this.pos);

@@ -53,6 +53,7 @@ class IREvent : GLib.Object
      */
     private bool watch_callback(IOChannel source, IOCondition condition)
     {
+        bool cont = true;;
         /* If there is data to read */
         if((condition&IOCondition.IN) == IOCondition.IN)
         {
@@ -70,19 +71,21 @@ class IREvent : GLib.Object
 				SDLMpc.Event ev = translate_event(event);
                 if(ev != null){
                     uint32 diff = (uint32)((event.time.tv_sec*1000+event.time.tv_usec/1000)-(old_event.time.tv_sec*1000+old_event.time.tv_usec/1000));
-                    if(diff > 300){
+                    if(diff > 200){
                         GLib.debug("timeout key");
                         old_event.type = -1;
                     }else if(old_event.type == event.type && event.code == old_event.code && old_event.value == event.value){
                         GLib.debug("skip key");
                         ev = null;
+                        cont = false;
                     }
                 }
 				/* Push the event into the event queue */
                 if(ev != null) {
                     m.push_event((owned)ev);
                 }
-                old_event = event;
+                if(cont)
+                    old_event = event;
             }
         }else if((condition&IOCondition.ERR) == IOCondition.ERR ||
             (condition&IOCondition.ERR) == IOCondition.ERR)

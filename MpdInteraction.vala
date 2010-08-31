@@ -463,7 +463,7 @@ namespace MPD
             void *res = null;
             while(true)
             {
-                var end = new TimeVal();
+                var end = TimeVal();
                 /* Wait 50 ms before dropping into idle mode */
                 end.add(50000);
                 /* Go back in idle when there is nothing todo */

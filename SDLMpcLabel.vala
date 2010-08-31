@@ -16,6 +16,7 @@ namespace SDLMpc
         private Surface     sf;
         private Surface     sf_shadow;
 		private int16 		shadow_offset 	= 2;
+        public bool            do_scrolling = true;
 
 
         /* Inidicates if scrolling is needed, if enabled make sure screen get regular updates */
@@ -89,7 +90,7 @@ namespace SDLMpc
             shadow_dst_rect.y = (int16) y+shadow_offset;
            
            /* Check if we need todo scrolling, if so, scroll */
-            if(sf.w > (screen.w-x)) {
+            if(this.do_scrolling && sf.w > (screen.w-x)) {
                 /* Scroll */
                 if((screen.w-x) > (sf.w-offset)  || offset < 0 ) {
                     if((end_delay--)  == 0) {

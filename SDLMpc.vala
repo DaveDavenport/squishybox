@@ -130,7 +130,7 @@ namespace SDLMpc
             /**
              * Set key repeat 
              */
-            SDL.Key.set_repeat(10,10);
+            SDL.Key.set_repeat(100,10);
 
             /**
              * Setup the screen. This is different for PC 
