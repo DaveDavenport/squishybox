@@ -17,4 +17,4 @@ clean:
 
 .PHONY: doc
 doc:
-	valadoc --package-name=SDLMpc  --force --no-protected --internal --private -b ./ --doclet=html -o doc/test/html *.vala --vapidir=./vapi/ --pkg=sdl --pkg=sdl-image --pkg=sdl-ttf --pkg=linux --pkg=posix --pkg=libmpdclient
+	valadoc --package-name=SDLMpc  --force --no-protected --internal --private -b ./ --doclet=html -o doc/api-html *.vala --vapidir=./vapi/ --pkg=sdl --pkg=sdl-image --pkg=sdl-ttf --pkg=linux --pkg=posix --pkg=libmpdclient
