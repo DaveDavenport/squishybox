@@ -12,7 +12,7 @@ namespace SDLMpc
     class Label
     {
         private SDLMpc.Main        m;
-        static Font        font;
+        private weak Font        font;
         private Surface     sf;
         private Surface     sf_shadow;
 		private int16 		shadow_offset 	= 2;
@@ -47,12 +47,11 @@ namespace SDLMpc
             return sf.h+shadow_offset;
         }
 
-        public Label(Main m, uint16 size)
+        public Label(Main m, FontSize size)
         {
             SDL.Color b = {255,255,255};
             this.m = m;
-            if(font == null)
-                font = new Font("test.ttf", size);
+            font = this.m.fonts[size];
             sf = font.render_blended_utf8(" ",b); 
             sf_shadow = font.render_blended_utf8(" ", c_shadow);
         }

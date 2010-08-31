@@ -157,6 +157,14 @@ namespace SDLMpc
                     SDL.SurfaceFlag.HWSURFACE|
                     SDL.SurfaceFlag.FULLSCREEN);
 #endif
+
+
+            fonts[FontSize.TINY] = new Font("test.ttf", 10);
+            fonts[FontSize.SMALL] = new Font("test.ttf", 20);
+            fonts[FontSize.NORMAL] = new Font("test.ttf", 30);
+            fonts[FontSize.LARGE] = new Font("test.ttf", 40);
+            fonts[FontSize.VERY_LARGE] = new Font("test.ttf", 50);
+
             /* Error check */
             if(screen == null) {
                 GLib.error("failed to create screen\n");

@@ -28,11 +28,11 @@ private uint num_items = 0;
         this.w = w;
         this.h = h;
 
-        num_items = this.h/40;
+        num_items = this.h/28;
 
         /*for(var i=0; i < num_items;i++)
         {
-            var b = new MenuButton(this.m,(int16)x,(int16)( y+i*42),(uint16) w, (uint16)40, i);
+            var b = new MenuButton(this.m,(int16)x,(int16)( y+i*42),(uint16) w, (uint16)28, i);
             this.children.append(b);
         }
 */
@@ -43,7 +43,7 @@ private uint num_items = 0;
                 this.children = null;
                 for(var i=0; i < num_items && i < length;i++)
                 {
-                    var b = new MenuButton(this.m,(int16)x,(int16)( y+i*42),(uint16) w, (uint16)40, i);
+                    var b = new MenuButton(this.m,(int16)x,(int16)( y+i*30),(uint16) w, (uint16)28, i);
                     this.children.append(b);
                 }
             }

@@ -34,9 +34,9 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
         var frame   = new PlayerControl     (this.m,  0, 272-42,  480, 42,  32);
         this.children.append(frame);
 
-        title_label = new SDLMpc.Label(this.m,40);
-        artist_label = new SDLMpc.Label(this.m,30);
-        album_label = new SDLMpc.Label(this.m,20);
+        title_label = new SDLMpc.Label(this.m,FontSize.LARGE);
+        artist_label = new SDLMpc.Label(this.m,FontSize.NORMAL);
+        album_label = new SDLMpc.Label(this.m,FontSize.SMALL);
 
 
         m.MI.player_get_current_song(got_current_song);
@@ -142,8 +142,8 @@ class SongProgress : SDLWidget, SDLWidgetDrawing
     {
         this.m = m;
 
-        elapsed_label = new SDLMpc.Label(this.m,20);
-        total_label = new SDLMpc.Label(this.m,20);
+        elapsed_label = new SDLMpc.Label(this.m,FontSize.SMALL);
+        total_label = new SDLMpc.Label(this.m,FontSize.SMALL);
 
         /* initialize */
         m.MI.player_status_changed.connect((source, status) => {

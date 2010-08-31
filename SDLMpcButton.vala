@@ -76,7 +76,11 @@ namespace SDLMpc
 
             sf = new Surface.RGB(0, width,height,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
             sf = sf.DisplayFormatAlpha();
-            l = new Label(m, height-10);
+            if(height < 30) {
+                l = new Label(m, FontSize.SMALL);
+            }else{
+                l = new Label(m, FontSize.NORMAL);
+            }
             update_text(text);
         }
 

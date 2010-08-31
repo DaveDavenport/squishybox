@@ -131,7 +131,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         m.redraw();
 
     }
-    
+
     public override bool Event(SDLMpc.Event ev)
     {
         if(current == null && (ev.type == SDLMpc.EventType.KEY || ev.type == SDLMpc.EventType.COMMANDS))
