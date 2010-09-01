@@ -18,6 +18,28 @@ using SDLMpc;
 
 namespace SDLMpc
 {
+    public string format_song_title(MPD.Song song)
+	{
+		string retv = "";
+		int i=0;
+		string a;
+		for(i=0;(a = song.get_tag(MPD.Tag.Type.TITLE,0)) != null; i++) {
+			if(i > 0)
+				retv += ", "+a;
+			else
+				retv = a;
+
+		}
+		if(i == 0) {
+			retv = GLib.Path.get_basename(song.uri);
+
+		}
+
+		return retv;
+	}
+
+
+
     public enum FontSize
     {
         TINY,

@@ -83,10 +83,7 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
         if(song != null)
         {
             string a;
-            if((a = song.get_tag(MPD.Tag.Type.TITLE,0)) == null) {
-                a="";
-                /* TODO: Try filename */
-            }
+			a = format_song_title(song);
             title_label.set_text(a);
 
             if((a = song.get_tag(MPD.Tag.Type.ARTIST,0)) == null) {

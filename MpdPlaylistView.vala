@@ -202,11 +202,8 @@ class MenuButton : SDLWidget, SDLWidgetActivate
         if(song != null && song.pos == this.pos)
         {
             string a = "%u: ".printf(this.pos+1);
-            var b = song.get_tag(MPD.Tag.Type.TITLE,0);
-            if(b != null) {
-                a +=b;;
-            }
-            b = song.get_tag(MPD.Tag.Type.ARTIST,0);
+			a += format_song_title(song);
+            var b = song.get_tag(MPD.Tag.Type.ARTIST,0);
             if(b != null)
             {
                 a += " - "+b;
