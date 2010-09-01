@@ -23,14 +23,21 @@ class MpdPlaylistView : SDLWidget, SDLWidgetActivate,SDLWidgetDrawing,SDLWidgetM
 
     public bool motion(int x, int y, bool pushed, bool released)
     {
-        if(pushed)
+        if(!pushed && !released)
         {
-            double offset = ((double)y)/this.h;
-            top = (int)(offset*length);
-            if(top > length-num_items) {
-                top = (int)(length-num_items);
+            if(x > this.w-30) 
+            {
+                double offset = ((double)y)/this.h;
+                var pos = (int)(offset*length);
+                if(top != pos)
+                {
+                    top = pos;
+                    if(top > length-num_items) {
+                        top = (int)(length-num_items);
+                    }
+                    update();
+                }
             }
-            update();
         }
         return false;
     }
@@ -41,6 +48,30 @@ class MpdPlaylistView : SDLWidget, SDLWidgetActivate,SDLWidgetDrawing,SDLWidgetM
         return "Playlist";
     }
 
+    private void update_status(MPD.Status status)
+    {
+        if(status.queue_length != length)
+        {
+            length = status.queue_length;
+            GLib.debug("Queue length: %u", length);
+            this.children = null;
+            for(var i=0; i < num_items && i < length;i++)
+            {
+                var b = new MenuButton(this.m,(int16)x,(int16)( y+i*30),(uint16) w-30, (uint16)28, i);
+                this.children.append(b);
+            }
+        }
+        if(status.song_pos != current_song)
+        {
+            current_song = status.song_pos;
+            top = (int)(current_song-num_items/2);
+            if(top+num_items > length) {
+                top = (int)(length-num_items);
+            }
+            if(top < 0) top = 0;
+            update();
+        }
+    }
     public MpdPlaylistView (Main m, int x, int y, int w, int h, int bpp)
     {
         this.m = m;
@@ -52,27 +83,10 @@ class MpdPlaylistView : SDLWidget, SDLWidgetActivate,SDLWidgetDrawing,SDLWidgetM
 
         num_items = this.h/28;
 
-        m.MI.player_status_changed.connect((source, status) => {
-                if(status.queue_length != length)
-                {
-                length = status.queue_length;
-                this.children = null;
-                for(var i=0; i < num_items && i < length;i++)
-                {
-                var b = new MenuButton(this.m,(int16)x,(int16)( y+i*30),(uint16) w-30, (uint16)28, i);
-                this.children.append(b);
-                }
-                }
-                if(status.song_pos != current_song)
-                {
-                    current_song = status.song_pos;
-                    top = (int)(current_song-num_items/2);
-                    if(top > length-num_items) {
-                        top = (int)(length-num_items);
-                    }
-                    update();
-                }
-                });
+        m.MI.player_status_changed.connect((source, status) => 
+        {
+            update_status(status);
+        });
         m.MI.player_connection_changed.connect((source, connect) => {
                 if(connect) {
                 top = 0;
@@ -234,10 +248,13 @@ class MenuButton : SDLWidget, SDLWidgetActivate
 
     public void set_pos(uint pos)
     {
-        this.pos = pos;
-        this.name = "%u - loading".printf(pos);
-        this.b.update_text(this.name);
-        this.m.MI.player_get_queue_pos(get_song, this.pos);
+        if(pos != this.pos)
+        {
+            this.pos = pos;
+            this.name = "%u - loading".printf(pos);
+            this.b.update_text(this.name);
+            this.m.MI.player_get_queue_pos(get_song, this.pos);
+        }
     }
 
     public bool activate()

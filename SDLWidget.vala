@@ -116,17 +116,16 @@ namespace SDLMpc
 
         public bool do_Motion(int x, int y, bool pressed, bool released)
         {
-            
+            if(this is SDLWidgetMotion)
+            {
+                if((this as SDLWidgetMotion).motion(x,y,pressed, released)) return true;
+            }
 			foreach ( var child in children) 
 			{
 				if(child.do_Motion(x,y,pressed, released)) {
                     return true;
                 }
 			}
-            if(this is SDLWidgetMotion)
-            {
-                if((this as SDLWidgetMotion).motion(x,y,pressed, released)) return true;
-            }
             return false;
         }
 	}
