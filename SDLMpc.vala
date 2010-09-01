@@ -23,7 +23,7 @@ namespace SDLMpc
 		string retv = "";
 		int i=0;
 		string a;
-		for(i=0;(a = song.get_tag(MPD.Tag.Type.TITLE,0)) != null; i++) {
+		for(i=0;(a = song.get_tag(MPD.Tag.Type.TITLE,i)) != null; i++) {
 			if(i > 0)
 				retv += ", "+a;
 			else
