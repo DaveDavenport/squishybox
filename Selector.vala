@@ -31,7 +31,8 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         current_start = null;
         current_end = null;
         entries = null;
-        m.redraw();
+
+		this.require_redraw = true;
     }
     ~Selector()
     {
@@ -94,8 +95,8 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
             current_start = current;
         }
         if(current == null) {
-            m.redraw();
-            return;
+			this.require_redraw = true;
+			return;
         }
         int top = 0;
         unowned List<Item> start = current_start;
@@ -128,7 +129,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         {
             current.data.button.set_highlight(true);
         }
-        m.redraw();
+		this.require_redraw = true;
 
     }
 
@@ -179,8 +180,8 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
                 this.children = null;
                 this.children.append(current.data.widget);
                 this.current = null;
-                m.redraw();
-                return true;
+				this.require_redraw = true;
+				return true;
             }
         }
         return false;
@@ -210,7 +211,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         }
         //if(offset.abs() > 10) {
             Home();
-            m.redraw();
+            this.require_redraw = true;;
         //}
         */
         return false;

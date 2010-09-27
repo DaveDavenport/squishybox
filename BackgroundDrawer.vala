@@ -56,7 +56,8 @@ class BackgroundDrawer : SDLWidget, SDLWidgetDrawing
             sf = SDLImage.load("test.png");
         }
         sf = sf.DisplayFormat();
-    }
+		this.require_redraw = true;
+	}
 
     /* Return the surface it needs to draw */
     public void draw_drawing(Surface screen)
@@ -79,7 +80,7 @@ class BackgroundDrawer : SDLWidget, SDLWidgetDrawing
             GLib.debug("Change background to: %s\n", current_bg.data);
             sf = SDLImage.load(directory+current_bg.data);
             sf = sf.DisplayFormat();
-            m.redraw();
+			this.require_redraw = true;
             last_time = now; 
         }
     }

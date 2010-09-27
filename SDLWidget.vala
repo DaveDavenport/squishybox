@@ -11,6 +11,7 @@ namespace SDLMpc
 
 		public List<SDLWidget> children;
 
+		public bool require_redraw = false;
 
         public virtual unowned string get_name()
         {
@@ -62,12 +63,22 @@ namespace SDLMpc
 
 		}
 
+		public bool check_redraw()
+		{
+			if(this.require_redraw) return true;
+			foreach ( var child in children) 
+			{
+				if(child.check_redraw()) return true;
+			}
+			return false;
+		}
 
 		public void draw(Surface screen)
 		{
 			if(this is SDLWidgetDrawing) {
 				(this as SDLWidgetDrawing).draw_drawing(screen);
 			}
+			this.require_redraw = false;
 			foreach ( var child in children) 
 			{
 				child.draw(screen);

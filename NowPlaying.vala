@@ -101,7 +101,7 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
             artist_label.set_text(null);
             album_label.set_text(null);
         }
-        m.redraw();
+        this.require_redraw = true;;
     }
 
     public override void Tick(time_t now)
@@ -109,7 +109,7 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
         if(title_label.scrolling ||
             artist_label.scrolling ||
             album_label.scrolling ) {
-            m.redraw();
+            this.require_redraw = true;;
             return;
         }
     }
@@ -177,7 +177,7 @@ class SongProgress : SDLWidget, SDLWidgetDrawing
         string a = "%02u:%02u".printf(elapsed_time/60, elapsed_time%60);
         elapsed_label.set_text(a);
 
-        m.redraw();
+        this.require_redraw = true;;
     }
 
 
@@ -304,7 +304,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
             GLib.debug("PlayerControl bg press");
             pressed =true;
             sf.fill(rect, sf.format.map_rgba(200,30,30,128)); 
-            m.redraw();
+            this.require_redraw = true;;
         }
     }
     public override void button_release(bool inside)
@@ -319,7 +319,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
                 /* Button release */
 
             }
-            m.redraw();
+            this.require_redraw = true;;
         }
     }
 

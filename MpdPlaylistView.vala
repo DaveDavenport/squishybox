@@ -14,7 +14,6 @@ class MpdPlaylistView : SDLWidget, SDLWidgetActivate,SDLWidgetDrawing,SDLWidgetM
 {
 
     private Main m;
-    private Selector s;
     private int top = 0;
     private uint length = 0;
     private uint num_items = 0;
@@ -144,7 +143,7 @@ class MpdPlaylistView : SDLWidget, SDLWidgetActivate,SDLWidgetDrawing,SDLWidgetM
                     a.data = last;
                     (a.data as MenuButton).set_pos(top);
                 }
-                m.redraw();
+                this.require_redraw = true;;
 
                 return true;
             }
@@ -168,7 +167,7 @@ class MpdPlaylistView : SDLWidget, SDLWidgetActivate,SDLWidgetDrawing,SDLWidgetM
                     a.data = first;
                      (a.data as MenuButton).set_pos(top+num_items-1);
                 }
-                m.redraw();
+                this.require_redraw = true;;
 
                 return true;
             } else if(ev.command == SDLMpc.EventCommand.RIGHT)

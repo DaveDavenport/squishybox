@@ -9,7 +9,7 @@ namespace SDLMpc
      * Ment for single line.
      *
      */
-    class Label
+    class Label : SDLWidget
     {
         private SDLMpc.Main        m;
         private weak Font        font;
@@ -72,7 +72,6 @@ namespace SDLMpc
             offset = 0;
             step = step.abs();
             end_delay = 10;
-            m.redraw();
         }
 
         public void render(Surface screen, int x, int y)
@@ -103,8 +102,6 @@ namespace SDLMpc
                 scrolling = true;
             }
 
-
-
             src_rect.x = (int16) (0+offset);
             src_rect.y = (int16) 0;
             src_rect.w = (int16) (screen.w-x);
@@ -112,8 +109,6 @@ namespace SDLMpc
 
             sf_shadow.blit_surface(src_rect, screen, shadow_dst_rect);
             sf.blit_surface(src_rect, screen, dst_rect);
-
         }
-
     }
 }

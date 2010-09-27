@@ -78,36 +78,6 @@ namespace SDLMpc
 
         SDL.Rect mo_rect;
 
-
-        /**
-         * Screensaver
-         */
-        private bool _screensaver = false;
-        public bool screensaver { 
-            get { 
-                return _screensaver;
-            }
-            set {
-                GLib.debug("Standby");
-                _screensaver = value;
-                redraw();
-            }
-        }
-
-
-        /**
-         * Redraw required
-         */
-        private int redraw_required = 1;
-
-        /**
-         * Queue a redraw 
-         */
-        public void redraw()
-        {
-            redraw_required = 1;
-        }
-
         /**
          * Main event queue
          * Event queue.
@@ -244,14 +214,11 @@ namespace SDLMpc
             /* Clear the screen */
             bg.do_Tick(time_t());
 
-            if(redraw_required > 0){
-                if(screensaver) {
-                }else{
-                    bg.draw(screen);
-                    redraw_required = 0;
-                    cc = true;
-                }
-            }
+			if(bg.check_redraw()){
+				debug("redraw()");
+				bg.draw(screen);
+				cc = true;
+			}
             /** 
              * Translate SDL Events 
              */
@@ -382,10 +349,7 @@ namespace SDLMpc
                             display_control.setEnabled(!display_control.getEnabled());
                             if(!display_control.getEnabled())
                             {
-                                screensaver = true; 
                                 MI.player_stop();
-                            }else{
-                                screensaver = false; 
                             }
                             break;
                         case EventCommand.SLEEP:
