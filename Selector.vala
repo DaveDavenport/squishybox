@@ -58,9 +58,6 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         i.widget = item;
         entries.append(i);
 
-/*
-        this.children.append(i.button);
-*/
         i.button.b_clicked.connect((source) => {
             if(item is SDLMpc.SDLWidgetActivate) {
                 var r = (item as SDLMpc.SDLWidgetActivate).activate();
@@ -69,6 +66,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
             this.children = null;
             this.current = null;
             this.children.append(item);
+			this.require_redraw = true;
         });
         Home();
     }
