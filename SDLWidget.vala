@@ -125,7 +125,7 @@ namespace SDLMpc
             return false;
         }
 
-        public bool do_Motion(int x, int y, bool pressed, bool released)
+        public bool do_Motion(double x, double y, bool pressed, bool released)
         {
             if(this is SDLWidgetMotion)
             {
@@ -151,6 +151,6 @@ namespace SDLMpc
 
     public interface SDLWidgetMotion : SDLWidget
     {
-        public abstract bool motion(int x, int y, bool pushed, bool released);
+        public abstract bool motion(double x, double y, bool pushed, bool released);
     }
 }

@@ -194,7 +194,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
     private int start = 0;
     private int d_start = 0;
     private int offset = 0;
-    public bool motion(int x, int y, bool pushed, bool released)
+    public bool motion(double x, double y, bool pushed, bool released)
     {
     /*
         if(current == null) return false;

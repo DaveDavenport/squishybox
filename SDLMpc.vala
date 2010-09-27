@@ -372,7 +372,7 @@ namespace SDLMpc
                     if(ev.motion.pushed) {
                         mo_rect.x = (int16) ev.motion.x;
                         mo_rect.y = (int16) ev.motion.y;
-                        GLib.debug("push %i %i", ev.motion.x, ev.motion.y); 
+                        GLib.debug("push %.2f %.2f", ev.motion.x, ev.motion.y); 
 
                         bg.clicked(mo_rect.x, mo_rect.y, true);
                     }
@@ -380,7 +380,7 @@ namespace SDLMpc
                         bg.clicked(mo_rect.x, mo_rect.y, false);
                         mo_rect.x = 0;
                         mo_rect.y = 0;
-                        GLib.debug("push release %i %i", ev.motion.x, ev.motion.y); 
+                        GLib.debug("push release %.2f %.2f", ev.motion.x, ev.motion.y); 
                     } else {
                         mo_rect.x = (int16) ev.motion.x;
                         mo_rect.y = (int16) ev.motion.y;

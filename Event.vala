@@ -58,8 +58,8 @@ namespace SDLMpc
 
     public struct EventMotion
     {
-        public uint16   x;
-        public uint16   y;
+        public double	x;
+        public double   y;
         public bool     pushed;
         public bool     released;
     }

@@ -20,7 +20,7 @@ class MpdPlaylistView : SDLWidget, SDLWidgetActivate,SDLWidgetDrawing,SDLWidgetM
     private uint current_song = 0;
 
 
-    public bool motion(int x, int y, bool pushed, bool released)
+    public bool motion(double x, double y, bool pushed, bool released)
     {
         if(!pushed && !released)
         {

@@ -71,11 +71,11 @@ class TCEvent : GLib.Object
                         if(event.code== Linux.Input.ABS_X) {
                             ev = new SDLMpc.Event();
                             ev.type = SDLMpc.EventType.MOUSE_MOTION;
-                            ev.motion.x = 480-(uint16)((event.value/7447.0)*480.0);
+                            ev.motion.x = 480-((event.value/7447.0)*480.0);
                             a = 1;
                         }
                         else if (event.code == Linux.Input.ABS_Y) {
-                            ev.motion.y = 272-(uint16)((event.value/4164.0)*272.0);
+                            ev.motion.y = 272-((event.value/4164.0)*272.0);
                             a++;
                         }else if (event.code == Linux.Input.ABS_MISC) {
                             GLib.debug("finger: %i:%i",Linux.Input.ABS_MISC, event.value);
