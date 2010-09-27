@@ -76,7 +76,9 @@ namespace SDLMpc
         public DisplayControl display_control = new DisplayControl();
 
 
-        SDL.Rect mo_rect;
+        private double old_pos_x = 0.0;
+        private double old_pos_y = 0.0;
+
 
         /**
          * Main event queue
@@ -368,22 +370,25 @@ namespace SDLMpc
                     }
                 }
                 else if(ev.type == SDLMpc.EventType.MOUSE_MOTION) {
-                    bg.do_Motion(ev.motion.x, ev.motion.y, ev.motion.pushed, ev.motion.released);
                     if(ev.motion.pushed) {
-                        mo_rect.x = (int16) ev.motion.x;
-                        mo_rect.y = (int16) ev.motion.y;
+                        old_pos_x =  ev.motion.x;
+                        old_pos_y =  ev.motion.y;
                         GLib.debug("push %.2f %.2f", ev.motion.x, ev.motion.y); 
 
-                        bg.clicked(mo_rect.x, mo_rect.y, true);
+                        bg.do_Motion(ev.motion.x, ev.motion.y, ev.motion.pushed, ev.motion.released);
+                        bg.clicked((int16)old_pos_x,(int16) old_pos_y, true);
                     }
                     else if (ev.motion.released) {
-                        bg.clicked(mo_rect.x, mo_rect.y, false);
-                        mo_rect.x = 0;
-                        mo_rect.y = 0;
+                        bg.do_Motion(old_pos_x, old_pos_y, ev.motion.pushed, ev.motion.released);
+                        bg.clicked((int16)old_pos_x,(int16) old_pos_y, false);
+                        old_pos_x = 0;
+                        old_pos_y = 0;
+                        /* Make sure there is a correct pos on release */
                         GLib.debug("push release %.2f %.2f", ev.motion.x, ev.motion.y); 
                     } else {
-                        mo_rect.x = (int16) ev.motion.x;
-                        mo_rect.y = (int16) ev.motion.y;
+                        bg.do_Motion(ev.motion.x, ev.motion.y, ev.motion.pushed, ev.motion.released);
+                        old_pos_x = ev.motion.x;
+                        old_pos_y = ev.motion.y;
                     }
                 }
                 else {

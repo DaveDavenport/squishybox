@@ -504,6 +504,8 @@ namespace MPD
             public bool player_run_play();
             [CCode (cname="mpd_run_play_id")]
             public bool player_run_play_id(uint song_id);
+            [CCode (cname="mpd_run_seek_id")]
+            public bool player_run_seek_id(uint song_id, uint ntime);
             [CCode (cname="mpd_run_play_pos")]
             public bool player_run_play_pos(uint song_pos);
             [CCode (cname="mpd_run_noidle")]

@@ -19,7 +19,7 @@ namespace SDLMpc
         }
 
 
-		private bool inside(int x, int y)
+		public bool inside(int x, int y)
 		{
 			if(x > this.x && (x) < (this.x+this.w)) 
 			{

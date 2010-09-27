@@ -12,6 +12,7 @@ namespace MPD
         PLAYER_PREVIOUS,
         PLAYER_PAUSE,
         PLAYER_STOP,
+        PLAYER_SEEK,
         PLAYER_GET_CURRENT_SONG,
 
         PLAYER_GET_QUEUE,
@@ -155,6 +156,14 @@ namespace MPD
             t.type = TaskType.PLAYER_STOP;
             command_queue.push(t);
 		} 
+        public void player_seek(uint time)
+        {
+            Task t = new Task();
+            t.type = TaskType.PLAYER_SEEK;
+            t.param = GLib.Value(typeof(uint));
+            t.param.set_uint(time);
+            command_queue.push(t);
+        }
 		public void player_play()
 		{
             Task t = new Task();
@@ -549,6 +558,18 @@ namespace MPD
                         t.result = (void *)connection.run_get_queue_song_pos(t.param.get_uint());
                         result_queue.push(t);
                         GLib.Idle.add(process_result_queue);
+                    } else if (t.type == TaskType.PLAYER_SEEK) {
+                        var song = connection.run_current_song();
+                        if(song != null) {
+                            if(!connection.player_run_seek_id(song.id, t.param.get_uint()))
+                            {
+                                do_error_callback("failed to seek: %s".
+                                        printf(connection.get_error_message()));
+                            }
+                        }else{
+                            do_error_callback("failed to get song: %s".
+                                    printf(connection.get_error_message()));
+                        }
                     } else if (t.type == TaskType.PLAYER_PLAY_ID) {
                         if(!connection.player_run_play_id(t.param.get_uint()))
                         {

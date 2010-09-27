@@ -31,6 +31,8 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
 
         var  sp = new SongProgress      (this.m,480, 272, 32);
         this.children.append(sp);
+        var pb = new ProgressBar        (this.m, 150, 272-60, 480-160, 60-42);
+        this.children.append(pb);
         var frame   = new PlayerControl     (this.m,  0, 272-42,  480, 42,  32);
         this.children.append(frame);
 
@@ -195,6 +197,123 @@ class SongProgress : SDLWidget, SDLWidgetDrawing
     }
 }
 
+class ProgressBar : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
+{
+    private Surface button;
+    private Surface bar;
+    private weak Main m;
+    private uint32 elapsed_time = 0;
+    private uint32 total_time = 0;
+    private uint32 seek_time = 0;
+    private bool progressing = false;
+
+    public ProgressBar(Main m, int x, int y, int w, int h)
+    {
+        this.m = m;
+        this.x = x; this.y  = y; this.w = w; this.h = h;
+
+        bar = new Surface.RGB(0, w,8,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+        bar = bar.DisplayFormat();
+
+        SDL.Rect rect = {0,0,(uint16)w,(uint16)8};
+        bar.fill(rect, bar.format.map_rgb(255,255,255)); 
+
+        rect = {1, 1,(uint16)w-2,(uint16)6};
+        bar.fill(rect, bar.format.map_rgb(0,0,0)); 
+
+
+        button = new Surface.RGB(0, h,h,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+        button = button.DisplayFormat();
+        rect = {0,0,(uint16)h, (uint16)h};
+        button.fill(rect, button.format.map_rgb(255,255,255)); 
+        rect = {1,1,(uint16)h-2, (uint16)h-2};
+        button.fill(rect, button.format.map_rgb(20,25,255)); 
+
+
+
+        /* initialize */
+        m.MI.player_status_changed.connect((source, status) => {
+                elapsed_time = status.get_elapsed_time(); 
+                total_time = status.get_total_time(); 
+
+                if(status.state == MPD.Status.State.PLAY) progressing = true;
+                else progressing = false;
+                this.require_redraw = true;
+                });
+
+    }
+
+    public void draw_drawing(Surface screen)
+    {
+        SDL.Rect dest_rect = {0,0,0,0};
+        float fraction = 0.0f;
+
+        if(total_time > 0) {
+            fraction = elapsed_time/(float)total_time;
+        }
+        if(seeking) {
+            fraction = seek_time/(float)total_time;
+        }
+
+        dest_rect.x = (int16)this.x;
+        dest_rect.y = (int16)(this.y + (this.h-8)/2);
+        dest_rect.w = (uint16)this.w;
+        dest_rect.h = (uint16)8;
+
+        bar.blit_surface(null, screen, dest_rect);
+
+        dest_rect.y = (int16)this.y;
+        dest_rect.h = (uint16)this.h;
+        dest_rect.x = (int16)(this.x + (this.w-this.h)*fraction);
+
+        button.blit_surface(null, screen, dest_rect);
+    }
+
+    private time_t last_time = time_t(); 
+    public override void Tick(time_t now)
+    {
+        if(last_time != now){
+            if(progressing) {
+                elapsed_time++;
+                this.require_redraw = true;
+            }
+            last_time = now; 
+        }
+    }
+    private bool seeking = false;
+    public bool motion(double x, double y, bool pushed, bool released)
+    {
+        if(this.inside((int)x, (int)y) || seeking)
+        {
+            if(pushed || seeking)
+            {
+                if(total_time > 0) {
+                    if(!seeking) {
+                        if(progressing)
+                            this.m.MI.player_toggle_pause();
+                        seeking = true;
+                    }
+                    progressing = false;
+                    double fraction = (x-this.x)/this.w;
+                    fraction = (fraction < 0)? 0.0:(fraction > 1)? 1.0: fraction;
+                    fraction -= elapsed_time/(float)total_time;
+                    GLib.debug("%.2f fraction", fraction );
+                    uint n_time = (uint)(elapsed_time + (int)(total_time*fraction));
+                    seek_time = n_time;
+                    this.require_redraw = true;
+                    if(released){
+                        GLib.debug("time: %u", n_time);
+                        this.m.MI.player_seek(n_time);
+                        this.m.MI.player_play();
+                        seeking = false;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+}
+
 class PlayerControl : SDLWidget, SDLWidgetDrawing
 {
     private Surface sf;
@@ -347,4 +466,5 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         }
         return false;
     }
+
 }
