@@ -40,8 +40,16 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
         artist_label = new SDLMpc.Label(this.m,FontSize.NORMAL);
         album_label = new SDLMpc.Label(this.m,FontSize.SMALL);
 
+	title_label.set_text("Disconnected");
 
         m.MI.player_get_current_song(got_current_song);
+        m.MI.player_connection_changed.connect((source, connected) => {
+		if(connected) {
+			title_label.set_text("");
+		}else{
+			title_label.set_text("Disconnected");
+		}
+	});
         m.MI.player_status_changed.connect((source, status) => {
                 if((status.state == MPD.Status.State.PLAY ||
                     status.state == MPD.Status.State.PAUSE) 
@@ -206,6 +214,7 @@ class ProgressBar : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
     private uint32 total_time = 0;
     private uint32 seek_time = 0;
     private bool progressing = false;
+    private bool playback = false;
 
     public ProgressBar(Main m, int x, int y, int w, int h)
     {
@@ -236,6 +245,8 @@ class ProgressBar : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
                 elapsed_time = status.get_elapsed_time(); 
                 total_time = status.get_total_time(); 
 
+                if(status.state == MPD.Status.State.STOP) playback = false;
+		else playback = true;
                 if(status.state == MPD.Status.State.PLAY) progressing = true;
                 else progressing = false;
                 this.require_redraw = true;
@@ -245,6 +256,7 @@ class ProgressBar : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
 
     public void draw_drawing(Surface screen)
     {
+	if(!playback) return;
         SDL.Rect dest_rect = {0,0,0,0};
         float fraction = 0.0f;
 

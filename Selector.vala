@@ -129,7 +129,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
                 return true;
             }
         }
-        if(current == null) return false;
+        if(in_sub_item) return false;
         if(ev.type == SDLMpc.EventType.KEY)
         {
             if(ev.command == SDLMpc.EventCommand.UP)
@@ -170,6 +170,14 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
 		this.require_redraw = true;
 		return true;
             }
+            else if(ev.command == SDLMpc.EventCommand.LEFT)
+	    {
+		    SDLMpc.Event nev = new SDLMpc.Event();
+		    nev.type = SDLMpc.EventType.COMMANDS;
+		    nev.command = SDLMpc.EventCommand.BROWSE;
+		    this.m.push_event((owned)nev);
+		    return true;
+	    }
         }
         return false;
     }

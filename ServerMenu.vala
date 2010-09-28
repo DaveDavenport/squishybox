@@ -63,9 +63,9 @@ class ConnectButton : SDLWidget, SDLWidgetActivate
     {
         if(m.MI.check_connected())
         {
-            return "Disconnect";
+            return "Disconnect from MPD";
         }else{
-            return "Connect";
+            return "Connect to MPD";
         }
     }
     public bool activate()
