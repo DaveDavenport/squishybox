@@ -17,6 +17,7 @@ private class Item
 class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
 {
     private Main m;
+    private bool in_sub_item = false;
     private List<Item> entries;
 
     private unowned List<unowned Item> current= null;
@@ -32,7 +33,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         current_end = null;
         entries = null;
 
-		this.require_redraw = true;
+	this.require_redraw = true;
     }
     ~Selector()
     {
@@ -87,14 +88,15 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
     }
     public void Home()
     {
+	this.in_sub_item = false;
         this.children = null;
         if(current == null) {
             current = this.entries.first();
             current_start = current;
         }
         if(current == null) {
-			this.require_redraw = true;
-			return;
+		this.require_redraw = true;
+		return;
         }
         int top = 0;
         unowned List<Item> start = current_start;
@@ -110,30 +112,16 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         }while((top+5) < this.h && start != null);
         GLib.debug("top: %i\n", top);
         
-    /*
-        this.children=  null;
-        int top = offset;
-        foreach (Item i in entries)
-        {
-            i.button.y = top;
-            i.button.set_highlight(false);
-            i.button.update_text(i.widget.get_name());
-            this.children.append(i.button);
-            top += i.button.h+5;
-        }
-        current = entries.first();
-        */
         if(current != null)
         {
             current.data.button.set_highlight(true);
         }
-		this.require_redraw = true;
-
+	this.require_redraw = true;
     }
 
     public override bool Event(SDLMpc.Event ev)
     {
-        if(current == null && (ev.type == SDLMpc.EventType.KEY || ev.type == SDLMpc.EventType.COMMANDS))
+        if(in_sub_item && (ev.type == SDLMpc.EventType.KEY || ev.type == SDLMpc.EventType.COMMANDS))
         {
             if (ev.command == EventCommand.BROWSE) {
                 GLib.debug("Return home: %s", this.get_name());
@@ -175,11 +163,12 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
                     var r = (current.data.widget as SDLMpc.SDLWidgetActivate).activate();
                     if(r) return true;
                 }
-                this.children = null;
+		this.in_sub_item = true;
+		this.children = null;
                 this.children.append(current.data.widget);
-                this.current = null;
-				this.require_redraw = true;
-				return true;
+                //this.current = null;
+		this.require_redraw = true;
+		return true;
             }
         }
         return false;

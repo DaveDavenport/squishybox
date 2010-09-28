@@ -421,24 +421,24 @@ namespace MPD
         {
             return (connection != null);
         }
-		public void mpd_connect()
-		{
-            Task t = new Task();
-            t.type = TaskType.CONNECT;
+	public void mpd_connect()
+	{
+		Task t = new Task();
+		t.type = TaskType.CONNECT;
 
 
-            command_queue.push(t);
-        }
-		public void mpd_disconnect()
-		{
-            Task t = new Task();
-            t.type = TaskType.DISCONNECT;
+		command_queue.push(t);
+	}
+	public void mpd_disconnect()
+	{
+		Task t = new Task();
+		t.type = TaskType.DISCONNECT;
 
 
-            command_queue.push(t);
-        }
-        private void mpd_connect_real()
-        {
+		command_queue.push(t);
+	}
+	private void mpd_connect_real()
+	{
             io_channel = null;
             connection = new MPD.Connection(null,0, 5000);
             if(connection.get_error() != MPD.Error.SUCCESS)
