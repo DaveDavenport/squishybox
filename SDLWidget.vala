@@ -63,7 +63,7 @@ namespace SDLMpc
 
 		}
 
-		public bool check_redraw()
+		public virtual bool check_redraw()
 		{
 			if(this.require_redraw) return true;
 			foreach ( var child in children) 

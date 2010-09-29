@@ -33,7 +33,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         current_end = null;
         entries = null;
 
-	this.require_redraw = true;
+        this.require_redraw = true;
     }
     ~Selector()
     {
@@ -54,21 +54,24 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
     public void add_item(SDLWidget item)
     {
         Item i = new Item();
-        i.button = new SDLMpc.Button(this.m,0,0,(uint16)this.w, 45,item.get_name());
+        i.button = new SDLMpc.Button(
+                this.m,
+                0,0,
+                (uint16)this.w, 45,item.get_name());
         i.button.x_align = 0.03;
         i.widget = item;
         entries.append(i);
 
         i.button.b_clicked.connect((source) => {
-            if(item is SDLMpc.SDLWidgetActivate) {
-                var r = (item as SDLMpc.SDLWidgetActivate).activate();
-                if(r) return;
-            }
-            this.children = null;
-            this.current = null;
-            this.children.append(item);
-			this.require_redraw = true;
-        });
+                if(item is SDLMpc.SDLWidgetActivate) {
+                    var r = (item as SDLMpc.SDLWidgetActivate).activate();
+                    if(r) return;
+                }
+                this.children = null;
+                this.current = null;
+                this.children.append(item);
+                this.require_redraw = true;
+                });
         Home();
     }
 
@@ -88,15 +91,15 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
     }
     public void Home()
     {
-	this.in_sub_item = false;
+        this.in_sub_item = false;
         this.children = null;
         if(current == null) {
             current = this.entries.first();
             current_start = current;
         }
         if(current == null) {
-		this.require_redraw = true;
-		return;
+            this.require_redraw = true;
+            return;
         }
         int top = 0;
         unowned List<Item> start = current_start;
@@ -111,12 +114,31 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
             current_end = start;
         }while((top+5) < this.h && start != null);
         GLib.debug("top: %i\n", top);
-        
+
         if(current != null)
         {
             current.data.button.set_highlight(true);
         }
-	this.require_redraw = true;
+        this.require_redraw = true;
+    }
+
+    public override bool check_redraw()
+    {
+        foreach(Item i in entries)
+        {
+            if(i.widget.check_redraw()) {
+                i.button.update_text(i.widget.get_name());
+            }
+        }
+
+        if(this.require_redraw) return true;
+        foreach ( var child in children) 
+        {
+            if(child.check_redraw()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public override bool Event(SDLMpc.Event ev)
@@ -163,21 +185,21 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
                     var r = (current.data.widget as SDLMpc.SDLWidgetActivate).activate();
                     if(r) return true;
                 }
-		this.in_sub_item = true;
-		this.children = null;
+                this.in_sub_item = true;
+                this.children = null;
                 this.children.append(current.data.widget);
                 //this.current = null;
-		this.require_redraw = true;
-		return true;
+                this.require_redraw = true;
+                return true;
             }
             else if(ev.command == SDLMpc.EventCommand.LEFT)
-	    {
-		    SDLMpc.Event nev = new SDLMpc.Event();
-		    nev.type = SDLMpc.EventType.COMMANDS;
-		    nev.command = SDLMpc.EventCommand.BROWSE;
-		    this.m.push_event((owned)nev);
-		    return true;
-	    }
+            {
+                SDLMpc.Event nev = new SDLMpc.Event();
+                nev.type = SDLMpc.EventType.COMMANDS;
+                nev.command = SDLMpc.EventCommand.BROWSE;
+                this.m.push_event((owned)nev);
+                return true;
+            }
         }
         return false;
     }
@@ -191,24 +213,24 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
     private int offset = 0;
     public bool motion(double x, double y, bool pushed, bool released)
     {
-    /*
-        if(current == null) return false;
-        if(pushed) {
-            d_start = y;
-            start = y;
-        }
-        offset += y-start;
-        start = y;
-        if(offset > 0 ) offset = 0;
-        if(released){
-            start = 0;
-            d_start = 0;
-        }
+        /*
+           if(current == null) return false;
+           if(pushed) {
+           d_start = y;
+           start = y;
+           }
+           offset += y-start;
+           start = y;
+           if(offset > 0 ) offset = 0;
+           if(released){
+           start = 0;
+           d_start = 0;
+           }
         //if(offset.abs() > 10) {
-            Home();
-            this.require_redraw = true;;
+        Home();
+        this.require_redraw = true;;
         //}
-        */
+         */
         return false;
     }
 

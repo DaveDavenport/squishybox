@@ -28,8 +28,7 @@ class ServerMenu : SDLWidget, SDLWidgetActivate
         this.children.append(s);
 
         s.add_item(new ConnectButton(m, x,y,w,h,32));
-
-	s.add_item(new  ReturnButton(m, x,y,w,h,32));
+        s.add_item(new  ReturnButton(m, x,y,w,h,32));
     }
 
 
@@ -55,6 +54,7 @@ class ConnectButton : SDLWidget, SDLWidgetActivate
         this.h = h;
 
 	this.m.MI.player_connection_changed.connect((source,connect)=> {
+        GLib.debug("connection changed: %i", (int)connect);
 		this.require_redraw = true;
 	});
 
@@ -71,11 +71,12 @@ class ConnectButton : SDLWidget, SDLWidgetActivate
     public bool activate()
     {
         GLib.debug("activate");
-	if(m.MI.check_connected()) {
-		m.MI.mpd_connect();
-	}else{
-		m.MI.mpd_disconnect();
-	}
+        if(!m.MI.check_connected()) {
+            m.MI.mpd_connect();
+        }else{
+            m.MI.mpd_disconnect();
+        }
+		this.require_redraw = true;
         return true;
     }
 }
@@ -89,15 +90,15 @@ class ReturnButton : SDLWidget, SDLWidgetActivate
     }
     public override unowned string get_name()
     {
-	return "... ";
+        return "... ";
     }
     public bool activate()
     {
         GLib.debug("activate");
-	SDLMpc.Event ev = new SDLMpc.Event();
-	ev.type = SDLMpc.EventType.COMMANDS;
-	ev.command = SDLMpc.EventCommand.BROWSE;
-	this.m.push_event((owned)ev);
+        SDLMpc.Event ev = new SDLMpc.Event();
+        ev.type = SDLMpc.EventType.COMMANDS;
+        ev.command = SDLMpc.EventCommand.BROWSE;
+        this.m.push_event((owned)ev);
         return true;
     }
 }

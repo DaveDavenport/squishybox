@@ -217,7 +217,6 @@ namespace SDLMpc
             bg.do_Tick(time_t());
 
 			if(bg.check_redraw()){
-				debug("redraw()");
 				bg.draw(screen);
 				cc = true;
 			}
