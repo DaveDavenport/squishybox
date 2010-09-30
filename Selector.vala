@@ -127,8 +127,10 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
     {
         foreach(Item i in entries)
         {
-            if(i.widget.check_redraw()) {
+            if(i.widget.require_redraw) {
+                GLib.debug("redraw button text");
                 i.button.update_text(i.widget.get_name());
+                i.widget.require_redraw = false;
             }
         }
 
