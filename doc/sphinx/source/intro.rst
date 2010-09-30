@@ -1,6 +1,0 @@
-Intro
-*****
-
-Contents:
-
-Test
