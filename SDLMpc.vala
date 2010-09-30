@@ -317,8 +317,26 @@ namespace SDLMpc
             {
                 if(ev.type == SDLMpc.EventType.INVALID) 
                     continue;
+                if(ev.type == SDLMpc.EventType.KEY) {
+                    switch(ev.command) {
+                        case EventCommand.SLEEP:
+                            {
+                                var b = display_control.getBrightness();
+                                if(b == 255)
+                                    b = 55;
+                                else 
+                                    b+=50;
+                                display_control.setBrightness(b);
+                            }
+                            break;
+                        default:
+                            /* Forward */
+                            bg.do_Event(ev);
+                            break;
+                    }
+                }
                 /* Handle incoming remote events */
-                if(ev.type == SDLMpc.EventType.COMMANDS) {
+                else if(ev.type == SDLMpc.EventType.COMMANDS) {
                     switch(ev.command) {
                         case EventCommand.QUIT:
                             GLib.debug("request quit");
@@ -353,16 +371,7 @@ namespace SDLMpc
                                 MI.player_stop();
                             }
                             break;
-                        case EventCommand.SLEEP:
-                            {
-                                var b = display_control.getBrightness();
-                                if(b == 255)
-                                    b = 55;
-                                else 
-                                    b+=50;
-                                display_control.setBrightness(b);
-                            }
-                            break;
+
                         default:
                             bg.do_Event(ev);
                             break;
