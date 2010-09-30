@@ -511,6 +511,16 @@ namespace MPD
             [CCode (cname="mpd_run_noidle")]
             public MPD.Idle.Events run_noidle();
 
+            [CCode (cname="mpd_run_repeat")]
+            public bool run_repeat(bool state);
+
+            [CCode (cname="mpd_run_random")]
+            public bool run_random(bool state);
+            [CCode (cname="mpd_run_single")]
+            public bool run_single(bool state);
+            [CCode (cname="mpd_run_consume")]
+            public bool run_consume(bool state);
+
             [CCode (cname ="mpd_run_current_song")]
             public MPD.Song? run_current_song();
 
@@ -593,32 +603,32 @@ namespace MPD
             /**
              * Returns true if repeat mode is on.
              */
-            public int get_repeat();
-            public int repeat {
+            public bool get_repeat();
+            public bool repeat {
                 get;
             }
 
             /**
              * Returns true if random mode is on.
              */
-            public int get_random();
-            public int random {
+            public bool get_random();
+            public bool random {
                 get;
             }
 
             /**
              * Returns true if single mode is on.
              */
-            public int get_single();
-            public int single {
+            public bool get_single();
+            public bool single {
                 get;
             }
 
             /**
              * Returns true if consume mode is on.
              */
-            public int get_consume();
-            public int consume {
+            public bool get_consume();
+            public bool consume {
                 get;
             }
 

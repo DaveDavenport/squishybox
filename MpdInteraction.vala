@@ -13,6 +13,10 @@ namespace MPD
         PLAYER_PAUSE,
         PLAYER_STOP,
         PLAYER_SEEK,
+        PLAYER_REPEAT,
+        PLAYER_RANDOM,
+        PLAYER_SINGLE_MODE,
+        PLAYER_CONSUME_MODE,
         PLAYER_GET_CURRENT_SONG,
 
         PLAYER_GET_QUEUE,
@@ -192,6 +196,38 @@ namespace MPD
             t.type = TaskType.STATUS_CHANGED;
             command_queue.push(t);
         }
+        public void player_set_repeat(bool state)
+        {
+            Task t = new Task();
+            t.type = TaskType.PLAYER_REPEAT;
+            t.param = GLib.Value(typeof(bool));
+            t.param.set_boolean(state);
+            command_queue.push(t);
+        }
+        public void player_set_random(bool state)
+        {
+            Task t = new Task();
+            t.type = TaskType.PLAYER_RANDOM;
+            t.param = GLib.Value(typeof(bool));
+            t.param.set_boolean(state);
+            command_queue.push(t);
+        }
+        public void player_set_consume_mode(bool state)
+        {
+            Task t = new Task();
+            t.type = TaskType.PLAYER_CONSUME_MODE;
+            t.param = GLib.Value(typeof(bool));
+            t.param.set_boolean(state);
+            command_queue.push(t);
+        }
+        public void player_set_single_mode(bool state)
+        {
+            Task t = new Task();
+            t.type = TaskType.PLAYER_SINGLE_MODE;
+            t.param = GLib.Value(typeof(bool));
+            t.param.set_boolean(state);
+            command_queue.push(t);
+        }
 
 
         private bool process_result_queue()
@@ -235,7 +271,9 @@ namespace MPD
 		 */
 		private void idle_state_changed(MPD.Idle.Events events)
 		{
-			if((events&MPD.Idle.Events.PLAYER) > 0){
+			if((events&MPD.Idle.Events.PLAYER) > 0 ||
+                    (events&MPD.Idle.Events.OPTIONS) > 0
+                ){
                 Task t = new Task();
                 t.type = TaskType.STATUS_CHANGED;
                 t.result = (void *)connection.run_status();
@@ -570,6 +608,14 @@ namespace MPD
                             do_error_callback("failed to get song: %s".
                                     printf(connection.get_error_message()));
                         }
+                    } else if (t.type == TaskType.PLAYER_REPEAT) {
+                        connection.run_repeat(t.param.get_boolean());
+                    } else if (t.type == TaskType.PLAYER_RANDOM) {
+                        connection.run_random(t.param.get_boolean());
+                    } else if (t.type == TaskType.PLAYER_CONSUME_MODE) {
+                        connection.run_consume(t.param.get_boolean());
+                    } else if (t.type == TaskType.PLAYER_SINGLE_MODE) {
+                        connection.run_single(t.param.get_boolean());
                     } else if (t.type == TaskType.PLAYER_PLAY_ID) {
                         if(!connection.player_run_play_id(t.param.get_uint()))
                         {

@@ -57,7 +57,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         i.button = new SDLMpc.Button(
                 this.m,
                 0,0,
-                (uint16)this.w, 45,item.get_name());
+                (uint16)this.w, 40,item.get_name());
         i.button.x_align = 0.03;
         i.widget = item;
         entries.append(i);
@@ -70,6 +70,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
                 this.children = null;
                 this.current = null;
                 this.children.append(item);
+                this.in_sub_item = true;
                 this.require_redraw = true;
                 });
         Home();
