@@ -334,79 +334,77 @@ namespace MPD
 		}
 
 		private bool watch_callback(IOChannel source, IOCondition condition)
-		{
+        {
             /*lock(watch_id)*/
             command_queue.lock();
             if(condition == GLib.IOCondition.HUP) {
                 GLib.warning("Error occured. %u", watch_id);
             }
-            {
-                GLib.warning("watch callback called %i %i:%i:%i:%i:%i", condition,
-                        GLib.IOCondition.IN,GLib.IOCondition.OUT,GLib.IOCondition.PRI,GLib.IOCondition.ERR, GLib.IOCondition.HUP);
+            GLib.warning("watch callback called %i %i:%i:%i:%i:%i", condition,
+                    GLib.IOCondition.IN,GLib.IOCondition.OUT,GLib.IOCondition.PRI,GLib.IOCondition.ERR, GLib.IOCondition.HUP);
 
-                if(watch_id == 0) {
-                    GLib.warning("Idle canceld, ignoring");
-                    command_queue.unlock();
-                    return false;
-                }
-                MPD.Async.Event event = convert_io_condition(condition);;
-
-                bool success = async.io(event);
-                if(!success){
-                    GLib.warning("failed to read: %s", async.error_message);
-                    do_error_callback("failed to read: %s".printf(async.error_message));
-                    command_queue.unlock();
-                    return false;
-                }
-
-
-                /* There is new data to read */
-                if((condition&IOCondition.IN) == IOCondition.IN) {
-                    /* Start reading response */
-                    string line = null;
-                    MPD.Idle.Events events = 0;
-                    while((line = async.recv_line()) != null) {
-                        var result = parser.feed(line);
-                        if(result == MPD.Parser.Result.PAIR) {
-                            if(parser.get_name() == "changed") {
-                                events |= MPD.Idle.name_parse(parser.get_value());
-                            }
-                        } else if (result == MPD.Parser.Result.SUCCESS) {
-                            GLib.debug("Done parsing results");
-                        }
-                    }
-                    if(event != 0) {
-                        idle_state_changed(events);
-                    }
-                    /* Go back to idle mode */
-                    var suc = async.send_command("idle");
-                    if(!suc) {
-                        do_error_callback("failed to send idle: %s".printf(async.get_error_message()));
-                        GLib.critical("failed to send idle: %s", 
-                                async.get_error_message());
-                        command_queue.unlock();
-                        return false;
-                    }
-                }
-                /* Reset the events */
-                var events = async.get_events();
-                var cond = convert_events(events);
-
-                GLib.Source.remove(watch_id);
-
-                if(events == 0){
-                    watch_id = 0;
-                    command_queue.unlock();
-                    return false;
-                }
-
-                watch_id = io_channel.add_watch(cond,
-                        watch_callback);
-
+            if(watch_id == 0) {
+                GLib.warning("Idle canceld, ignoring");
+                command_queue.unlock();
+                return false;
             }
+            MPD.Async.Event event = convert_io_condition(condition);;
+
+            bool success = async.io(event);
+            if(!success){
+                GLib.warning("failed to read: %s", async.error_message);
+                command_queue.unlock();
+                do_error_callback("failed to read: %s".printf(async.error_message));
+                return false;
+            }
+
+
+            /* There is new data to read */
+            if((condition&IOCondition.IN) == IOCondition.IN) {
+                /* Start reading response */
+                string line = null;
+                MPD.Idle.Events events = 0;
+                while((line = async.recv_line()) != null) {
+                    var result = parser.feed(line);
+                    if(result == MPD.Parser.Result.PAIR) {
+                        if(parser.get_name() == "changed") {
+                            events |= MPD.Idle.name_parse(parser.get_value());
+                        }
+                    } else if (result == MPD.Parser.Result.SUCCESS) {
+                        GLib.debug("Done parsing results");
+                    }
+                }
+                if(event != 0) {
+                    idle_state_changed(events);
+                }
+                /* Go back to idle mode */
+                var suc = async.send_command("idle");
+                if(!suc) {
+                    command_queue.unlock();
+                    do_error_callback("failed to send idle: %s".printf(async.get_error_message()));
+                    GLib.critical("failed to send idle: %s", 
+                            async.get_error_message());
+                    return false;
+                }
+            }
+            /* Reset the events */
+            var events = async.get_events();
+            var cond = convert_events(events);
+
+            GLib.Source.remove(watch_id);
+
+            if(events == 0){
+                watch_id = 0;
+                command_queue.unlock();
+                return false;
+            }
+
+            watch_id = io_channel.add_watch(cond,
+                    watch_callback);
+
             command_queue.unlock();
-			return false;
-		}
+            return false;
+        }
 		private void start_idle()
 		{
 			/* If inside callback, ignore */
