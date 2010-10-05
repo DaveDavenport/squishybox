@@ -224,11 +224,11 @@ namespace SDLMpc
 				foreach ( SDL.Rect rect in rr)
 				{
 
-//					bg.draw(screen,&rect);
+					bg.draw(screen,&rect);
 				}
 				cc = true;
 				g.x = 0; g.y = 0; g.w = 480; g.h = 272;
-				bg.draw(screen,&g);
+//				bg.draw(screen,&g);
 			}
             /** 
              * Translate SDL Events 
