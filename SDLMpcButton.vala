@@ -77,13 +77,12 @@ namespace SDLMpc
             sf = new Surface.RGB(0, width,height,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
             sf = sf.DisplayFormatAlpha();
             if(height < 30) {
-                l = new Label(m, FontSize.SMALL,x+2,y+2,(uint16)w-4,(uint16)h-4);
-				this.children.append(l);
+                l = new Label(m, FontSize.SMALL,(int16)this.x+2,(int16)this.y+2,(uint16)w-4,(uint16)h-4);
             }else{
-                l = new Label(m, FontSize.NORMAL,x+2,y+2,(uint16)w-4,(uint16)h-4);
-				this.children.append(l);
+                l = new Label(m, FontSize.NORMAL,(int16)this.x+2,(int16)this.y+2,(uint16)w-4,(uint16)h-4);
             }
-            update_text(text);
+			this.children.append(l);
+			update_text(text);
         }
 
         ~Button()
@@ -99,10 +98,10 @@ namespace SDLMpc
 
 		public override void button_press()
 		{
+			GLib.debug("PlayerControl bg press");
 			if(!pressed)
 			{
-				SDL.Rect rect = {0,0,(uint16)this.w,(uint16)this.h};
-				GLib.debug("PlayerControl bg press");
+				GLib.debug("PlayerControl bg pressed");
 				pressed =true;
 				update_text(null);
 				this.require_redraw = true;;

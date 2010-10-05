@@ -11,7 +11,7 @@ namespace SDLMpc
 
 		public List<SDLWidget> children;
 
-		public bool require_redraw = false;
+		public bool require_redraw = true;
 
         public virtual unowned string get_name()
         {
@@ -56,11 +56,12 @@ namespace SDLMpc
 		
 		public virtual void button_press()
 		{
+			stdout.printf("button_press()\n");
 
 		}
 		public virtual void button_release(bool inside)
 		{
-
+			stdout.printf("button_release()\n");
 		}
 
 		public virtual bool check_redraw()
@@ -73,37 +74,55 @@ namespace SDLMpc
 			return false;
 		}
 
-		public virtual void get_redraw_rect(SDL.Rect *rect)
+		public virtual List<SDL.Rect ?> get_redraw_rect(owned List<SDL.Rect?> rr,SDL.Rect g)
 		{
-			if(x > 0) {
-             	stdout.printf("w: %d %d %d %d\n ", x,y,w,h);
-			}
-			if(this.require_redraw) {
-            	rect.x = (int16)((x > 0)? ((rect.x >x)?rect.x:x):rect.x);
-            	rect.y = (int16)((y > 0)? ((rect.y >y)?rect.y:y):rect.y);
-            	rect.w = (int16)((w > 0)? ((rect.w >w)?rect.w:w):rect.w);
-            	rect.h = (int16)((h > 0)? ((rect.h >h)?rect.h:h):rect.h);
-			}     
+			g.x += (int16)x;
+			g.y += (int16)y;
 			foreach ( var child in children) 
 			{
-				child.get_redraw_rect(rect);
+				rr = child.get_redraw_rect((owned)rr,g);
 			}  
+			g.x -= (int16)x;
+			g.y -= (int16)y;
+			if(this.require_redraw) {
+				if((w) > 0 && (h) > 0)
+				{
+					GLib.stdout.printf("ll %d %d %d %d\n", this.x,this.y, this.w, this.h);
 
+					SDL.Rect r = {0,0,0,0};
+					r.x =(int16) this.x; r.y =(int16) this.y; r.w =(uint16)this.w; r.h =(uint16) this.h;
+					rr.append(r);
+				}
+			}     
 
+        	return (owned)rr;
 		}
 		public bool intersect(SDL.Rect r)
 		{
-			if(((x >= r.x && x <= (r.x+r.w)) || (x+w >= r.x && x+w  <= (r.x+r.w))) &&
-						((y >= r.y && y <= (r.y+r.h)) || (y+h >= r.y && y+h  <= (r.y+r.h))))
-			{
-				return true;
+
+			GLib.stdout.printf("%s: %d-%d %d-%d -> %d-%d %d-%d\n",
+				this.get_name(),
+				r.x, r.x+r.w, r.y, r.y+r.h,
+				this.x, this.x+this.w, this.y, this.y+this.h);
+			if(((this.x >= r.x && r.x <= (this.x+this.w)) || ((this.x >= r.x+r.w) && (r.x+r.w <= (this.x+this.w))))
+					&&
+					((this.y >= r.y && r.y <= (this.y+this.h)) || ((this.y >= r.y+r.h) && (r.y+r.h <= (this.y+this.h))))){
+					GLib.stdout.printf("intersect; %s\n", this.get_name());
+                 return true;
+				}
+			if(((r.x >= this.x && this.x <= (r.x+r.w)) || ((r.x >= this.x+this.w) && (this.x+this.w <= (r.x+r.w))))
+					&&
+					((r.y >= this.y && this.y <= (r.y+r.h)) || ((r.y >= this.y+this.h) && (this.y+this.h <= (r.y+r.h))))){
+					GLib.stdout.printf("intersect; %s\n", this.get_name());
+                 return true;
 			}
 			return false;
 		}
 		public void draw(Surface screen, SDL.Rect *rect)
 		{
 			if(this is SDLWidgetDrawing) {
-				if(this.intersect(*rect)){
+				if(this.intersect(*rect))
+				{
 					(this as SDLWidgetDrawing).draw_drawing(screen, rect);
 				}
 			}

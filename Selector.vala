@@ -107,13 +107,15 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
 
         do{
             start.data.button.y = top;
+            start.data.button.l.y = top;
             start.data.button.set_highlight(false);
             start.data.button.update_text(start.data.widget.get_name());
             this.children.append(start.data.button);
             top += start.data.button.h+3;
             start = start.next;
             current_end = start;
-        }while((top+5) < this.h && start != null);
+			GLib.debug("top: %i\n", top);
+		}while((top+5) < this.h && start != null);
         GLib.debug("top: %i\n", top);
 
         if(current != null)

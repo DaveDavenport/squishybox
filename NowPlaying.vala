@@ -29,18 +29,21 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
     {
         this.m = m;
 
-        var  sp = new SongProgress      (this.m,480, 272, 32);
-        this.children.append(sp);
-        var pb = new ProgressBar        (this.m, 150, 272-60, 480-160, 60-42);
+//        var  sp = new SongProgress      (this.m,480, 272, 32);
+//        this.children.append(sp);
+        var pb = new ProgressBar        (this.m, 140, 272-60, 480-170, 60-42);
         this.children.append(pb);
         var frame   = new PlayerControl     (this.m,  0, 272-42,  480, 42,  32);
         this.children.append(frame);
 
-        title_label = new SDLMpc.Label(this.m,FontSize.LARGE, 5,5,480-10,40);
+        title_label = new SDLMpc.Label	(this.m,FontSize.LARGE,
+				5,5,480-10,50);
 		this.children.append(title_label);
-        artist_label = new SDLMpc.Label(this.m,FontSize.NORMAL, 5,5,480-10,80);
+        artist_label = new SDLMpc.Label	(this.m,FontSize.NORMAL,
+				5,55,480-10,40);
 		this.children.append(artist_label);
-        album_label = new SDLMpc.Label(this.m,FontSize.SMALL, 5,5,480-10,120);
+        album_label = new SDLMpc.Label	(this.m,FontSize.SMALL, 	
+				5,95,480-10,30);
 		this.children.append(album_label);
 
 		title_label.set_text("Disconnected");
@@ -121,12 +124,15 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
 
     public override void Tick(time_t now)
     {
-        if(title_label.scrolling ||
-            artist_label.scrolling ||
-            album_label.scrolling ) {
-            this.require_redraw = true;;
-            return;
-        }
+		if(title_label.scrolling) {
+         	title_label.require_redraw = true;
+		}
+		if(artist_label.scrolling) {
+         	artist_label.require_redraw = true;
+		}
+		if(album_label.scrolling) {
+         	album_label.require_redraw = true;
+		}
     }
     public override bool Event(SDLMpc.Event ev)
     {
@@ -149,6 +155,11 @@ class SongProgress : SDLWidget, SDLWidgetDrawing
     private uint32 elapsed_time = 0;
     private uint32 total_time = 0;
     private bool progressing = false;
+
+	public override unowned string get_name()
+	{
+		return "SongProgress" ;
+	}
 
     public SongProgress (Main m,int w, int h, int bpp)
     {
@@ -221,6 +232,10 @@ class ProgressBar : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
     private bool progressing = false;
     private bool playback = false;
 
+	public override unowned string get_name()
+	{
+		return "ProgressBar";
+	}
     public ProgressBar(Main m, int x, int y, int w, int h)
     {
         this.m = m;
@@ -263,6 +278,7 @@ class ProgressBar : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
     {
 		if(!playback) return;
 		SDL.Rect dest_rect = {0,0,0,0};
+		SDL.Rect src_rect = {0,0,0,0};
         float fraction = 0.0f;
 
         if(total_time > 0) {
@@ -283,8 +299,9 @@ class ProgressBar : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
         dest_rect.h = (uint16)this.h;
         dest_rect.x = (int16)(this.x + (this.w-this.h)*fraction);
 		dest_rect.w = (uint16)this.h;
+		src_rect.h = src_rect.w = (uint16)this.h;
 
-        button.blit_surface(null, screen, dest_rect);
+        button.blit_surface(src_rect, screen, dest_rect);
     }
 
     private time_t last_time = time_t(); 
@@ -348,6 +365,10 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
     private bool stopped = false;
 
 
+	public override unowned string get_name()
+	{
+		return "PlayerControl";
+	}
 
     public PlayerControl(Main m,int x, int y, int w, int h, int bpp)
     {

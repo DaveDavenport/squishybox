@@ -82,11 +82,6 @@ namespace SDLMpc
 
         public void draw_drawing(Surface screen, SDL.Rect *orect)
         {
-            //sf.blit_surface(null, screen, dest_rect);
-			render(screen, (int16)this.x,(int16) this.y);
-        }
-        private void render(Surface screen, int x, int y)
-        {
             SDL.Rect shadow_dst_rect = {0,0,0,0};
             SDL.Rect src_rect = {0,0,0,0};
             SDL.Rect dst_rect = {0,0,0,0};
@@ -113,10 +108,10 @@ namespace SDLMpc
                 scrolling = true;
             }
 
-            src_rect.x = (int16) (0+offset);
+            src_rect.x = (int16) 0;
             src_rect.y = (int16) 0;
-            src_rect.w = (int16) (screen.w-x);
-            src_rect.h = (int16) (screen.h-y);
+            src_rect.w = (int16) (w-x);
+            src_rect.h = (int16) (h-y);
 
             sf_shadow.blit_surface(src_rect, screen, shadow_dst_rect);
             sf.blit_surface(src_rect, screen, dst_rect);
