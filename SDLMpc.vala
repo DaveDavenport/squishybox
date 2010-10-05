@@ -217,7 +217,11 @@ namespace SDLMpc
             bg.do_Tick(time_t());
 
 			if(bg.check_redraw()){
-				bg.draw(screen);
+				SDL.Rect rect = {0,0,0,0};
+				bg.get_redraw_rect(&rect);
+				GLib.stdout.printf("%d %d %d %d\n", rect.x,rect.y, rect.w, rect.h);
+
+				bg.draw(screen,&rect);
 				cc = true;
 			}
             /** 

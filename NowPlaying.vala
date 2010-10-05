@@ -36,11 +36,14 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
         var frame   = new PlayerControl     (this.m,  0, 272-42,  480, 42,  32);
         this.children.append(frame);
 
-        title_label = new SDLMpc.Label(this.m,FontSize.LARGE);
-        artist_label = new SDLMpc.Label(this.m,FontSize.NORMAL);
-        album_label = new SDLMpc.Label(this.m,FontSize.SMALL);
+        title_label = new SDLMpc.Label(this.m,FontSize.LARGE, 5,5,480-10,40);
+		this.children.append(title_label);
+        artist_label = new SDLMpc.Label(this.m,FontSize.NORMAL, 5,5,480-10,80);
+		this.children.append(artist_label);
+        album_label = new SDLMpc.Label(this.m,FontSize.SMALL, 5,5,480-10,120);
+		this.children.append(album_label);
 
-	title_label.set_text("Disconnected");
+		title_label.set_text("Disconnected");
 
         m.MI.player_get_current_song(got_current_song);
         m.MI.player_connection_changed.connect((source, connected) => {
@@ -72,8 +75,9 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
 
 
     }
-    public void draw_drawing(Surface screen)
+    public void draw_drawing(Surface screen, SDL.Rect *orect)
     {
+		/*
         SDL.Rect rect = {0,0,0,0};
 
         rect.y = 5;
@@ -84,6 +88,7 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
 
         rect.y += (int16)artist_label.height();
         album_label.render(screen, 5, rect.y);
+		*/
     }
 
     private void got_current_song(MPD.Song? song)
@@ -149,8 +154,8 @@ class SongProgress : SDLWidget, SDLWidgetDrawing
     {
         this.m = m;
 
-        elapsed_label = new SDLMpc.Label(this.m,FontSize.SMALL);
-        total_label = new SDLMpc.Label(this.m,FontSize.SMALL);
+        elapsed_label = new SDLMpc.Label(this.m,FontSize.SMALL,0,0,0,0 );
+        total_label = new SDLMpc.Label(this.m,FontSize.SMALL,0,0,0,0);
 
         /* initialize */
         m.MI.player_status_changed.connect((source, status) => {
@@ -172,15 +177,15 @@ class SongProgress : SDLWidget, SDLWidgetDrawing
 
 
     }
-    public void draw_drawing(Surface screen)
+    public void draw_drawing(Surface screen, SDL.Rect *orect)
     {
         SDL.Rect rect = {0,0,0,0};
 
         rect.y = (int16)(screen.h-40-elapsed_label.height());
         rect.x = 5;
 
-        elapsed_label.render(screen,  5, rect.y);
-        total_label.render(screen, 10+elapsed_label.width(), rect.y);
+//        elapsed_label.render(screen,  5, rect.y);
+//        total_label.render(screen, 10+elapsed_label.width(), rect.y);
     }
     private void update_time()
     {
@@ -254,10 +259,10 @@ class ProgressBar : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
 
     }
 
-    public void draw_drawing(Surface screen)
+    public void draw_drawing(Surface screen, SDL.Rect *orect)
     {
-	if(!playback) return;
-        SDL.Rect dest_rect = {0,0,0,0};
+		if(!playback) return;
+		SDL.Rect dest_rect = {0,0,0,0};
         float fraction = 0.0f;
 
         if(total_time > 0) {
@@ -277,6 +282,7 @@ class ProgressBar : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
         dest_rect.y = (int16)this.y;
         dest_rect.h = (uint16)this.h;
         dest_rect.x = (int16)(this.x + (this.w-this.h)*fraction);
+		dest_rect.w = (uint16)this.h;
 
         button.blit_surface(null, screen, dest_rect);
     }
@@ -416,7 +422,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         this.children.append(next_button);
         this.children.append(quit_button);
     }
-    public void draw_drawing(Surface screen)
+    public void draw_drawing(Surface screen, SDL.Rect *orect)
     {
         SDL.Rect dest_rect = {0,0,0,0};
 

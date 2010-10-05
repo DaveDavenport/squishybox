@@ -77,7 +77,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
     }
 
     /* Return the surface it needs to draw */
-    public void draw_drawing(Surface screen)
+    public void draw_drawing(Surface screen, SDL.Rect *orect)
     {
     }
 

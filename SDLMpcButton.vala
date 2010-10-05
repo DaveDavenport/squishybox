@@ -53,7 +53,7 @@ namespace SDLMpc
 			}else {
 				sf.fill(rect, sf.format.map_rgba(0,0,0,170)); 
 			}
-			l.render(sf, (int)((sf.w -l.width())*_x_align)+1 , (sf.h-l.height())/2);
+			//l.render(sf, (int)((sf.w -l.width())*_x_align)+1 , (sf.h-l.height())/2);
             this.require_redraw = true;;
         }
         public void update_text(string? text)
@@ -77,9 +77,11 @@ namespace SDLMpc
             sf = new Surface.RGB(0, width,height,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
             sf = sf.DisplayFormatAlpha();
             if(height < 30) {
-                l = new Label(m, FontSize.SMALL);
+                l = new Label(m, FontSize.SMALL,x+2,y+2,(uint16)w-4,(uint16)h-4);
+				this.children.append(l);
             }else{
-                l = new Label(m, FontSize.NORMAL);
+                l = new Label(m, FontSize.NORMAL,x+2,y+2,(uint16)w-4,(uint16)h-4);
+				this.children.append(l);
             }
             update_text(text);
         }
@@ -89,7 +91,7 @@ namespace SDLMpc
             GLib.debug("finalize button");
         }
 
-        public void draw_drawing(Surface screen)
+        public void draw_drawing(Surface screen, SDL.Rect *orect)
         {
             SDL.Rect dest_rect = {(int16)this.x,(int16) this.y,(uint16)this.w,(uint16) this.h};
             sf.blit_surface(null, screen, dest_rect);

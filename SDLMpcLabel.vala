@@ -9,7 +9,7 @@ namespace SDLMpc
      * Ment for single line.
      *
      */
-    class Label : SDLWidget
+    class Label : SDLWidget, SDLWidgetDrawing
     {
         private SDLMpc.Main        m;
         private weak Font        font;
@@ -48,13 +48,18 @@ namespace SDLMpc
             return sf.h+shadow_offset;
         }
 
-        public Label(Main m, FontSize size)
+        public Label(Main m, FontSize size, int16 x, int16 y, uint16 width, uint16 height)
         {
             SDL.Color b = {255,255,255};
             this.m = m;
+			this.x = x;
+			this.y = y;
+			this.w = width;
+			this.h = height;
             font = this.m.fonts[size];
             sf = font.render_blended_utf8(" ",b); 
             sf_shadow = font.render_blended_utf8(" ", c_shadow);
+			this.require_redraw = true;
         }
 
         public void set_text(string? a)
@@ -72,9 +77,15 @@ namespace SDLMpc
             offset = 0;
             step = step.abs();
             end_delay = 10;
+			this.require_redraw = true;
         }
 
-        public void render(Surface screen, int x, int y)
+        public void draw_drawing(Surface screen, SDL.Rect *orect)
+        {
+            //sf.blit_surface(null, screen, dest_rect);
+			render(screen, (int16)this.x,(int16) this.y);
+        }
+        private void render(Surface screen, int x, int y)
         {
             SDL.Rect shadow_dst_rect = {0,0,0,0};
             SDL.Rect src_rect = {0,0,0,0};

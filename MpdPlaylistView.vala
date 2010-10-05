@@ -108,7 +108,7 @@ class MpdPlaylistView : SDLWidget, SDLWidgetActivate,SDLWidgetDrawing,SDLWidgetM
             i++;
         }
     }
-        public void draw_drawing(Surface screen)
+        public void draw_drawing(Surface screen, SDL.Rect *orect)
         {
             var index = 0;
             foreach(var child in this.children)

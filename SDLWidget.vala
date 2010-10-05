@@ -73,15 +73,44 @@ namespace SDLMpc
 			return false;
 		}
 
-		public void draw(Surface screen)
+		public virtual void get_redraw_rect(SDL.Rect *rect)
+		{
+			if(x > 0) {
+             	stdout.printf("w: %d %d %d %d\n ", x,y,w,h);
+			}
+			if(this.require_redraw) {
+            	rect.x = (int16)((x > 0)? ((rect.x >x)?rect.x:x):rect.x);
+            	rect.y = (int16)((y > 0)? ((rect.y >y)?rect.y:y):rect.y);
+            	rect.w = (int16)((w > 0)? ((rect.w >w)?rect.w:w):rect.w);
+            	rect.h = (int16)((h > 0)? ((rect.h >h)?rect.h:h):rect.h);
+			}     
+			foreach ( var child in children) 
+			{
+				child.get_redraw_rect(rect);
+			}  
+
+
+		}
+		public bool intersect(SDL.Rect r)
+		{
+			if(((x >= r.x && x <= (r.x+r.w)) || (x+w >= r.x && x+w  <= (r.x+r.w))) &&
+						((y >= r.y && y <= (r.y+r.h)) || (y+h >= r.y && y+h  <= (r.y+r.h))))
+			{
+				return true;
+			}
+			return false;
+		}
+		public void draw(Surface screen, SDL.Rect *rect)
 		{
 			if(this is SDLWidgetDrawing) {
-				(this as SDLWidgetDrawing).draw_drawing(screen);
+				if(this.intersect(*rect)){
+					(this as SDLWidgetDrawing).draw_drawing(screen, rect);
+				}
 			}
 			this.require_redraw = false;
 			foreach ( var child in children) 
 			{
-				child.draw(screen);
+				child.draw(screen,rect);
 			}
 
 		}
@@ -142,7 +171,7 @@ namespace SDLMpc
 	}
 	public interface SDLWidgetDrawing : SDLWidget  
 	{
-		public abstract void draw_drawing(Surface screen);
+		public abstract void draw_drawing(Surface screen, SDL.Rect *rect);
 	}
     public interface SDLWidgetActivate : SDLWidget
     {
