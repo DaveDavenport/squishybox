@@ -98,19 +98,6 @@ namespace SDLMpc
             if(r.x == 0 && r.y == 0 && r.h == 272 && r.w == 480) return true;
             return !(this.x> (r.x+r.w) || (this.x+this.w) <= r.x ||
                     this.y > (r.y+r.h) || (this.y+this.h) <= r.y);
-
-            
-			if(((this.x >= r.x && r.x <= (this.x+this.w)) || ((this.x >= (r.x+r.w)) && ((r.x+r.w) <= (this.x+this.w))))
-					&&
-					((this.y >= r.y && r.y <= (this.y+this.h)) || ((this.y >= (r.y+r.h)) && ((r.y+r.h) <= (this.y+this.h)))))
-            {
-                return true;
-            }/*
-			if(((r.x >= this.x && this.x <= (r.x+r.w)) || ((r.x >= this.x+this.w) && (this.x+this.w <= (r.x+r.w))))
-					&&
-					((r.y >= this.y && this.y <= (r.y+r.h)) || ((r.y >= this.y+this.h) && (this.y+this.h <= (r.y+r.h))))){
-                 return true;
-			}*/
 			return false;
 		}
 		public void draw(Surface screen, SDL.Rect *rect)

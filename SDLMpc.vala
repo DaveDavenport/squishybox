@@ -74,7 +74,7 @@ namespace SDLMpc
          * Object to set backlight
          */
         public DisplayControl display_control = new DisplayControl();
-
+        private Surface sf = null;
 
         private double old_pos_x = 0.0;
         private double old_pos_y = 0.0;
@@ -147,11 +147,14 @@ namespace SDLMpc
                     480,
                     272,
                     32,
-                    SDL.SurfaceFlag.DOUBLEBUF|
+                   /* SDL.SurfaceFlag.DOUBLEBUF|*/
+                   SDL.SurfaceFlag.ASYNCBLIT|
                     SDL.SurfaceFlag.HWSURFACE|
                     SDL.SurfaceFlag.FULLSCREEN);
 #endif
 
+            sf = new Surface.RGB(0, 480,272,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+            sf = sf.DisplayFormat();
 
             fonts[FontSize.TINY] = new Font("test.ttf", 10);
             fonts[FontSize.SMALL] = new Font("test.ttf", 20);
@@ -224,9 +227,14 @@ namespace SDLMpc
 				foreach ( SDL.Rect rect in rr)
 				{
                     GLib.stdout.printf("redraw %d %d %d %d\n", rect.x,rect.y, rect.w, rect.h);
-					bg.draw(screen,&rect);
+					bg.draw(sf,&rect);
 				}
 				cc = true;
+                /* Custom double buffering */
+                g.x = 0; g.y = 0; g.w = 480; g.h = 272;
+                sf.blit_surface(g, screen,g);
+                /* Not needed on SBT? */
+                screen.update_rect(0,0,480,272);
 			}
             /** 
              * Translate SDL Events 
@@ -414,7 +422,7 @@ namespace SDLMpc
 
             }
             if(cc){
-                screen.flip();
+                //screen.flip();
             }
             return true;
         }

@@ -445,7 +445,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
     }
     public void draw_drawing(Surface screen, SDL.Rect *orect)
     {
-  //      SDL.Rect dest_rect = {0,0,0,0};
+        SDL.Rect dest_rect = {0,0,0,0};
         SDL.Rect src_rect = {0,0,0,0};
 /*
         dest_rect.x = (int16)this.x;
@@ -453,12 +453,18 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         dest_rect.w = (uint16)this.w;
         dest_rect.h = (uint16)this.h;
        */ 
-        src_rect.x = (int16)(orect.x-this.x);
-        src_rect.y = (int16)(orect.y-this.y);
+        src_rect.x = int16.max((int16)(orect.x-this.x),0);
+        src_rect.y = int16.max((int16)(orect.y-this.y), 0);
         src_rect.w = uint16.min(orect.w,(uint16)this.w);
         src_rect.h = uint16.min(orect.h,(uint16)this.h);
 
-        sf.blit_surface(src_rect, screen, *orect);
+
+        dest_rect.x = (int16)(src_rect.x+this.x);
+        dest_rect.y = (int16)(src_rect.y+this.y);
+        dest_rect.w = (int16)(src_rect.w);
+        dest_rect.h = (int16)(src_rect.h);
+        GLib.debug("redrawing:  %d %d %d %d\n", dest_rect.x, dest_rect.y, dest_rect.x+dest_rect.w, dest_rect.y + dest_rect.h);
+        sf.blit_surface(src_rect, screen, dest_rect);
     }
     public override void button_press()
     {
