@@ -108,13 +108,14 @@ namespace SDLMpc
                 scrolling = true;
             }
 
-            src_rect.x = (int16) 0;
+            src_rect.x = (int16) offset;
             src_rect.y = (int16) 0;
             src_rect.w = (int16) (w-x);
             src_rect.h = (int16) (h-y);
 
             sf_shadow.blit_surface(src_rect, screen, shadow_dst_rect);
             sf.blit_surface(src_rect, screen, dst_rect);
+            GLib.debug("redraw label");
         }
     }
 }

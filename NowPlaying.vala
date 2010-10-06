@@ -31,7 +31,7 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
 
 //        var  sp = new SongProgress      (this.m,480, 272, 32);
 //        this.children.append(sp);
-        var pb = new ProgressBar        (this.m, 140, 272-60, 480-170, 60-42);
+        var pb = new ProgressBar        (this.m, 140, 272-60, 480-170, 60-43);
         this.children.append(pb);
         var frame   = new PlayerControl     (this.m,  0, 272-42,  480, 42,  32);
         this.children.append(frame);
@@ -40,10 +40,10 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
 				5,5,480-10,50);
 		this.children.append(title_label);
         artist_label = new SDLMpc.Label	(this.m,FontSize.NORMAL,
-				5,55,480-10,40);
+				5,60,480-10,40);
 		this.children.append(artist_label);
         album_label = new SDLMpc.Label	(this.m,FontSize.SMALL, 	
-				5,95,480-10,30);
+				5,105,480-10,30);
 		this.children.append(album_label);
 
 		title_label.set_text("Disconnected");
@@ -445,14 +445,20 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
     }
     public void draw_drawing(Surface screen, SDL.Rect *orect)
     {
-        SDL.Rect dest_rect = {0,0,0,0};
-
+  //      SDL.Rect dest_rect = {0,0,0,0};
+        SDL.Rect src_rect = {0,0,0,0};
+/*
         dest_rect.x = (int16)this.x;
         dest_rect.y = (int16)this.y;
         dest_rect.w = (uint16)this.w;
         dest_rect.h = (uint16)this.h;
+       */ 
+        src_rect.x = (int16)(orect.x-this.x);
+        src_rect.y = (int16)(orect.y-this.y);
+        src_rect.w = uint16.min(orect.w,(uint16)this.w);
+        src_rect.h = uint16.min(orect.h,(uint16)this.h);
 
-        sf.blit_surface(null, screen, dest_rect);
+        sf.blit_surface(src_rect, screen, *orect);
     }
     public override void button_press()
     {

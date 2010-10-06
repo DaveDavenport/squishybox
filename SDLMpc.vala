@@ -216,19 +216,17 @@ namespace SDLMpc
             /* Clear the screen */
             bg.do_Tick(time_t());
 
-			
-			if(bg.check_redraw()){
-				SDL.Rect g = {0,0,0,0};
-				List<SDL.Rect?> rr = null;
-				rr = bg.get_redraw_rect((owned)rr,g);
+            List<SDL.Rect?> rr = null;
+            SDL.Rect g = {0,0,0,0};
+            rr = bg.get_redraw_rect((owned)rr,g);
+			if(rr != null) 
+            {
 				foreach ( SDL.Rect rect in rr)
 				{
-
+                    GLib.stdout.printf("redraw %d %d %d %d\n", rect.x,rect.y, rect.w, rect.h);
 					bg.draw(screen,&rect);
 				}
 				cc = true;
-				g.x = 0; g.y = 0; g.w = 480; g.h = 272;
-//				bg.draw(screen,&g);
 			}
             /** 
              * Translate SDL Events 

@@ -98,10 +98,8 @@ namespace SDLMpc
 
 		public override void button_press()
 		{
-			GLib.debug("PlayerControl bg press");
 			if(!pressed)
 			{
-				GLib.debug("PlayerControl bg pressed");
 				pressed =true;
 				update_text(null);
 				this.require_redraw = true;;
@@ -111,7 +109,6 @@ namespace SDLMpc
 		{
 			if(pressed) {
 				SDL.Rect rect = {0,0,(uint16)this.w,(uint16)this.h};
-				GLib.debug("PlayerControl bg release");
 				sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
 				pressed = false;
 
