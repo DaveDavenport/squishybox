@@ -110,8 +110,10 @@ namespace SDLMpc
 
             src_rect.x = (int16) offset;
             src_rect.y = (int16) 0;
-            src_rect.w = (int16) (w-x);
-            src_rect.h = (int16) (h-y);
+            src_rect.w = uint16.min((uint16)w, (uint16)(orect.x+orect.w-this.x));
+            src_rect.h = uint16.min((uint16)h, (uint16)(orect.y+orect.h-this.y));
+            //src_rect.h = (int16) (h);
+
 
             sf_shadow.blit_surface(src_rect, screen, shadow_dst_rect);
             sf.blit_surface(src_rect, screen, dst_rect);

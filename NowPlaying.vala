@@ -29,21 +29,22 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
     {
         this.m = m;
 
-//        var  sp = new SongProgress      (this.m,480, 272, 32);
-//        this.children.append(sp);
-        var pb = new ProgressBar        (this.m, 140, 272-60, 480-170, 60-43);
+        var  sp = new SongProgress      (this.m,5, 270-65,140, 22, 32);
+        this.children.append(sp);
+
+        var pb = new ProgressBar        (this.m, 150, 272-65, 480-180, 60-43);
         this.children.append(pb);
         var frame   = new PlayerControl     (this.m,  0, 272-42,  480, 42,  32);
         this.children.append(frame);
 
         title_label = new SDLMpc.Label	(this.m,FontSize.LARGE,
-				5,5,480-10,50);
+				5,5,480-10,55);
 		this.children.append(title_label);
         artist_label = new SDLMpc.Label	(this.m,FontSize.NORMAL,
-				5,60,480-10,40);
+				5,65,480-10,40);
 		this.children.append(artist_label);
         album_label = new SDLMpc.Label	(this.m,FontSize.SMALL, 	
-				5,105,480-10,30);
+				5,115,480-10,30);
 		this.children.append(album_label);
 
 		title_label.set_text("Disconnected");
@@ -80,18 +81,6 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
     }
     public void draw_drawing(Surface screen, SDL.Rect *orect)
     {
-		/*
-        SDL.Rect rect = {0,0,0,0};
-
-        rect.y = 5;
-        title_label.render(screen, 5, rect.y);
-
-        rect.y += (int16)title_label.height();
-        artist_label.render(screen, 5, rect.y);
-
-        rect.y += (int16)artist_label.height();
-        album_label.render(screen, 5, rect.y);
-		*/
     }
 
     private void got_current_song(MPD.Song? song)
@@ -161,12 +150,14 @@ class SongProgress : SDLWidget, SDLWidgetDrawing
 		return "SongProgress" ;
 	}
 
-    public SongProgress (Main m,int w, int h, int bpp)
+    public SongProgress (Main m,int16 x, int16 y, uint16 w, uint16 h, int bpp)
     {
         this.m = m;
+        this.x = x; this.y = y; this.h = h; this.w = w;
 
-        elapsed_label = new SDLMpc.Label(this.m,FontSize.SMALL,0,0,0,0 );
-        total_label = new SDLMpc.Label(this.m,FontSize.SMALL,0,0,0,0);
+        elapsed_label = new SDLMpc.Label(this.m,FontSize.SMALL,x,y,w,h);
+        this.children.append(elapsed_label);
+        this.elapsed_label.set_text("00:00");
 
         /* initialize */
         m.MI.player_status_changed.connect((source, status) => {
@@ -174,8 +165,6 @@ class SongProgress : SDLWidget, SDLWidgetDrawing
                 total_time = status.get_total_time(); 
 
                 /* Update total time string */
-                string a = "- %02u:%02u".printf(total_time/60, total_time%60);
-                total_label.set_text(a);
 
                 if(current_song_id != status.song_id)
                 {
@@ -200,10 +189,11 @@ class SongProgress : SDLWidget, SDLWidgetDrawing
     }
     private void update_time()
     {
-        string a = "%02u:%02u".printf(elapsed_time/60, elapsed_time%60);
+        string a = "%02u:%02u - %02u:%02u".printf(
+                elapsed_time/60, elapsed_time%60,
+                total_time/60, total_time%60
+                );
         elapsed_label.set_text(a);
-
-        this.require_redraw = true;;
     }
 
 
@@ -466,7 +456,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         GLib.debug("redrawing:  %d %d %d %d\n", dest_rect.x, dest_rect.y, dest_rect.x+dest_rect.w, dest_rect.y + dest_rect.h);
         sf.blit_surface(src_rect, screen, dest_rect);
     }
-    public override void button_press()
+    public override bool button_press()
     {
         if(!pressed)
         {
@@ -475,7 +465,9 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
             pressed =true;
             sf.fill(rect, sf.format.map_rgba(200,30,30,128)); 
             this.require_redraw = true;;
+            return true;
         }
+        return false;
     }
     public override void button_release(bool inside)
     {

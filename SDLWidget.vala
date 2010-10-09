@@ -6,8 +6,8 @@ namespace SDLMpc
 	{
 		public int x;
 		public int y;
-		public int w;
-		public int h;
+		public uint w;
+		public uint h;
 
 		public List<SDLWidget> children;
 
@@ -40,7 +40,7 @@ namespace SDLMpc
 			if(this.inside(x,y))
 			{
 				if(press_state) {
-					this.button_press();
+					if(this.button_press()) return true;
 				}
 				else
 					this.button_release(true);
@@ -54,9 +54,9 @@ namespace SDLMpc
 			return false;
 		}
 		
-		public virtual void button_press()
+		public virtual bool button_press()
 		{
-
+            return false;
 		}
 		public virtual void button_release(bool inside)
 		{

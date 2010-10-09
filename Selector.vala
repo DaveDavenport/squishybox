@@ -111,7 +111,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
             start.data.button.set_highlight(false);
             start.data.button.update_text(start.data.widget.get_name());
             this.children.append(start.data.button);
-            top += start.data.button.h+3;
+            top += (int)start.data.button.h+3;
             start = start.next;
             current_end = start;
 			GLib.debug("top: %i\n", top);

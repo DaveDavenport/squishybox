@@ -222,17 +222,27 @@ namespace SDLMpc
             List<SDL.Rect?> rr = null;
             SDL.Rect g = {0,0,0,0};
             rr = bg.get_redraw_rect((owned)rr,g);
+
+            g.x = 0; g.y = 0; g.w = 480; g.h = 272;
+#if SHOW_REDRAW
+            var rsf = new Surface.RGB(0, 480,272,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+            rsf.fill(g, sf.format.map_rgba(130,30,130,128)); 
+            rsf  = rsf.DisplayFormatAlpha();
+#endif
 			if(rr != null) 
             {
 				foreach ( SDL.Rect rect in rr)
 				{
-                    GLib.stdout.printf("redraw %d %d %d %d\n", rect.x,rect.y, rect.w, rect.h);
 					bg.draw(sf,&rect);
 				}
 				cc = true;
                 /* Custom double buffering */
-                g.x = 0; g.y = 0; g.w = 480; g.h = 272;
                 sf.blit_surface(g, screen,g);
+#if SHOW_REDRAW
+                foreach ( SDL.Rect rect in rr) {
+                    rsf.blit_surface(rect, screen,rect);
+                }
+#endif
                 /* Not needed on SBT? */
                 screen.update_rect(0,0,480,272);
 			}
