@@ -108,16 +108,16 @@ class MpdPlaylistView : SDLWidget, SDLWidgetActivate,SDLWidgetDrawing,SDLWidgetM
             i++;
         }
     }
-        public void draw_drawing(Surface screen, SDL.Rect *orect)
+    public void draw_drawing(Surface screen, SDL.Rect *orect)
+    {
+        var index = 0;
+        foreach(var child in this.children)
         {
-            var index = 0;
-            foreach(var child in this.children)
-            {
-                GLib.debug("position: %i->%i",child.y,index);
-                (child as MenuButton).set_y(this.y+index);
-                index += 30;
-            }
+            GLib.debug("position: %i->%i",child.y,index);
+            (child as MenuButton).set_y(this.y+index);
+            index += 30;
         }
+    }
 
 
     public override bool Event(SDLMpc.Event ev)
@@ -143,8 +143,7 @@ class MpdPlaylistView : SDLWidget, SDLWidgetActivate,SDLWidgetDrawing,SDLWidgetM
                     a.data = last;
                     (a.data as MenuButton).set_pos(top);
                 }
-                this.require_redraw = true;;
-
+                update();
                 return true;
             }
             else if(ev.command == SDLMpc.EventCommand.DOWN)
@@ -167,8 +166,8 @@ class MpdPlaylistView : SDLWidget, SDLWidgetActivate,SDLWidgetDrawing,SDLWidgetM
                     a.data = first;
                      (a.data as MenuButton).set_pos(top+num_items-1);
                 }
-                this.require_redraw = true;;
 
+                update();
                 return true;
             } else if(ev.command == SDLMpc.EventCommand.RIGHT)
             {
@@ -197,6 +196,7 @@ class MenuButton : SDLWidget, SDLWidgetActivate
     {
         this.y = y;
         this.b.y = y;
+        this.b.update();
     }
 
     public void update_entry(uint pos, string name)
@@ -254,6 +254,7 @@ class MenuButton : SDLWidget, SDLWidgetActivate
             this.b.update_text(this.name);
             this.m.MI.player_get_queue_pos(get_song, this.pos);
         }
+        else this.b.update();
     }
 
     public bool activate()

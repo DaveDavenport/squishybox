@@ -38,7 +38,7 @@ namespace SDLMpc
             update();
         }
 
-        private void update()
+        public void update()
         {
             SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
 

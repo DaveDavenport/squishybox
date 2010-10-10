@@ -65,10 +65,6 @@ namespace SDLMpc
 		public virtual bool check_redraw()
 		{
 			if(this.require_redraw) return true;
-			foreach ( var child in children) 
-			{
-				if(child.check_redraw()) return true;
-			}
 			return false;
 		}
 
@@ -82,7 +78,7 @@ namespace SDLMpc
 			}  
 			g.x -= (int16)x;
 			g.y -= (int16)y;
-			if(this.require_redraw) {
+			if(this.check_redraw()) {
 				if((w) > 0 && (h) > 0)
 				{
 					SDL.Rect r = {0,0,0,0};

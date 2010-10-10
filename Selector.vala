@@ -134,20 +134,10 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
                     GLib.debug("redraw button text");
                     i.button.update_text(i.widget.get_name());
                     i.widget.require_redraw = false;
-                    this.require_redraw = true;
                 }
             }
-            return this.require_redraw;
         }
-
-        if(this.require_redraw) return true;
-        foreach ( var child in children) 
-        {
-            if(child.check_redraw()) {
-                return true;
-            }
-        }
-        return false;
+        return this.require_redraw;
     }
 
     public override bool Event(SDLMpc.Event ev)
