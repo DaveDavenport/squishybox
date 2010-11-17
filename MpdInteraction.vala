@@ -21,8 +21,9 @@ namespace MPD
 
         PLAYER_GET_QUEUE,
         PLAYER_GET_QUEUE_POS,
+        DATABASE_GET_DIRECTORY,
 
-	QUEUE_SEARCH_ANY,
+        QUEUE_SEARCH_ANY,
 
         CONNECTION_CHANGED,
         QUEUE_CHANGED,
@@ -74,6 +75,7 @@ namespace MPD
 		 */
         private void do_error_callback(string error_message)
         {
+            GLib.debug(error_message);
             /* Lock both queue's and empty them */
             result_queue.lock();
             command_queue.lock();
@@ -99,6 +101,18 @@ namespace MPD
         }
 		public signal void error_callback(string error_message);
 
+        /**
+         * Database 
+         */
+        public void database_get_directory(SongListCallback callback, string directory)
+        {
+            Task t = new Task();
+            t.type = TaskType.DATABASE_GET_DIRECTORY;
+            t.slcallback =  callback;
+            t.param = GLib.Value(typeof(string));
+            t.param.set_string(directory);
+            command_queue.push(t);
+        }
 
 
 		/**
@@ -254,6 +268,8 @@ namespace MPD
                 } else if (t.type == TaskType.PLAYER_GET_QUEUE_POS) {
                     MPD.Song song = (MPD.Song)t.result;
                     t.cscallback(song);
+                } else if (t.type == TaskType.DATABASE_GET_DIRECTORY) {
+                    t.slcallback(t.song_list);
                 } else if (t.type == TaskType.CONNECTION_CHANGED) {
                     player_connection_changed((this.connection == null)?false:true);
                 } else if (t.type == TaskType.ERROR_CALLBACK) {
@@ -670,7 +686,29 @@ namespace MPD
                                     GLib.Idle.add(process_result_queue);
                                 }
                             }
+                    }else if (t.type == TaskType.DATABASE_GET_DIRECTORY) {
+                        GLib.debug("directory");
+                        MPD.Song? song;
+                        List<MPD.Song>? songs = null;
+                        connection.database_send_list_meta(t.param.get_string());
+                        while((song = connection.recv_song()) != null)
+                        {
+                            GLib.debug("directory: %s", song.uri);
+                            songs.prepend((owned)song);
+                        }
+                        if(!connection.response_finish()){
+                            do_error_callback("failed to get directory: %s".printf(connection.get_error_message()));
+                        }else{
+                            songs.reverse();
+                            Task j = new Task();
+                            j.type = TaskType.DATABASE_GET_DIRECTORY;
+                            j.slcallback = t.slcallback;
+                            j.song_list = (owned)songs;
+                            result_queue.push(j);
+                            GLib.Idle.add(process_result_queue);
+                        }
                     }
+
                 }
 
             }

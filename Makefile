@@ -5,6 +5,7 @@ sdlmpc_SOURCES=\
 	$(wildcard *.vala)
 
 .PHONY: debug
+
 debug: $(sdlmpc_SOURCES)
 	$(VALAC) -o $@ $^ --pkg=libmpdclient --pkg=linux --pkg=posix --vapidir=./vapi/ --pkg=sdl --pkg=sdl-image --pkg=sdl-ttf --Xcc="-lSDL_ttf"    --Xcc="-lSDL_image"  --thread -D PC -D SHOW_REDRAW 
 

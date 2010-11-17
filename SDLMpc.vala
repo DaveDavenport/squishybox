@@ -179,10 +179,11 @@ namespace SDLMpc
             selector = new Selector (this,  0,      0,  480, 272, 32);
 
             /* Add items */
-            (selector as Selector).add_item(new NowPlaying (this, 480, 272, 32));
-            (selector as Selector).add_item(new MpdPlaylistView (this,0,0,480,272,32));
-            (selector as Selector).add_item(new ServerMenu (this,0,0,480,272,32));
-            (selector as Selector).add_item(new Standby(this));
+            (selector as Selector).add_item(new NowPlaying      (this, 480, 272, 32));
+            (selector as Selector).add_item(new MpdPlaylistView (this, 0, 0, 480, 272, 32));
+            (selector as Selector).add_item(new MpdDatabaseView (this, 0, 0, 480, 272, 32));
+            (selector as Selector).add_item(new ServerMenu      (this,0,0,480,272,32));
+            (selector as Selector).add_item(new Standby         (this));
 
             /* Add main selector to background */
             bg.children.append(selector);

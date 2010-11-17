@@ -539,6 +539,8 @@ namespace MPD
             [CCode (cname="mpd_run_get_queue_song_pos")]
             public MPD.Song? run_get_queue_song_pos(uint pos);
 
+            [CCode (cname="mpd_send_list_meta")]
+            public bool database_send_list_meta(string directory);
         }
         
         /**
