@@ -4,6 +4,7 @@ PROGRAMS=sdlmpc
 sdlmpc_SOURCES=\
 	$(wildcard *.vala)
 
+all: sdlmpc
 .PHONY: debug
 
 debug: $(sdlmpc_SOURCES)

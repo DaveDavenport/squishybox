@@ -181,7 +181,7 @@ namespace SDLMpc
             /* Add items */
             (selector as Selector).add_item(new NowPlaying      (this, 480, 272, 32));
             (selector as Selector).add_item(new MpdPlaylistView (this, 0, 0, 480, 272, 32));
-            (selector as Selector).add_item(new MpdDatabaseView (this, 0, 0, 480, 272, 32));
+            (selector as Selector).add_item(new MpdDatabaseView (this, 0, 0, 480, 272, 32,null));
             (selector as Selector).add_item(new ServerMenu      (this,0,0,480,272,32));
             (selector as Selector).add_item(new Standby         (this));
 

@@ -536,9 +536,31 @@ namespace MPD
             [CCode (cname="mpd_recv_song")]
             public MPD.Song? recv_song();
 
+
+
+            /**
+             * Receives the next entity from the MPD server.
+             *
+             * @return an entity object, or NULL on error or if the entity list is
+             * finished
+             */
+            [CCode (cname="mpd_recv_entity", cheader_filename="mpd/entity.h")]
+            public MPD.Entity? recv_entity();
+
+
             [CCode (cname="mpd_run_get_queue_song_pos")]
             public MPD.Song? run_get_queue_song_pos(uint pos);
 
+            /**
+             * Get a list of all directories, songs and playlist in a directory
+             * from MPD, including metadata.
+             *
+             * To read the response, you may use mpd_recv_entity().
+             *
+             * @param connection the connection to MPD
+             * @param path the directory to be listed
+             * @return true on success, false on error
+             */
             [CCode (cname="mpd_send_list_meta")]
             public bool database_send_list_meta(string directory);
         }
@@ -859,6 +881,83 @@ namespace MPD
 
 
                 public unowned string get_tag(MPD.Tag.Type tag, uint index);
+        }
+
+        [CCode (cname = "struct mpd_directory",
+            free_function = "mpd_directory_free",
+            copy_function = "mpd_directory_dup",
+            cheader_filename = "mpd/directory.h")]
+        [Compact]
+        [Immutable]
+        public class Directory
+        {
+                /**
+                 * Returns the path of this directory, relative to the MPD music
+                 * directory.  It does not begin with a slash.
+                 */
+                public unowned string get_path();
+                /**
+                 * Returns the path of this directory, relative to the MPD music
+                 * directory.  It does not begin with a slash.
+                 */
+                public unowned string path { get;}
+        }
+
+        [CCode (cname = "struct mpd_entity",
+            free_function = "mpd_entity_free",
+            cheader_filename = "mpd/entity.h")]
+        [Compact]
+        [Immutable]
+        public class Entity
+        {
+                /**
+                 * The type of a #mpd_entity object.
+                 */
+                public enum Type {
+                        /**
+                         * The type of the entity received from MPD is not implemented
+                         * in this version of libmpdclient.
+                         */
+                        UNKNOWN,
+
+                        /**
+                         * A directory (#mpd_directory) containing more entities.
+                         */
+                        DIRECTORY,
+
+                        /**
+                         * A song file (#mpd_song) which can be added to the playlist.
+                         */
+                        SONG,
+
+                        /**
+                         * A stored playlist (#mpd_playlist).
+                         */
+                        PLAYLIST,
+                }
+
+                /**
+                 * @return the type of this entity.
+                 */
+                public MPD.Entity.Type get_type(); 
+
+                /**
+                 * Obtains a pointer to the #mpd_directory object enclosed by this
+                 * #mpd_entity.  Calling this function is only allowed of
+                 * mpd_entity_get_type() has returned #MPD_ENTITY_TYPE_DIRECTORY.
+                 *
+                 * @return the directory object
+                 */
+                public unowned MPD.Directory? get_directory();
+
+                /**
+                 * Obtains a pointer to the #mpd_song object enclosed by this
+                 * #mpd_entity.  Calling this function is only allowed of
+                 * mpd_entity_get_type() has returned #MPD_ENTITY_TYPE_SONG.
+                 *
+                 * @return the song object
+                 */
+                 public unowned MPD.Song? get_song();
         }
 }
 

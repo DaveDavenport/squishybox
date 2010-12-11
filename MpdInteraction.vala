@@ -33,7 +33,7 @@ namespace MPD
     }
     private delegate void GenericCallback (void *data);
     public delegate void CurrentSongCallback(MPD.Song? current_song);
-    public delegate void SongListCallback(List<MPD.Song>? song_list);
+    public delegate void EntityListCallback(List<MPD.Entity>? song_list);
     static int uid_c = 0;
     private class Task{
         public Task()
@@ -46,11 +46,11 @@ namespace MPD
 
         public void *result;
         /* Vala does not allow me to pack this */
-        public List<MPD.Song>? song_list = null;
+        public List<MPD.Entity>? entity_list = null;
 
         public GenericCallback callback;
         public CurrentSongCallback cscallback;
-        public SongListCallback slcallback;
+        public EntityListCallback slcallback;
     }
 
 
@@ -104,7 +104,7 @@ namespace MPD
         /**
          * Database 
          */
-        public void database_get_directory(SongListCallback callback, string directory)
+        public void database_get_directory(EntityListCallback callback, string directory)
         {
             Task t = new Task();
             t.type = TaskType.DATABASE_GET_DIRECTORY;
@@ -118,7 +118,7 @@ namespace MPD
 		/**
 		 *  Player Commands
 		 */
-        public void queue_search_any(SongListCallback callback, string query)
+        public void queue_search_any(EntityListCallback callback, string query)
         {
             Task t = new Task();
             t.type = TaskType.QUEUE_SEARCH_ANY;
@@ -143,7 +143,7 @@ namespace MPD
             t.cscallback =  callback;
             command_queue.push(t);
         }
-        public void player_get_queue(SongListCallback callback)
+        public void player_get_queue(EntityListCallback callback)
         {
             Task t = new Task();
             t.type = TaskType.PLAYER_GET_QUEUE;
@@ -262,14 +262,14 @@ namespace MPD
                     MPD.Song song = (MPD.Song)t.result;
                     t.cscallback(song);
                 }  else if (t.type == TaskType.PLAYER_GET_QUEUE) {
-                    t.slcallback(t.song_list);
+                    t.slcallback(t.entity_list);
                 }  else if (t.type == TaskType.QUEUE_SEARCH_ANY) {
-                    t.slcallback(t.song_list);
+                    t.slcallback(t.entity_list);
                 } else if (t.type == TaskType.PLAYER_GET_QUEUE_POS) {
                     MPD.Song song = (MPD.Song)t.result;
                     t.cscallback(song);
                 } else if (t.type == TaskType.DATABASE_GET_DIRECTORY) {
-                    t.slcallback(t.song_list);
+                    t.slcallback(t.entity_list);
                 } else if (t.type == TaskType.CONNECTION_CHANGED) {
                     player_connection_changed((this.connection == null)?false:true);
                 } else if (t.type == TaskType.ERROR_CALLBACK) {
@@ -645,65 +645,63 @@ namespace MPD
                     } else if (t.type == TaskType.PLAYER_GET_QUEUE) {
                         if(connection.send_list_queue_meta())
                         {
-                            MPD.Song? song;
-                            List<MPD.Song>? songs = null;
-                            while((song = connection.recv_song()) != null)
+                            MPD.Entity? entity;
+                            List<MPD.Entity>? entitys = null;
+                            while((entity = connection.recv_entity()) != null)
                             {
-                                songs.prepend((owned)song);
+                                entitys.prepend((owned)entity);
                             }
                             if(!connection.response_finish()){
                                 do_error_callback("failed to get playlist: %s".printf(connection.get_error_message()));
                             }else{
-                                songs.reverse();
+                                entitys.reverse();
                                 Task j = new Task();
                                 j.type = TaskType.PLAYER_GET_QUEUE;
                                 j.slcallback = t.slcallback;
-                                j.song_list = (owned)songs;
+                                j.entity_list = (owned)entitys;
                                 result_queue.push(j);
                                 GLib.Idle.add(process_result_queue);
                             }
                         }
                     }else if (t.type == TaskType.QUEUE_SEARCH_ANY) {
-                            MPD.Song? song;
-                            List<MPD.Song>? songs = null;
+                            MPD.Entity? entity;
+                            List<MPD.Entity>? entitys = null;
                             if(connection.search_queue_songs(false))
                             {
                                 connection.search_add_any_tag_constraint(MPD.Operator.DEFAULT, t.param.get_string());
                                 connection.search_commit();	
-                                while((song = connection.recv_song()) != null)
+                                while((entity = connection.recv_entity()) != null)
                                 {
-                                    songs.prepend((owned)song);
+                                    entitys.prepend((owned)entity);
                                 }
                                 if(!connection.response_finish()){
                                     do_error_callback("failed to get playlist: %s".printf(connection.get_error_message()));
                                 }else{
-                                    songs.reverse();
+                                    entitys.reverse();
                                     Task j = new Task();
                                     j.type = TaskType.QUEUE_SEARCH_ANY;
                                     j.slcallback = t.slcallback;
-                                    j.song_list = (owned)songs;
+                                    j.entity_list = (owned)entitys;
                                     result_queue.push(j);
                                     GLib.Idle.add(process_result_queue);
                                 }
                             }
                     }else if (t.type == TaskType.DATABASE_GET_DIRECTORY) {
-                        GLib.debug("directory");
-                        MPD.Song? song;
-                        List<MPD.Song>? songs = null;
+                        MPD.Entity entity;
+                        List<MPD.Entity>? entities = null;
                         connection.database_send_list_meta(t.param.get_string());
-                        while((song = connection.recv_song()) != null)
+                        while((entity = connection.recv_entity()) != null)
                         {
-                            GLib.debug("directory: %s", song.uri);
-                            songs.prepend((owned)song);
+                            entities.prepend((owned)entity);
                         }
                         if(!connection.response_finish()){
                             do_error_callback("failed to get directory: %s".printf(connection.get_error_message()));
                         }else{
-                            songs.reverse();
+                            entities.reverse();
                             Task j = new Task();
                             j.type = TaskType.DATABASE_GET_DIRECTORY;
                             j.slcallback = t.slcallback;
-                            j.song_list = (owned)songs;
+                            j.entity_list = (owned)entities;
                             result_queue.push(j);
                             GLib.Idle.add(process_result_queue);
                         }
