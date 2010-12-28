@@ -68,17 +68,22 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
         m.MI.player_status_changed.connect((source, status) => 
         {
         });
+        /*
         m.MI.player_connection_changed.connect((source, connect) => {
                 if(connect) {
                     source.database_get_directory(database_directory,directory); 
                 }
         });
-
-        m.MI.database_get_directory(database_directory, directory);
+*/
 
     }
+    private bool init = false;
     public bool activate()
     {
+        if(!init) {
+            m.MI.database_get_directory(database_directory, directory);
+            init = true;
+        }
 //        this.s.activate();
         return false;
     }
