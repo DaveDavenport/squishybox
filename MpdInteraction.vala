@@ -56,7 +56,7 @@ namespace MPD
 
 	public class Interaction : GLib.Object
 	{
-        private weak Thread command_thread ;
+        private weak Thread<void*> command_thread ;
 		private MPD.Connection connection = null;
         /* Async is owned by connection */
 		private unowned MPD.Async async = null;
@@ -717,7 +717,7 @@ namespace MPD
         public Interaction ()
         {
             try {
-                command_thread = Thread.create(thread_func,true);
+                command_thread = Thread.create<void*>(thread_func,true);
             }catch(ThreadError e){
                 GLib.error("Failed to create thread: %s", e.message);
             }
@@ -734,7 +734,8 @@ namespace MPD
             command_queue.push_unlocked(t);
             result_queue.unlock();
             command_queue.unlock();
-            command_thread.join();
+            void *a;
+            a = command_thread.join();
             GLib.debug("Command thread destroyed");
         }
 	}

@@ -913,6 +913,7 @@ namespace MPD
                 /**
                  * The type of a #mpd_entity object.
                  */
+                 [CCode (cname="enum mpd_entity_type")]
                 public enum Type {
                         /**
                          * The type of the entity received from MPD is not implemented
