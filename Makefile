@@ -12,8 +12,9 @@ PROGRAM=sdlmpc
 #
 # Source files
 #
-sdlmpc_SOURCES=\
-	$(wildcard *.vala)
+SOURCES=\
+	$(wildcard SRC/*.vala)\
+	$(wildcard SRC/**/*.vala)
 
 #
 # Directory where source files should be dumped
@@ -62,13 +63,15 @@ VALA_FLAGS=--thread --Xcc="-lSDL_ttf"
 # Make right syntax for vala
 ##
 VALA_PKG=$(foreach p,$(VALA_PACKAGES) $(PKGCONFIG_PACKAGES),--pkg=$p)
+VAPI_DIRS=$(foreach p,$(VAPI_DIR), --vapidir=$p)
+
 
 ##
 # Check if packages are available
 ##
 PACKAGES_EXISTS=$(shell pkg-config --exists $(PKGCONFIG_PACKAGES); echo $$?)
 ifeq ($(PACKAGES_EXISTS),0)
-    $(info All $(PKGCONFIG_PACKAGES) packages found)
+    $(info ** $(PKGCONFIG_PACKAGES) packages found)
 else
     $(error One or more packages missing from: $(PKGCONFIG_PACKAGES))
 endif
@@ -83,23 +86,34 @@ $(BUILD_DIR):
 	$(info Create '$@' Directory)
 	$(QUIET)mkdir -p '$@'
 
-$(PROGRAM): $(sdlmpc_SOURCES) $(BUILD_DIR)
-	$(info Building source files: '$(sdlmpc_SOURCES)')
-	$(QUIET) $(VALAC) -o $@ $(sdlmpc_SOURCES)  --vapidir=$(VAPI_DIR)  $(VALA_PKG) $(VALA_FLAGS) -D PC -d $(BUILD_DIR)
+$(PROGRAM): $(SOURCES) $(BUILD_DIR)
+	$(info Building source files: '$(SOURCES)')
+	$(QUIET) $(VALAC) -o $@ $(SOURCES)  $(VAPI_DIRS)  $(VALA_PKG) $(VALA_FLAGS) -D PC -d $(BUILD_DIR)
 
 $(SOURCE_DIR):
 	$(info Create '$@' Directory)
 	$(QUIET)mkdir -p '$@'
 
-source:  $(sdlmpc_SOURCES) $(SOURCE_DIR)
-	$(info Creating source files: '$(sdlmpc_SOURCES)')
-	$(QUIET) $(VALAC) $(sdlmpc_SOURCES)  --vapidir=$(VAPI_DIR) $(VALA_PKG) $(VALA_FLAGS) -C -d $(SOURCE_DIR)
+source:  $(SOURCES) $(SOURCE_DIR)
+	$(info Creating source files: '$(SOURCES)')
+	$(QUIET) $(VALAC) $(SOURCES)  $(VAPI_DIRS) $(VALA_PKG) $(VALA_FLAGS) -C -d $(SOURCE_DIR)
 
+
+##
+# Run it.
+##
+.PHONY: run
+run:
+	$(BUILD_DIR)/$(PROGRAM)
+
+##
+# Clean up
+##
 clean:
 	 $(info Removing $(BUILD_DIR) and $(SOURCE_DIR))
-	$(QUIET) @rm -r $(BUILD_DIR) $(SOURCE_DIR)
+	$(QUIET) @rm -rf $(BUILD_DIR) $(SOURCE_DIR)
 
 
 .PHONY: doc
 doc:
-	valadoc --package-name=SDLMpc  --force --no-protected --internal --private -b ./ --doclet=html -o doc/api-html *.vala --vapidir=$(VAPI_DIR) $(VALA_PKG)
+	valadoc --package-name=SDLMpc  --force --no-protected --internal --private -b ./ --doclet=html -o doc/api-html *.vala $(VAPI_DIRS) $(VALA_PKG)
