@@ -3,7 +3,6 @@
  *
  * Todo list:
  * 
- *  # Create a set of fixed font sizes widgets can use.
  *  # Make better scrolling by touch.
  *  # Fix event handling.
  *
@@ -18,6 +17,7 @@ using SDLMpc;
 
 namespace SDLMpc
 {
+    /* Helper functions */
     public string format_song_title(MPD.Song song)
 	{
 		string retv = "";
@@ -43,11 +43,11 @@ namespace SDLMpc
     public enum FontSize
     {
         TINY,
-            SMALL,
-            NORMAL,
-            LARGE,
-            VERY_LARGE,
-            NUM_FONTS
+        SMALL,
+        NORMAL,
+        LARGE,
+        VERY_LARGE,
+        NUM_FONTS
     }
 
     class Main : GLib.Object
@@ -62,6 +62,13 @@ namespace SDLMpc
          * MPD Interaction object.
          */
         public MPD.Interaction MI = new MPD.Interaction();
+
+        /**
+         * SDL Event Handler 
+         */
+        private SDLEvent sdl_events;
+        private IREvent  ir_events;
+        private TCEvent  tc_events;
 
         /**
          * The mainloop
@@ -149,25 +156,33 @@ namespace SDLMpc
                     480,
                     272,
                     32,
-                   /* SDL.SurfaceFlag.DOUBLEBUF|*/
-                   SDL.SurfaceFlag.ASYNCBLIT|
+                    /* SDL.SurfaceFlag.DOUBLEBUF|*/
+                    SDL.SurfaceFlag.ASYNCBLIT|
                     SDL.SurfaceFlag.HWSURFACE|
                     SDL.SurfaceFlag.FULLSCREEN);
 #endif
 
-            sf = new Surface.RGB(0, 480,272,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+            sf = new Surface.RGB    (   0, 480,272,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
             sf = sf.DisplayFormat();
 
-            fonts[FontSize.TINY] = new Font("test.ttf", 10);
-            fonts[FontSize.SMALL] = new Font("test.ttf", 20);
-            fonts[FontSize.NORMAL] = new Font("test.ttf", 30);
-            fonts[FontSize.LARGE] = new Font("test.ttf", 40);
-            fonts[FontSize.VERY_LARGE] = new Font("test.ttf", 50);
+            fonts[FontSize.TINY]        = new Font("test.ttf", 10);
+            fonts[FontSize.SMALL]       = new Font("test.ttf", 20);
+            fonts[FontSize.NORMAL]      = new Font("test.ttf", 30);
+            fonts[FontSize.LARGE]       = new Font("test.ttf", 40);
+            fonts[FontSize.VERY_LARGE]  = new Font("test.ttf", 50);
 
             /* Error check */
             if(screen == null) {
                 GLib.error("failed to create screen\n");
             }
+
+            /** Event handlers */
+            /* sdl event handle block */
+            sdl_events = new SDLEvent(this);
+            /* Infrared input event handling. */
+            ir_events = new IREvent(this);
+            /* Touchscreen input event handling */
+            tc_events = new TCEvent(this);
 
             /* Create background drawer */
             GLib.debug("Create background draw object");
@@ -223,10 +238,8 @@ namespace SDLMpc
         {
             bool cc = false;
 
-            SDL.Event event = SDL.Event();
-            SDLMpc.Event ev; 
 
-            /* Clear the screen */
+            /* Time Tick */
             time_t now = time_t();
             standby.Tick(now);
             bg.do_Tick(now);
@@ -242,13 +255,13 @@ namespace SDLMpc
             rsf.fill(g, sf.format.map_rgba(130,30,130,128)); 
             rsf  = rsf.DisplayFormatAlpha();
 #endif
-			if(rr != null) 
+            if(rr != null) 
             {
-				foreach ( SDL.Rect rect in rr)
-				{
-					bg.draw(sf,&rect);
-				}
-				cc = true;
+                foreach ( SDL.Rect rect in rr)
+                {
+                    bg.draw(sf,&rect);
+                }
+                cc = true;
                 /* Custom double buffering */
                 sf.blit_surface(g, screen,g);
 #if SHOW_REDRAW
@@ -258,178 +271,24 @@ namespace SDLMpc
 #endif
                 /* Not needed on SBT? */
                 screen.update_rect(0,0,480,272);
-			}
+            }
             /** 
              * Translate SDL Events 
-             * TODO: Move this to an SDLEvent file
              */
-            while(SDL.Event.poll(event)>0){
-                switch(event.type)
-                {
-                    case SDL.EventType.MOUSEMOTION:
-                        if(event.motion.state > 0)
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.MOUSE_MOTION;
-                            ev.motion.x = event.motion.x;
-                            ev.motion.y = event.motion.y;
-                            push_event((owned)ev);
-                        }
-                        break;
-                    case SDL.EventType.MOUSEBUTTONDOWN:
-                        ev = new SDLMpc.Event();
-                        ev.type = SDLMpc.EventType.MOUSE_MOTION;
-                        ev.motion.x = event.motion.x;
-                        ev.motion.y = event.motion.y;
-                        ev.motion.pushed = true;
-                        push_event((owned)ev);
-                        break;
-                    case SDL.EventType.MOUSEBUTTONUP:
-                        ev = new SDLMpc.Event();
-                        ev.type = SDLMpc.EventType.MOUSE_MOTION;
-                        ev.motion.x = event.motion.x;
-                        ev.motion.y = event.motion.y;
-                        ev.motion.released = true;
-                        push_event((owned)ev);
-                        break;
-                    case SDL.EventType.QUIT:
-                        ev = new SDLMpc.Event();
-                        ev.type = SDLMpc.EventType.COMMANDS;
-                        ev.command = EventCommand.QUIT;
-                        push_event((owned)ev);
-                        break;
-                    case SDL.EventType.KEYDOWN:
-                        if(event.key.keysym.sym == 49)
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.K_1;
-                            push_event((owned)ev);
-                        }
-                        if(event.key.keysym.sym == 50)
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.K_2;
-                            push_event((owned)ev);
-                        }
-                        if(event.key.keysym.sym == 51)
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.K_3;
-                            push_event((owned)ev);
-                        }
-                        if(event.key.keysym.sym == 52)
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.K_4;
-                            push_event((owned)ev);
-                        }
-                        if(event.key.keysym.sym == 53)
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.K_5;
-                            push_event((owned)ev);
-                        }
-                        if(event.key.keysym.sym == 54) 
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.K_6;
-                            push_event((owned)ev);
-                        }
-                        if(event.key.keysym.sym == 55) 
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.K_7;
-                            push_event((owned)ev);
-                        }
-                        if(event.key.keysym.sym == 56) 
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.K_8;
-                            push_event((owned)ev);
-                        }
-                        if(event.key.keysym.sym == 57) 
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.K_9;
-                            push_event((owned)ev);
-                        }
-                        if(event.key.keysym.sym == 48)
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.K_0;
-                            push_event((owned)ev);
-                        }
-                        if(event.key.keysym.sym == KeySymbol.q)
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.COMMANDS;
-                            ev.command = EventCommand.QUIT;
-                            push_event((owned)ev);
-                        }
-                        else if (event.key.keysym.sym == KeySymbol.h)
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.BROWSE;
-                            push_event((owned)ev);
-                        }
-                        else if (event.key.keysym.sym == KeySymbol.z)
-                        {
-                            GLib.debug("insert z event");
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.PREVIOUS;
-                            push_event((owned)ev);
-                        }
-                        else if (event.key.keysym.sym == KeySymbol.UP)
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.UP;
-                            push_event((owned)ev);
-                        }
-                        else if (event.key.keysym.sym == KeySymbol.DOWN)
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.DOWN;
-                            push_event((owned)ev);
-                        }
-                        else if (event.key.keysym.sym == KeySymbol.RIGHT)
-                        {
-                            ev = new SDLMpc.Event();
-                            ev.type = SDLMpc.EventType.KEY;
-                            ev.command = EventCommand.RIGHT;
-                            push_event((owned)ev);
-                        }
-                        break;
-                    default:
-                        break;
-
-                }
-            }
+            sdl_events.process_events();
 
 
             /**
              * Internal Event Queue 
              */
-             if(events.length > 0) 
-             { 
+            SDLMpc.Event ev; 
+            if(events.length > 0) 
+            { 
                 if(!this.standby.Wakeup()) {
                     events.clear();
                 }
-             }
-             while((ev= events.pop_head()) != null)
+            }
+            while((ev= events.pop_head()) != null)
             {
                 if(ev.type == SDLMpc.EventType.INVALID) 
                     continue;
@@ -446,11 +305,11 @@ namespace SDLMpc
                             }
                             break;
                         case EventCommand.POWER:
-                        {
-                            events.clear();
-                            this.standby.activate();
-                        }
-                        break;
+                            {
+                                events.clear();
+                                this.standby.activate();
+                            }
+                            break;
                         default:
                             /* Forward */
                             bg.do_Event(ev);
@@ -460,6 +319,7 @@ namespace SDLMpc
                 /* Handle incoming remote events */
                 else if(ev.type == SDLMpc.EventType.COMMANDS) {
                     switch(ev.command) {
+                        /* Quit the program */
                         case EventCommand.QUIT:
                             GLib.debug("request quit");
                             MI = null;
@@ -470,6 +330,7 @@ namespace SDLMpc
                             loop.quit();
                             loop = null;
                             return false;
+
                         case EventCommand.PAUSE:
                             MI.player_toggle_pause(); 
                             break;
@@ -523,9 +384,6 @@ namespace SDLMpc
                 }
 
             }
-            if(cc){
-                //screen.flip();
-            }
             return true;
         }
     }
@@ -545,17 +403,11 @@ static int main (string[] argv)
     GLib.Intl.setlocale(GLib.LocaleCategory.TIME, "nl_NL.UTF8");
     /* Create Main object */
     Main m = new Main();
-    /* Infrared input event handling. */
-    IREvent e  = new IREvent(m);
-    /* Touchscreen input event handling */
-    TCEvent tc = new TCEvent(m);
     /* Run */
     GLib.debug("Run main loop");
     /* Run the main loop */
     m.run();
     /* Cleanup */
-    e = null;
-    tc = null;
     SDL.quit();
 
     return 0;
