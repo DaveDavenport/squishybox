@@ -26,7 +26,8 @@ class Standby
 
         m.MI.player_status_changed.connect((source, status) => 
         {
-                if((status.state == MPD.Status.State.PLAY ||
+            Wakeup();
+            if((status.state == MPD.Status.State.PLAY ||
                     status.state == MPD.Status.State.PAUSE) 
                     )
                 {
