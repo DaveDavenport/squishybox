@@ -6,7 +6,7 @@ using SDLTTF;
 class Standby : SDLMpc.SDLWidget, SDLMpc.SDLWidgetActivate
 {
     private Main m;
-    private new unowned string get_name()
+    public override unowned string get_name()
     {
         return "Standby";
     }
@@ -24,7 +24,7 @@ class Standby : SDLMpc.SDLWidget, SDLMpc.SDLWidgetActivate
         ev.command = EventCommand.BROWSE;
         m.push_event((owned)ev);
     }
-    private new void button_release(bool inside)
+    public override void button_release(bool inside)
     {
         Wakeup();
     }
