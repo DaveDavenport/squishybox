@@ -38,7 +38,7 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
                     (int16)this.x+5,
                     (int16) (this.y+this.h-70),
                     (uint16) (160),
-                    (uint16) 20, 
+                    (uint16) 22, 
                     bpp);
         this.children.append(sp);
 

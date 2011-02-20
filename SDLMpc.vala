@@ -185,6 +185,7 @@ namespace SDLMpc
             (selector as Selector).add_item(new MpdPlaylistView (this, 0, 38,  480, 234, 32));
             (selector as Selector).add_item(new MpdDatabaseView (this, 0, 38,  480, 234, 32,null));
             (selector as Selector).add_item(new ServerMenu      (this, 0, 38,  480, 234, 32));
+            (selector as Selector).add_item(new AlarmTimer      (this, 0, 38,  480, 234, 32));
             standby = new Standby(this);
 
 
@@ -295,6 +296,76 @@ namespace SDLMpc
                         push_event((owned)ev);
                         break;
                     case SDL.EventType.KEYDOWN:
+                        if(event.key.keysym.sym == 49)
+                        {
+                            ev = new SDLMpc.Event();
+                            ev.type = SDLMpc.EventType.KEY;
+                            ev.command = EventCommand.K_1;
+                            push_event((owned)ev);
+                        }
+                        if(event.key.keysym.sym == 50)
+                        {
+                            ev = new SDLMpc.Event();
+                            ev.type = SDLMpc.EventType.KEY;
+                            ev.command = EventCommand.K_2;
+                            push_event((owned)ev);
+                        }
+                        if(event.key.keysym.sym == 51)
+                        {
+                            ev = new SDLMpc.Event();
+                            ev.type = SDLMpc.EventType.KEY;
+                            ev.command = EventCommand.K_3;
+                            push_event((owned)ev);
+                        }
+                        if(event.key.keysym.sym == 52)
+                        {
+                            ev = new SDLMpc.Event();
+                            ev.type = SDLMpc.EventType.KEY;
+                            ev.command = EventCommand.K_4;
+                            push_event((owned)ev);
+                        }
+                        if(event.key.keysym.sym == 53)
+                        {
+                            ev = new SDLMpc.Event();
+                            ev.type = SDLMpc.EventType.KEY;
+                            ev.command = EventCommand.K_5;
+                            push_event((owned)ev);
+                        }
+                        if(event.key.keysym.sym == 54) 
+                        {
+                            ev = new SDLMpc.Event();
+                            ev.type = SDLMpc.EventType.KEY;
+                            ev.command = EventCommand.K_6;
+                            push_event((owned)ev);
+                        }
+                        if(event.key.keysym.sym == 55) 
+                        {
+                            ev = new SDLMpc.Event();
+                            ev.type = SDLMpc.EventType.KEY;
+                            ev.command = EventCommand.K_7;
+                            push_event((owned)ev);
+                        }
+                        if(event.key.keysym.sym == 56) 
+                        {
+                            ev = new SDLMpc.Event();
+                            ev.type = SDLMpc.EventType.KEY;
+                            ev.command = EventCommand.K_8;
+                            push_event((owned)ev);
+                        }
+                        if(event.key.keysym.sym == 57) 
+                        {
+                            ev = new SDLMpc.Event();
+                            ev.type = SDLMpc.EventType.KEY;
+                            ev.command = EventCommand.K_9;
+                            push_event((owned)ev);
+                        }
+                        if(event.key.keysym.sym == 48)
+                        {
+                            ev = new SDLMpc.Event();
+                            ev.type = SDLMpc.EventType.KEY;
+                            ev.command = EventCommand.K_0;
+                            push_event((owned)ev);
+                        }
                         if(event.key.keysym.sym == KeySymbol.q)
                         {
                             ev = new SDLMpc.Event();
@@ -468,6 +539,7 @@ namespace SDLMpc
 static int main (string[] argv)
 {
     GLib.debug("Starting main");
+    GLib.Intl.setlocale(GLib.LocaleCategory.TIME, "nl_NL.UTF8");
     /* Create Main object */
     Main m = new Main();
     /* Infrared input event handling. */

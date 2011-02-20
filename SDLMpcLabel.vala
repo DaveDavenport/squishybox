@@ -25,6 +25,7 @@ namespace SDLMpc
         private int             step 		= 2;
         private int             end_delay 	= 10;
         private int             offset 		= 0;
+        public bool            center      = false;
 
         /* Shadow color */
         private const SDL.Color c_shadow = {0,0,0};
@@ -106,6 +107,11 @@ namespace SDLMpc
                 }
                 else offset+=step;
                 scrolling = true;
+            }
+            /* hack for centering */
+            if(!scrolling && center)
+            {
+                offset = (int16)(-(this.w-sf.w)/2);
             }
 
             src_rect.x = (int16) offset;
