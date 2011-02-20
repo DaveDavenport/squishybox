@@ -19,6 +19,8 @@ namespace MPD
         PLAYER_CONSUME_MODE,
         PLAYER_GET_CURRENT_SONG,
 
+        MIXER_SET_VOLUME,
+
         PLAYER_GET_QUEUE,
         PLAYER_GET_QUEUE_POS,
         DATABASE_GET_DIRECTORY,
@@ -243,6 +245,14 @@ namespace MPD
             command_queue.push(t);
         }
 
+        public void mixer_set_volume(uint volume)
+        {
+            Task t = new Task();
+            t.type = TaskType.MIXER_SET_VOLUME;
+            t.param = GLib.Value(typeof(uint));
+            t.param.set_uint(volume);
+            command_queue.push(t);
+        }
 
         private bool process_result_queue()
         {
@@ -288,7 +298,8 @@ namespace MPD
 		private void idle_state_changed(MPD.Idle.Events events)
 		{
 			if((events&MPD.Idle.Events.PLAYER) > 0 ||
-                    (events&MPD.Idle.Events.OPTIONS) > 0
+                    (events&MPD.Idle.Events.OPTIONS) > 0 ||
+                    (events&MPD.Idle.Events.MIXER) > 0
                 ){
                 Task t = new Task();
                 t.type = TaskType.STATUS_CHANGED;
@@ -706,7 +717,9 @@ namespace MPD
                             GLib.Idle.add(process_result_queue);
                         }
                     }
-
+                    else if (t.type == TaskType.MIXER_SET_VOLUME) {
+                        MPD.Mixer.set_volume(connection,t.param.get_uint());
+                    }
                 }
 
             }

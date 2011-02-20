@@ -25,26 +25,58 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
         return "Now playing";
     }
 
-    public NowPlaying(Main m,int w, int h, int bpp)
+    public NowPlaying(Main m,int16 x, int16 y, uint16 w, uint16 h, int bpp)
     {
         this.m = m;
 
-        var  sp = new SongProgress      (this.m,5, 270-65,140, 22, 32);
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+
+        var  sp = new SongProgress      (this.m,
+                    (int16)this.x+5,
+                    (int16) (this.y+this.h-70),
+                    (uint16) (160),
+                    (uint16) 20, 
+                    bpp);
         this.children.append(sp);
 
-        var pb = new ProgressBar        (this.m, 150, 272-65, 480-180, 60-43);
+        var pb = new ProgressBar        (this.m, 
+                (int16)this.x+150, 
+                (int16)(this.y+this.h-65), 
+                (uint16)(this.w-180), 
+                (uint16)60-43);
         this.children.append(pb);
-        var frame   = new PlayerControl     (this.m,  0, 272-42,  480, 42,  32);
+
+        var frame   = new PlayerControl     (this.m,
+                (int16) this.x,
+                (int16) (this.y+this.h-42),
+                (uint16) this.w,
+                42,
+                bpp);
         this.children.append(frame);
 
+        /* Title label */
         title_label = new SDLMpc.Label	(this.m,FontSize.LARGE,
-				5,5,480-10,55);
+				(int16) this.x+5,
+                (int16) this.y+5,
+                (uint16) (this.w-10),
+                (uint16) 55);
 		this.children.append(title_label);
+
+        /* Artist label */
         artist_label = new SDLMpc.Label	(this.m,FontSize.NORMAL,
-				5,65,480-10,40);
+				(int16) this.x+5,
+                (int16) this.y+65,
+                (uint16) (this.w-10),
+                (uint16) 40);
 		this.children.append(artist_label);
         album_label = new SDLMpc.Label	(this.m,FontSize.SMALL, 	
-				5,115,480-10,30);
+				(int16) this.x+5,
+                (int16) this.y+115,
+                (uint16)(this.w-10),
+                (uint16) 30);
 		this.children.append(album_label);
 
 		title_label.set_text("Disconnected");
@@ -339,6 +371,118 @@ class ProgressBar : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
     }
 }
 
+class VolumeBar : SDLWidget, SDLWidgetDrawing, SDLWidgetMotion
+{
+    private Surface button;
+    private Surface bar;
+    private weak Main m;
+    private uint32 current_value = 0;
+    private uint32 max_value = 0;
+    private uint32 seek_value = 0;
+    private bool progressing = false;
+
+	public override unowned string get_name()
+	{
+		return "VolumeBar";
+	}
+    public VolumeBar(Main m, int x, int y, int w, int h)
+    {
+        this.m = m;
+        this.x = x; this.y  = y; this.w = w; this.h = h;
+
+        bar = new Surface.RGB(0, w,8,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+        bar = bar.DisplayFormat();
+
+        SDL.Rect rect = {0,0,(uint16)w,(uint16)8};
+        bar.fill(rect, bar.format.map_rgb(255,255,255)); 
+
+        rect = {1, 1,(uint16)w-2,(uint16)6};
+        bar.fill(rect, bar.format.map_rgb(0,0,0)); 
+
+
+        button = new Surface.RGB(0, h,h,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+        button = button.DisplayFormat();
+        rect = {0,0,(uint16)h, (uint16)h};
+        button.fill(rect, button.format.map_rgb(255,255,255)); 
+        rect = {1,1,(uint16)h-2, (uint16)h-2};
+        button.fill(rect, button.format.map_rgb(20,25,255)); 
+
+
+
+        /* initialize */
+        this.m.MI.player_status_changed.connect((source, status) => {
+                var volume = status.get_volume();
+                if(volume >= 0) {
+                    this.max_value = 100;
+                    this.current_value = volume;
+                }
+                GLib.debug("Volume changed: %d",volume);
+                this.require_redraw = true;
+                });
+
+    }
+
+    public void draw_drawing(Surface screen, SDL.Rect *orect)
+    {
+		SDL.Rect dest_rect = {0,0,0,0};
+		SDL.Rect src_rect = {0,0,0,0};
+        float fraction = 0.0f;
+
+        if(max_value > 0) {
+            fraction = current_value/(float)max_value;
+        }
+        if(seeking) {
+            fraction = seek_value/(float)max_value;
+        }
+
+        dest_rect.x = (int16)this.x;
+        dest_rect.y = (int16)(this.y + (this.h-8)/2);
+        dest_rect.w = (uint16)this.w;
+        dest_rect.h = (uint16)8;
+
+        bar.blit_surface(null, screen, dest_rect);
+
+        dest_rect.y = (int16)this.y;
+        dest_rect.h = (uint16)this.h;
+        dest_rect.x = (int16)(this.x + (this.w-this.h)*fraction);
+		dest_rect.w = (uint16)this.h;
+		src_rect.h = src_rect.w = (uint16)this.h;
+
+        button.blit_surface(src_rect, screen, dest_rect);
+    }
+
+    private bool seeking = false;
+    public bool motion(double x, double y, bool pushed, bool released)
+    {
+        if(this.inside((int)x, (int)y) || seeking)
+        {
+            if(pushed || seeking)
+            {
+                if(max_value > 0) {
+                    if(!seeking) {
+                        seeking = true;
+                    }
+                    double fraction = (x-this.x)/this.w;
+                    fraction = (fraction < 0)? 0.0:(fraction > 1)? 1.0: fraction;
+                    seek_value =(uint)(max_value*fraction);
+
+                    GLib.debug("%.2f fraction", fraction );
+                    if(released){
+                        this.m.MI.mixer_set_volume(seek_value);
+                        seeking = false;
+                    }
+                    this.require_redraw = true;
+                }
+            }
+        }
+        return false;
+    }
+    /* Avoid the click going through this widget */
+    public override bool button_press()
+    {
+        return true;
+    }
+}
 class PlayerControl : SDLWidget, SDLWidgetDrawing
 {
     private Surface sf;
@@ -348,8 +492,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
 
     private SDLMpc.Button pause_button;
     private SDLMpc.Button next_button;
-
-    private SDLMpc.Button quit_button;
+    private VolumeBar volume_bar;
 
     private bool pressed = false;
     private bool stopped = false;
@@ -404,16 +547,6 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
                 m.push_event((owned)ev);
                 });
 
-        quit_button = new SDLMpc.Button(m, (int16) this.w- 51,(int16) this.y+1, 50, 40, "⌂");
-        quit_button.b_clicked.connect((source) => {
-                SDLMpc.Event ev = new SDLMpc.Event();
-                ev.type = SDLMpc.EventType.COMMANDS;
-                ev.command = SDLMpc.EventCommand.BROWSE;
-                m.push_event((owned)ev);
-                });
-
-
-
 
         m.MI.player_status_changed.connect((source, status) => {
                 stopped = false;
@@ -427,11 +560,12 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
                 }
         });
 
+        volume_bar = new VolumeBar(m, (int16) this.x+ 300,(int16) this.y+10,(uint16)(this.w-300), 20);
 
         this.children.append(prev_button);
         this.children.append(pause_button);
         this.children.append(next_button);
-        this.children.append(quit_button);
+        this.children.append(volume_bar);
     }
     public void draw_drawing(Surface screen, SDL.Rect *orect)
     {

@@ -70,6 +70,7 @@ namespace SDLMpc
 
         private SDLWidget bg;
         private SDLWidget selector;
+        private SDLWidget header;
         /**
          * Object to set backlight
          */
@@ -176,17 +177,23 @@ namespace SDLMpc
             bg       = new BackgroundDrawer  (this,  0,      0,  480, 272, 32);
 
             /* Main menu */
-            selector = new Selector (this,  0,      0,  480, 272, 32);
+            selector = new Selector (this,  0,      38,  480, 234, 32);
 
             /* Add items */
-            (selector as Selector).add_item(new NowPlaying      (this, 480, 272, 32));
-            (selector as Selector).add_item(new MpdPlaylistView (this, 0, 0, 480, 272, 32));
-            (selector as Selector).add_item(new MpdDatabaseView (this, 0, 0, 480, 272, 32,null));
-            (selector as Selector).add_item(new ServerMenu      (this,0,0,480,272,32));
+            (selector as Selector).add_item(new NowPlaying      (this, 0, 38,  480, 234, 32));
+            (selector as Selector).add_item(new MpdPlaylistView (this, 0, 38,  480, 234, 32));
+            (selector as Selector).add_item(new MpdDatabaseView (this, 0, 38,  480, 234, 32,null));
+            (selector as Selector).add_item(new ServerMenu      (this, 0, 38,  480, 234, 32));
             (selector as Selector).add_item(new Standby         (this));
+
 
             /* Add main selector to background */
             bg.children.append(selector);
+
+            /* Add the header part by default. */
+            /* 480 pixels width, 38 high */
+            header = new Header (this, 0, 0, 480, 38,32);
+            bg.children.append(header);
 
 
             /* Add interface update timeout, 10fps */

@@ -816,6 +816,13 @@ namespace MPD
           public unowned string get_name();
           public unowned string get_value();
         }
+        namespace Mixer
+        {
+                [CCode (cname="mpd_run_set_volume",
+                cheader_filename="mpd/mixer.h")]
+                public void set_volume(MPD.Connection server, uint volume);
+
+        }
         
         namespace Idle
         {

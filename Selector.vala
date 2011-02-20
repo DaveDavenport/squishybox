@@ -16,6 +16,8 @@ private class Item
 
 class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
 {
+    /* Fixed offset between rows */
+    private const int OFFSET =5;
     private Main m;
     private bool in_sub_item = false;
     private List<Item> entries;
@@ -102,7 +104,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
             this.require_redraw = true;
             return;
         }
-        int top = 0;
+        int top = this.y+OFFSET;
         unowned List<Item> start = current_start;
 
         do{
@@ -115,7 +117,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
             start = start.next;
             current_end = start;
 			GLib.debug("top: %i\n", top);
-		}while((top+5) < this.h && start != null);
+		}while((top+OFFSET) < this.h && start != null);
         GLib.debug("top: %i\n", top);
 
         if(current != null)
