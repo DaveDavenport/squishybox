@@ -16,7 +16,7 @@
    version="1.1"
    inkscape:version="0.48.0 r9654"
    sodipodi:docname="drawing.svg"
-   inkscape:export-filename="/home/qball/SDLMPC/mockup-nowplaying.png"
+   inkscape:export-filename="/home/qball/Programming/sdlmpc/Mockup/V0.1/mockup_base.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -215,7 +215,7 @@
      inkscape:cx="414.76334"
      inkscape:cy="203.62079"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      showgrid="false"
      showguides="true"
      inkscape:guide-bbox="true"
@@ -264,7 +264,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -4233,7 +4233,7 @@ f/35z79uY3xjqkcQ0Xlqz9eH/wdYiw7hSA1OvQAAAABJRU5ErkJggg==
        y="1277.3829"
        ry="0.19367455" />
     <rect
-       style="fill:#000000;fill-rule:evenodd;stroke:#ff0000;stroke-width:0.98592776000000004px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:0.33540374"
+       style="fill:#000000;fill-opacity:0.33540374;fill-rule:evenodd;stroke:#ff0000;stroke-width:0.98592776px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        id="rect2985"
        width="479.01407"
        height="37.014072"
@@ -4584,7 +4584,7 @@ f/35z79uY3xjqkcQ0Xlqz9eH/wdYiw7hSA1OvQAAAABJRU5ErkJggg==
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="NowPlaying"
-     style="display:none"
+     style="display:inline"
      transform="translate(191.85487,-372.5222)">
     <text
        xml:space="preserve"

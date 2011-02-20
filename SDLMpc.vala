@@ -71,6 +71,7 @@ namespace SDLMpc
         private SDLWidget bg;
         private SDLWidget selector;
         private SDLWidget header;
+        private Standby standby;
         /**
          * Object to set backlight
          */
@@ -184,7 +185,7 @@ namespace SDLMpc
             (selector as Selector).add_item(new MpdPlaylistView (this, 0, 38,  480, 234, 32));
             (selector as Selector).add_item(new MpdDatabaseView (this, 0, 38,  480, 234, 32,null));
             (selector as Selector).add_item(new ServerMenu      (this, 0, 38,  480, 234, 32));
-            (selector as Selector).add_item(new Standby         (this));
+            standby = new Standby(this);
 
 
             /* Add main selector to background */
@@ -225,6 +226,7 @@ namespace SDLMpc
             SDLMpc.Event ev; 
 
             /* Clear the screen */
+            standby.Tick(time_t());
             bg.do_Tick(time_t());
 
             List<SDL.Rect?> rr = null;
@@ -347,7 +349,13 @@ namespace SDLMpc
             /**
              * Internal Event Queue 
              */
-            while((ev= events.pop_head()) != null)
+             if(events.length > 0) 
+             { 
+                if(!this.standby.Wakeup()) {
+                    events.clear();
+                }
+             }
+             while((ev= events.pop_head()) != null)
             {
                 if(ev.type == SDLMpc.EventType.INVALID) 
                     continue;
@@ -363,6 +371,12 @@ namespace SDLMpc
                                 display_control.setBrightness(b);
                             }
                             break;
+                        case EventCommand.POWER:
+                        {
+                            events.clear();
+                            this.standby.activate();
+                        }
+                        break;
                         default:
                             /* Forward */
                             bg.do_Event(ev);
@@ -398,12 +412,8 @@ namespace SDLMpc
                             MI.player_stop();
                             break;
                         case EventCommand.POWER:
-                            GLib.debug("Set Display\n"); 
-                            display_control.setEnabled(!display_control.getEnabled());
-                            if(!display_control.getEnabled())
-                            {
-                                MI.player_stop();
-                            }
+                            if(!this.standby.is_standby)
+                                this.standby.activate();
                             break;
 
                         default:

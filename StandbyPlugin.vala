@@ -3,56 +3,74 @@ using SDLMpc;
 using SDLTTF;
 
 
-class Standby : SDLMpc.SDLWidget, SDLMpc.SDLWidgetActivate
+class Standby 
 {
     private Main m;
-    public override unowned string get_name()
-    {
-        return "Standby";
-    }
+    public bool is_standby {get; set; default = false;}
+    private time_t off_time = 0;
+    private time_t on_time = time_t();
+    private bool playing = false;
 
+
+    public void Tick (time_t t)
+    {
+        /* if we are one minute 'idle', turn off screen */
+        if(!playing && (t-on_time) > 60) {
+            if(!this.is_standby)
+                this.activate();
+        }
+    }
     public Standby(Main m)
     {
         this.m = m;
-    }
 
-    private void Wakeup()
-    {
-        this.m.display_control.setEnabled(true);
-        var ev = new SDLMpc.Event();
-        ev.type = SDLMpc.EventType.COMMANDS;
-        ev.command = EventCommand.BROWSE;
-        m.push_event((owned)ev);
-    }
-    public override void button_release(bool inside)
-    {
-        Wakeup();
-    }
-
-    public override bool Event(SDLMpc.Event e)
-    {
-        GLib.debug("Got event in standby, see if wakeup: %i %i", e.type, e.command);
-        if(e.type == SDLMpc.EventType.KEY)
+        m.MI.player_status_changed.connect((source, status) => 
         {
-            Wakeup();
-            return true;
+                if((status.state == MPD.Status.State.PLAY ||
+                    status.state == MPD.Status.State.PAUSE) 
+                    )
+                {
+                    playing = true;
+                }else{
+                    playing = false;
+                }
+        });
+    }
+
+    public bool Wakeup()
+    {
+        if(this.is_standby)
+        {
+            if(time_t() -off_time > 1)
+            {
+                GLib.debug("wakeup");
+                turn_display_on();
+                this.is_standby = false;
+            }
+            else return false;
         }
-        return false;
+        on_time = time_t();
+        return true;
     }
-
-    public override void Tick(time_t t)
+    public void activate()
     {
-
-    }
-
-    public bool activate()
-    {
-        this.m.display_control.setEnabled(false);
         var ev = new SDLMpc.Event();
         ev.type = SDLMpc.EventType.COMMANDS;
         ev.command = EventCommand.STOP;
         m.push_event((owned)ev);
-        return false;
+
+        turn_display_off();
+        is_standby = true;
+        off_time = time_t();
+    }
+
+    private void turn_display_off()
+    {
+        this.m.display_control.setEnabled(false);
+    }
+    private void turn_display_on()
+    {
+        this.m.display_control.setEnabled(true);
     }
 }
 
