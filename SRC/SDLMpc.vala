@@ -45,7 +45,6 @@ namespace SDLMpc
 				retv += ", "+a;
 			else
 				retv = a;
-
 		}
 		if(i == 0) {
 			retv = GLib.Path.get_basename(song.uri);
