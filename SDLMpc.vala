@@ -227,8 +227,10 @@ namespace SDLMpc
             SDLMpc.Event ev; 
 
             /* Clear the screen */
-            standby.Tick(time_t());
-            bg.do_Tick(time_t());
+            time_t now = time_t();
+            standby.Tick(now);
+            bg.do_Tick(now);
+
 
             List<SDL.Rect?> rr = null;
             SDL.Rect g = {0,0,0,0};
@@ -259,6 +261,7 @@ namespace SDLMpc
 			}
             /** 
              * Translate SDL Events 
+             * TODO: Move this to an SDLEvent file
              */
             while(SDL.Event.poll(event)>0){
                 switch(event.type)

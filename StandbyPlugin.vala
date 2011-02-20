@@ -2,6 +2,16 @@ using SDL;
 using SDLMpc;
 using SDLTTF;
 
+/**
+ * This implements a stanby function.
+ * The box has no real standby, so it will just turn off the backlight and stop playback.
+ * 
+ * * Standby -> button press
+ * * Standby -> 1 minute playback stopped.
+ * * Wakeup -> button press
+ * * Wakeup -> playback start
+ * * Wakeup -> moving close to squeezebox
+ */
 
 class Standby 
 {
@@ -11,7 +21,9 @@ class Standby
     private time_t on_time = time_t();
     private bool playing = false;
 
-
+    /**
+     * Time tick from the mainloop 
+     */
     public void Tick (time_t t)
     {
         /* if we are one minute 'idle', turn off screen */
@@ -20,6 +32,7 @@ class Standby
                 this.activate();
         }
     }
+    /* Constructor */
     public Standby(Main m)
     {
         this.m = m;
@@ -38,6 +51,7 @@ class Standby
         });
     }
 
+    /* Wake the box up */
     public bool Wakeup()
     {
         if(this.is_standby)
@@ -53,6 +67,8 @@ class Standby
         on_time = time_t();
         return true;
     }
+
+    /* Go into standby */
     public void activate()
     {
         var ev = new SDLMpc.Event();

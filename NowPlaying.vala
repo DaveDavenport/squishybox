@@ -488,10 +488,13 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
     private Surface sf;
     private weak Main m;
 
-    private SDLMpc.Button prev_button;
 
+    /* Buttons */
+    private SDLMpc.Button prev_button;
     private SDLMpc.Button pause_button;
     private SDLMpc.Button next_button;
+    private SDLMpc.Button stop_button;
+
     private VolumeBar volume_bar;
 
     private bool pressed = false;
@@ -521,6 +524,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
             sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
         }
 
+        /* Previous button */
         prev_button = new SDLMpc.Button(m, (int16) this.x+ 1,(int16) this.y+1,  50, 40, "◂◂");
         prev_button.b_clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
@@ -528,7 +532,21 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
                 ev.command = SDLMpc.EventCommand.PREVIOUS;
                 m.push_event((owned)ev);
                 });
-        pause_button = new SDLMpc.Button(m,(int16) this.x+ 52,(int16) this.y+1, 50, 40, "▶");
+
+
+        /* Stop button */
+        stop_button = new SDLMpc.Button(m, (int16) this.x+ 52,(int16) this.y+1,  50, 40, "■");
+        stop_button.b_clicked.connect((source) => {
+                SDLMpc.Event ev = new SDLMpc.Event();
+                ev.type = SDLMpc.EventType.COMMANDS;
+                ev.command = SDLMpc.EventCommand.STOP;
+                m.push_event((owned)ev);
+                });
+
+    
+
+        /* Play/pause button */
+        pause_button = new SDLMpc.Button(m,(int16) this.x+ 103,(int16) this.y+1, 50, 40, "▶");
         pause_button.b_clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
@@ -539,7 +557,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
                 }
                 m.push_event((owned)ev);
                 });
-        next_button = new SDLMpc.Button(m, (int16) this.x+ 103,(int16) this.y+1, 50, 40, "▸▸");
+        next_button = new SDLMpc.Button(m, (int16) this.x+ 154,(int16) this.y+1, 50, 40, "▸▸");
         next_button.b_clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
@@ -563,6 +581,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         volume_bar = new VolumeBar(m, (int16) this.x+ 300,(int16) this.y+10,(uint16)(this.w-300), 20);
 
         this.children.append(prev_button);
+        this.children.append(stop_button);
         this.children.append(pause_button);
         this.children.append(next_button);
         this.children.append(volume_bar);
@@ -571,12 +590,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
     {
         SDL.Rect dest_rect = {0,0,0,0};
         SDL.Rect src_rect = {0,0,0,0};
-/*
-        dest_rect.x = (int16)this.x;
-        dest_rect.y = (int16)this.y;
-        dest_rect.w = (uint16)this.w;
-        dest_rect.h = (uint16)this.h;
-       */ 
+
         src_rect.x = int16.max((int16)(orect.x-this.x),0);
         src_rect.y = int16.max((int16)(orect.y-this.y), 0);
         src_rect.w = uint16.min(orect.w,(uint16)this.w);
@@ -587,7 +601,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         dest_rect.y = (int16)(src_rect.y+this.y);
         dest_rect.w = (int16)(src_rect.w);
         dest_rect.h = (int16)(src_rect.h);
-        GLib.debug("redrawing:  %d %d %d %d\n", dest_rect.x, dest_rect.y, dest_rect.x+dest_rect.w, dest_rect.y + dest_rect.h);
+        
         sf.blit_surface(src_rect, screen, dest_rect);
     }
     public override bool button_press()
