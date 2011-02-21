@@ -143,7 +143,6 @@ namespace SDLMpc
             src_rect.h+=shadow_offset;
 
             sf.blit_surface(src_rect, screen, dst_rect);
-            GLib.debug("redraw label");
         }
     }
 }

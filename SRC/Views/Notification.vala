@@ -29,7 +29,6 @@ class Notification : SDLWidget, SDLWidgetDrawing
     private Main m;
     private Surface sf;
     public Label l;
-    private bool visible = false;
 
     public override unowned string get_name()
     {
@@ -62,6 +61,8 @@ class Notification : SDLWidget, SDLWidgetDrawing
         GLib.debug("notification: %d %d %u %u\n", this.x, this.y, this.w, this.h);
 
 
+        l.visible = false;
+        this.visible = false;
 
 
         bool first_time  = true;
@@ -118,33 +119,6 @@ class Notification : SDLWidget, SDLWidgetDrawing
 
 
     }
-    /**
-     * Override default system, to make notification work as desired 
-     */
-    public override bool intersect(SDL.Rect r)
-    {
-        if(visible == false || this.require_redraw ) return false;
-        if(r.x == 0 && r.y == 0 && r.h == 272 && r.w == 480) return true;
-        return !(this.x> (r.x+r.w) || (this.x+this.w) <= r.x ||
-                this.y > (r.y+r.h) || (this.y+this.h) <= r.y);
-        return false;
-    }
-    public override void draw(Surface screen, SDL.Rect *rect)
-    {
-        if(!visible) return;
-        if(this is SDLWidgetDrawing) {
-            if(this.intersect(*rect))
-            {
-                (this as SDLWidgetDrawing).draw_drawing(screen, rect);
-            }
-        }
-        this.require_redraw = false;
-        foreach ( var child in children) 
-        {
-            child.draw(screen,rect);
-        }
-
-    }
     public void draw_drawing(Surface screen, SDL.Rect *orect)
     {
         GLib.debug("Notification redraw");
@@ -173,7 +147,8 @@ class Notification : SDLWidget, SDLWidgetDrawing
     public override void Tick (time_t now)
     {
         if(visible && start_msg +5 < now) {
-            visible = false;
+            l.visible = false;
+            this.visible = false;
             this.require_redraw = true;
         }
     }
@@ -181,7 +156,8 @@ class Notification : SDLWidget, SDLWidgetDrawing
     public void push_mesg(string message)
     {
         start_msg = time_t();
-        visible = true;
+        this.visible = true;
+        l.visible = true;
         l.set_text(message);
         this.require_redraw = true;
     }

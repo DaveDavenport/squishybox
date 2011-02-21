@@ -25,6 +25,7 @@ namespace SDLMpc
 		public int y;
 		public uint w;
 		public uint h;
+        public bool visible = true;
 
 		public List<SDLWidget> children;
 
@@ -87,6 +88,7 @@ namespace SDLMpc
 
 		public virtual List<SDL.Rect ?> get_redraw_rect(owned List<SDL.Rect?> rr,SDL.Rect g)
 		{
+            if(this.visible == false && this.require_redraw = false) return (owned)rr;
 			g.x += (int16)x;
 			g.y += (int16)y;
 			foreach ( var child in children) 
@@ -110,6 +112,7 @@ namespace SDLMpc
 
 		public virtual bool intersect(SDL.Rect r)
 		{
+            if(visible == false) return false;
             if(r.x == 0 && r.y == 0 && r.h == 272 && r.w == 480) return true;
             return !(this.x> (r.x+r.w) || (this.x+this.w) <= r.x ||
                     this.y > (r.y+r.h) || (this.y+this.h) <= r.y);
