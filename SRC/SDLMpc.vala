@@ -95,6 +95,7 @@ namespace SDLMpc
         private SDLWidget selector;
         private SDLWidget header;
         private Standby standby;
+        private Notification notification;
         /**
          * Object to set backlight
          */
@@ -223,11 +224,16 @@ namespace SDLMpc
             /* Add main selector to background */
             bg.children.append(selector);
 
+
             /* Add the header part by default. */
             /* 480 pixels width, 38 high */
             header = new Header (this, 0, 0, 480, 38,32);
             bg.children.append(header);
 
+
+            notification = new Notification(this, 0,0, 480, 272,32);
+            bg.children.append(notification);
+            notification.push_mesg("Welcome");
 
             /* Add interface update timeout, 10fps */
             GLib.debug("Add timeout");

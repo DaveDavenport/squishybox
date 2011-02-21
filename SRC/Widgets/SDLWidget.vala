@@ -106,14 +106,16 @@ namespace SDLMpc
 
         	return (owned)rr;
 		}
-		public bool intersect(SDL.Rect r)
+
+
+		public virtual bool intersect(SDL.Rect r)
 		{
             if(r.x == 0 && r.y == 0 && r.h == 272 && r.w == 480) return true;
             return !(this.x> (r.x+r.w) || (this.x+this.w) <= r.x ||
                     this.y > (r.y+r.h) || (this.y+this.h) <= r.y);
 			return false;
 		}
-		public void draw(Surface screen, SDL.Rect *rect)
+		public virtual void draw(Surface screen, SDL.Rect *rect)
 		{
 			if(this is SDLWidgetDrawing) {
 				if(this.intersect(*rect))

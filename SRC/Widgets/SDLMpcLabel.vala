@@ -105,12 +105,13 @@ namespace SDLMpc
             SDL.Rect dst_rect = {0,0,0,0};
 
 
-            dst_rect.x = (int16) x;
-            dst_rect.y = (int16) y;
+            dst_rect.x = (int16).max((int16)this.x,orect.x);
+            dst_rect.y = int16.max((int16)this.y, orect.y);
 
             /* Shadow has an offset of shadow_offset */
-            shadow_dst_rect.x = (int16) x+shadow_offset;
-            shadow_dst_rect.y = (int16) y+shadow_offset;
+            shadow_dst_rect.x = (int16).max((int16)(x), orect.x)+shadow_offset;
+            shadow_dst_rect.y = (int16).max((int16)(y), orect.y)+shadow_offset;
+
            
            /* Check if we need todo scrolling, if so, scroll */
             if(this.do_scrolling && sf.w > (screen.w-x)) {
@@ -131,8 +132,9 @@ namespace SDLMpc
                 offset = (int16)(-(this.w-sf.w)/2);
             }
 
-            src_rect.x = (int16) offset;
-            src_rect.y = (int16) 0;
+            src_rect.x =  (int16).max(orect.x, (int16)this.x)-(int16)(this.x)+(int16)offset;
+            src_rect.y =  (int16).max(orect.y, (int16)this.y)-(int16)this.y;
+
             src_rect.w = uint16.min((uint16)w, (uint16)(orect.x+orect.w-this.x))-shadow_offset;
             src_rect.h = uint16.min((uint16)h, (uint16)(orect.y+orect.h-this.y))-shadow_offset;
             sf_shadow.blit_surface(src_rect, screen, shadow_dst_rect);
