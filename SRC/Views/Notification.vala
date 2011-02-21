@@ -54,7 +54,7 @@ class Notification : SDLWidget, SDLWidgetDrawing
         this.w = sf.w;
         this.h = sf.h;
 
-        l = new Label(m, FontSize.LARGE, (int16)(this.x+8), (int16)(this.y+this.h/2-22), (uint16)(this.w-16),(uint16)(44));
+        l = new Label(m, FontSize.LARGE, (int16)(this.x+8), (int16)(this.y+this.h/2-24), (uint16)(this.w-16),(uint16)(48));
         l.center = true;
         l.set_text("N/A");
         this.children.append(l);
@@ -147,9 +147,10 @@ class Notification : SDLWidget, SDLWidgetDrawing
     public override void Tick (time_t now)
     {
         if(visible && start_msg +5 < now) {
+            l.require_redraw = true; 
+            this.require_redraw = true;
             l.visible = false;
             this.visible = false;
-            this.require_redraw = true;
         }
     }
 

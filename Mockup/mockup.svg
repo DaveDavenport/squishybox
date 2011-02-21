@@ -215,7 +215,7 @@
      inkscape:cx="257.40796"
      inkscape:cy="69.675743"
      inkscape:document-units="px"
-     inkscape:current-layer="layer5"
+     inkscape:current-layer="layer1"
      showgrid="false"
      showguides="true"
      inkscape:guide-bbox="true"
@@ -464,7 +464,7 @@
          id="tspan4641"
          x="502.83304"
          y="1261.9104"
-         style="font-size:18px">36 px</tspan></text>
+         style="font-size:18px">38 px</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#CurveIn);marker-end:url(#CurveOut);display:inline"
        d="m 496.83312,1275.5268 c 0,233.5481 0,233.5481 0,233.5481"
@@ -526,7 +526,7 @@
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.74558955px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline"
-       d="m 445.69249,1273.041 57.08272,0"
+       d="m 445.69249,1275.041 57.08272,0"
        id="path4757-2-7-2"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
@@ -553,7 +553,7 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Root"
-     style="display:inline"
+     style="display:none"
      transform="translate(191.85487,-372.5222)">
     <rect
        style="fill:none;stroke:#ffffff;stroke-width:2.42345214;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
@@ -640,7 +640,7 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="NowPlaying"
-     style="display:none"
+     style="display:inline"
      transform="translate(191.85487,-372.5222)">
     <text
        xml:space="preserve"
@@ -816,7 +816,7 @@
      inkscape:groupmode="layer"
      id="layer5"
      inkscape:label="Notification"
-     style="display:inline">
+     style="display:none">
     <g
        id="g3986"
        transform="matrix(0.99815156,0,0,0.99779731,-10.071035,-9.1199387)">
