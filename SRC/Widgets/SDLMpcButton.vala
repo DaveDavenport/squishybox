@@ -32,6 +32,7 @@ namespace SDLMpc
         private Main        m;
         public Label       l;
         private Surface     sf;
+        private Surface     sf_pressed;
 		private bool pressed = false;
         private bool highlight = false;
 
@@ -57,8 +58,8 @@ namespace SDLMpc
 
         public void update()
         {
-            SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
-
+            SDL.Rect rect = {0,0,(uint16)this.w,(uint16)this.h};
+/*
             if(highlight){ 
     			sf.fill(rect, sf.format.map_rgba(0,255,255,170)); 
             }else{
@@ -70,10 +71,11 @@ namespace SDLMpc
 			}else {
 				sf.fill(rect, sf.format.map_rgba(0,0,0,170)); 
 			}
-			l.x =  (int16)(this.x+ ((sf.w -l.width())*_x_align)+1);
-            l.y =  (int16)(this.y+ (sf.h-l.height())/2);
+			l.x =  (int16)(this.x+ ((this.w -l.width())*_x_align)+1);
+            l.y =  (int16)(this.y+ (this.h-l.height())/2);
             l.w =  (uint16)(this.w-(l.x-this.x))-1;
             l.h =  (uint16)(this.h-(l.y-this.y))-1;
+			*/
             this.l.require_redraw = true;;
         }
         public void update_text(string? text)
@@ -94,8 +96,12 @@ namespace SDLMpc
 			this.h = height;
 
 
-            sf = new Surface.RGB(0, width,height,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
-            sf = sf.DisplayFormatAlpha();
+            //sf = new Surface.RGB(0, width,height,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+
+			sf = SDLImage.load("Data/button.png");
+			sf = sf.DisplayFormatAlpha();
+			sf_pressed = SDLImage.load("Data/button_pressed.png");
+			sf_pressed = sf_pressed.DisplayFormatAlpha();
             if(height < 30) {
                 l = new Label(m, FontSize.SMALL,(int16)this.x+2,(int16)this.y+2,(uint16)w-4,(uint16)h-4);
             }else{
@@ -124,7 +130,12 @@ namespace SDLMpc
             src_rect.h =  (uint16).min((uint16)this.h, (uint16)(orect.y+orect.h-this.y));
             GLib.debug("rect: %i %i %u %u", src_rect.x, src_rect.y, src_rect.w, src_rect.h);
 //            {(int16)this.x,(int16) this.y,(uint16)this.w,(uint16) this.h};
-            sf.blit_surface(src_rect, screen, dest_rect);
+			if(pressed)
+			{
+				sf_pressed.blit_surface(src_rect, screen, dest_rect);
+			}else{
+				sf.blit_surface(src_rect, screen, dest_rect);
+			}
         }
 
 		public override bool button_press()
@@ -142,7 +153,7 @@ namespace SDLMpc
 		{
 			if(pressed) {
 				SDL.Rect rect = {0,0,(uint16)this.w,(uint16)this.h};
-				sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
+				//sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
 				pressed = false;
 
 				if(inside) {

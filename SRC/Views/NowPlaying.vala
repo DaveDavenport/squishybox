@@ -68,9 +68,9 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
 
         var frame   = new PlayerControl     (this.m,
                 (int16) this.x,
-                (int16) (this.y+this.h-42),
+                (int16) (this.y+this.h-38),
                 (uint16) this.w,
-                42,
+                38,
                 bpp);
         this.children.append(frame);
 
@@ -513,7 +513,6 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
 
     private VolumeBar volume_bar;
 
-    private bool pressed = false;
     private bool stopped = false;
 
 
@@ -528,10 +527,13 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
 
         this.x = x; this.y  = y; this.w = w; this.h = h;
 
-
+/*
         sf = new Surface.RGB(0, w,h,bpp,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
         sf = sf.DisplayFormatAlpha();
-
+		*/
+		sf = SDLImage.load("Data/player_control.png");
+		sf = sf.DisplayFormat();
+/*
         SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
         rect.h = (uint16)this.h;
         if(pressed) {
@@ -539,9 +541,9 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         }else{
             sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
         }
-
+*/
         /* Previous button */
-        prev_button = new SDLMpc.Button(m, (int16) this.x+ 1,(int16) this.y+1,  50, 40, "◂◂");
+        prev_button = new SDLMpc.Button(m, (int16) this.x+ 0,(int16) this.y+0,  38, 38, "◂◂");
         prev_button.b_clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
@@ -551,7 +553,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
 
 
         /* Stop button */
-        stop_button = new SDLMpc.Button(m, (int16) this.x+ 52,(int16) this.y+1,  50, 40, "■");
+        stop_button = new SDLMpc.Button(m, (int16) this.x+ 38,(int16) this.y+0,  38, 38, "■");
         stop_button.b_clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
@@ -562,7 +564,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
     
 
         /* Play/pause button */
-        pause_button = new SDLMpc.Button(m,(int16) this.x+ 103,(int16) this.y+1, 50, 40, "▶");
+        pause_button = new SDLMpc.Button(m,(int16) this.x+ 76,(int16) this.y+0, 38, 38, "▶");
         pause_button.b_clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
@@ -573,7 +575,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
                 }
                 m.push_event((owned)ev);
                 });
-        next_button = new SDLMpc.Button(m, (int16) this.x+ 154,(int16) this.y+1, 50, 40, "▸▸");
+        next_button = new SDLMpc.Button(m, (int16) this.x+ 114,(int16) this.y+0, 38, 38, "▸▸");
         next_button.b_clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
@@ -594,7 +596,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
                 }
         });
 
-        volume_bar = new VolumeBar(m, (int16) this.x+ 300,(int16) this.y+10,(uint16)(this.w-300), 20);
+        volume_bar = new VolumeBar(m, (int16) this.x+ 280,(int16) this.y+10,(uint16)(this.w-300), 20);
 
         this.children.append(prev_button);
         this.children.append(stop_button);
@@ -619,34 +621,6 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         dest_rect.h = (int16)(src_rect.h);
         
         sf.blit_surface(src_rect, screen, dest_rect);
-    }
-    public override bool button_press()
-    {
-        if(!pressed)
-        {
-            SDL.Rect rect = {0,0,(uint16)this.w,(uint16)this.h};
-            GLib.debug("PlayerControl bg press");
-            pressed =true;
-            sf.fill(rect, sf.format.map_rgba(200,30,30,128)); 
-            this.require_redraw = true;;
-            return true;
-        }
-        return false;
-    }
-    public override void button_release(bool inside)
-    {
-        if(pressed) {
-            SDL.Rect rect = {0,0,(uint16)this.w,(uint16)this.h};
-            GLib.debug("PlayerControl bg release");
-            sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
-            pressed = false;
-
-            if(inside) {
-                /* Button release */
-
-            }
-            this.require_redraw = true;;
-        }
     }
 
 

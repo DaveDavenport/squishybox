@@ -52,14 +52,17 @@ class BackgroundDrawer : SDLWidget, SDLWidgetDrawing
         this.y = y;
         this.w = w;
         this.h = h;
+		var regex = new Regex (".*\\.png$");
 
         /* */
         try{
             GLib.Dir a = GLib.Dir.open(directory);
             for(var file = a.read_name(); file != null; file = a.read_name())
             {
-                backgrounds.append(file); 
-            }
+				if(regex.match(file)) {
+	                backgrounds.append(file); 
+				}
+			}
         }catch (GLib.Error e)
         {
 
@@ -72,7 +75,8 @@ class BackgroundDrawer : SDLWidget, SDLWidgetDrawing
             /* Failsafe */
             sf = SDLImage.load("test.png");
         }
-        sf = sf.DisplayFormat();
+		if(sf != null)
+			sf = sf.DisplayFormat();
 		this.require_redraw = true;
 	}
 

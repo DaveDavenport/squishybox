@@ -66,22 +66,24 @@ class Header : SDLWidget, SDLWidgetDrawing
         this.x = x; this.y  = y; this.w = w; this.h = h;
 
         /* Create surface */
-        sf = new Surface.RGB(0, w,h,bpp,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
-        sf = sf.DisplayFormatAlpha();
+     //   sf = new Surface.RGB(0, w,h,bpp,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
 
-        /* Draw background */
+		sf = SDLImage.load("Data/header.png");
+		sf = sf.DisplayFormat();
+
+        /* Draw background /
         SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
         sf.fill(rect, sf.format.map_rgba(0,0,0,200)); 
 
         SDL.Rect rect_line = {0,(int16)(this.h-2), (uint16)w, 2};
         sf.fill(rect_line, sf.format.map_rgba(255,255,255,255)); 
-
-        /* Quit button */
+		 */
+		/* Quit button */
         quit_button = new SDLMpc.Button(m, 
                             (int16) this.x,
                             (int16) this.y,
-                            (uint16)this.h-2,
-                            (uint16)this.h-2,
+                            (uint16)this.h,
+                            (uint16)this.h,
                             "Q");
         this.children.append(quit_button);
         quit_button.b_clicked.connect((source) => {
@@ -93,10 +95,10 @@ class Header : SDLWidget, SDLWidgetDrawing
 
 
         /* Up button */
-        up_button = new SDLMpc.Button(m, (int16) (this.x+(this.w-this.h+2)),
+        up_button = new SDLMpc.Button(m, (int16) (this.x+(this.w-this.h)),
                             (int16) this.y,
-                            (uint16)this.h-2,
-                            (uint16)this.h-2,
+                            (uint16)this.h,
+                            (uint16)this.h,
                             "U");
         this.children.append(up_button);
         up_button.b_clicked.connect((source) => {
