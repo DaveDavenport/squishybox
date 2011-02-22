@@ -1,2 +1,5 @@
-Make wallpaper dir a cmd option.
-Make font a cmd option.
+* Make wallpaper dir a cmd option.
+* Make font a cmd option.
+* Add checkbox widget
+* Add spinbutton widget (edit time?)
+
