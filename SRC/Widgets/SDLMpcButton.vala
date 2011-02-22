@@ -27,12 +27,14 @@ namespace SDLMpc
      * Ment for single line.
      *
      */
-    class Button : SDLWidget, SDLWidgetDrawing
+    class Button : SDLWidget, SDLWidgetDrawing, SDLWidgetActivate
     {
         private Main        m;
         public Label       l;
-        private Surface     sf;
-        private Surface     sf_pressed;
+        /* Load the surfaces once */
+        private static Surface     sf = null;
+        private static Surface     sf_pressed = null;
+        private static Surface     sf_highlight = null;
 		private bool pressed = false;
         private bool highlight = false;
 
@@ -98,10 +100,21 @@ namespace SDLMpc
 
             //sf = new Surface.RGB(0, width,height,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
 
-			sf = SDLImage.load("Data/button.png");
-			sf = sf.DisplayFormatAlpha();
-			sf_pressed = SDLImage.load("Data/button_pressed.png");
-			sf_pressed = sf_pressed.DisplayFormatAlpha();
+            if(sf == null)
+            {
+			    sf = SDLImage.load("Data/button.png");
+			    sf = sf.DisplayFormatAlpha();
+            }
+            if(sf_pressed == null)
+            {
+                sf_pressed = SDLImage.load("Data/button_pressed.png");
+			    sf_pressed = sf_pressed.DisplayFormatAlpha();
+            }
+            if(sf_highlight == null)
+            {
+                sf_highlight = SDLImage.load("Data/button_highlight.png");
+			    sf_highlight = sf_highlight.DisplayFormatAlpha();
+            }
             if(height < 30) {
                 l = new Label(m, FontSize.SMALL,(int16)this.x+2,(int16)this.y+2,(uint16)w-4,(uint16)h-4);
             }else{
@@ -133,7 +146,9 @@ namespace SDLMpc
 			if(pressed)
 			{
 				sf_pressed.blit_surface(src_rect, screen, dest_rect);
-			}else{
+            }else if (highlight || focus ) {
+				sf_highlight.blit_surface(src_rect, screen, dest_rect);
+            }else{
 				sf.blit_surface(src_rect, screen, dest_rect);
 			}
         }
@@ -172,6 +187,11 @@ namespace SDLMpc
             if(l.scrolling){
                 update();
             }
+        }
+        public bool activate()
+        {
+            b_clicked();
+            return false;
         }
     }
 }

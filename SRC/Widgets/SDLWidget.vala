@@ -25,10 +25,33 @@ namespace SDLMpc
 		public int y;
 		public uint w;
 		public uint h;
-        public bool visible = true;
 
+        /**
+         * Flag indicating that the widget is visible
+         */
+        public bool visible = true;
+        /**
+         * Flag indicating that the widget has focus 
+         */
+         private bool _focus;
+        public bool focus {
+            get{return _focus;}
+            set {
+               _focus = value;
+               this.require_redraw =true;
+            }
+            }
+        public List<unowned SDLWidget?> focus_chain = null;
+        public unowned List<unowned SDLWidget?> focus_current = null;
+
+        /**
+         * List of children 
+         */
 		public List<SDLWidget> children;
 
+        /**
+         * Flag indicates that the widget needs to be redrawn
+         */
 		public bool require_redraw = true;
 
         public virtual unowned string get_name()

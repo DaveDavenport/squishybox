@@ -549,7 +549,6 @@ namespace MPD
 
         void *thread_func()
         {
-            void *res = null;
             while(true)
             {
                 var end = TimeVal();

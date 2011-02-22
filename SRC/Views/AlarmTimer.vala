@@ -33,6 +33,7 @@ class AlarmTimer : SDLWidget, SDLWidgetDrawing
     private SDLMpc.Label minute_label;
 
 
+
     public override unowned string get_name()
     {
         return "Alarm Timer";
@@ -75,7 +76,7 @@ class AlarmTimer : SDLWidget, SDLWidgetDrawing
                 (int16) this.x+5,
                 (int16) this.y+5,
                 (uint16)this.w-10,
-                (uint16) 22,
+                (uint16) 38,
                 "Enable");
         enable_button.b_clicked.connect((source) => {
             enabled = ! enabled;
@@ -87,21 +88,23 @@ class AlarmTimer : SDLWidget, SDLWidgetDrawing
             
         });
         this.children.append(enable_button);
+        this.focus_chain.append(enable_button);
 
         /** 
          *
          */
         hour_label = new SDLMpc.Label(this.m,FontSize.LARGE, 
                 (int16)this.x+5,
-                (int16)this.y+5+22+5,
+                (int16)this.y+5+38+5,
                 (uint16)50,
                 (uint16)56);
         hour_label.set_text("%02u".printf(alarm_hour));
         this.children.append(hour_label);
+        this.focus_chain.append(hour_label);
 
         var sep_label = new SDLMpc.Label(this.m,FontSize.LARGE, 
                 (int16)this.x+5+56,
-                (int16)this.y+5+22,
+                (int16)this.y+5+38,
                 (uint16)20,
                 (uint16)56);
         
@@ -109,11 +112,12 @@ class AlarmTimer : SDLWidget, SDLWidgetDrawing
         this.children.append(sep_label);
         minute_label = new SDLMpc.Label(this.m,FontSize.LARGE, 
                 (int16)this.x+5+56+20,
-                (int16)this.y+5+22+5,
+                (int16)this.y+5+38+5,
                 (uint16)50,
                 (uint16)56);
         minute_label.set_text("%02u".printf(alarm_minute));
         this.children.append(minute_label);
+        this.focus_chain.append(minute_label);
 
     }
 
@@ -132,6 +136,27 @@ class AlarmTimer : SDLWidget, SDLWidgetDrawing
         if(ev.type == SDLMpc.EventType.KEY) {
             switch(ev.command)
             {
+               case EventCommand.DOWN:
+                    if(focus_chain == null) break;
+                    if(focus_current != null){
+                        focus_current.data.focus = false;
+                        focus_current = focus_current.next;
+                    }
+                    if(focus_current == null) {
+                       focus_current = focus_chain.first(); 
+                    }
+                    if(focus_current != null) {
+                        focus_current.data.focus = true;
+                    }
+                   break;
+               case EventCommand.RIGHT:
+                    if(focus_current != null) {
+                        if(focus_current.data is SDLWidgetActivate){
+                            GLib.debug("Active\n");
+                            (focus_current.data as SDLWidgetActivate).activate();
+                        }
+                    }
+                    break;
                case EventCommand.K_1:
                 current = 1;
                 break;

@@ -80,7 +80,7 @@ namespace SDLMpc
         public MPD.Interaction MI = new MPD.Interaction();
 
         /**
-         * SDL Event Handler 
+         * Event Handler 
          */
         private SDLEvent sdl_events;
         private IREvent  ir_events;
@@ -91,6 +91,9 @@ namespace SDLMpc
          */
         private GLib.MainLoop loop = new GLib.MainLoop();
 
+        /**
+         * Base widget
+         */
         private SDLWidget bg;
         private SDLWidget selector;
         private SDLWidget header;

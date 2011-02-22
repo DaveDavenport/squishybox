@@ -52,8 +52,13 @@ class BackgroundDrawer : SDLWidget, SDLWidgetDrawing
         this.y = y;
         this.w = w;
         this.h = h;
-		var regex = new Regex (".*\\.png$");
 
+        Regex regex = null;
+        try{
+		    regex = new Regex (".*\\.png$");
+        }catch (GLib.Error e) {
+            GLib.error("Failed to create regex");
+        }
         /* */
         try{
             GLib.Dir a = GLib.Dir.open(directory);
