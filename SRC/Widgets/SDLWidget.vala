@@ -33,7 +33,7 @@ namespace SDLMpc
         /**
          * Flag indicating that the widget has focus 
          */
-         private bool _focus;
+        private bool _focus;
         public bool focus {
             get{return _focus;}
             set {
@@ -43,6 +43,15 @@ namespace SDLMpc
             }
         public List<unowned SDLWidget?> focus_chain = null;
         public unowned List<unowned SDLWidget?> focus_current = null;
+        public void add_focus_widget(SDLWidget w)
+        {
+            focus_chain.append(w);
+            if(focus_current == null) {
+                focus_current = focus_chain.first();
+                w.focus = true;
+            }
+        }
+
 
         /**
          * List of children 
@@ -172,6 +181,7 @@ namespace SDLMpc
 
         public virtual bool Event(Event ev)
         {
+      
             /* By default do not block */
             return false;
         }
@@ -188,6 +198,51 @@ namespace SDLMpc
                     return true;
                 }
 			}
+            if(ev.type == SDLMpc.EventType.KEY)
+            {
+                switch(ev.command)
+                {
+                    case EventCommand.UP:
+                        if(focus_chain == null) break;
+                        if(focus_current != null){
+                            focus_current.data.focus = false;
+                            focus_current = focus_current.prev;
+                        }
+                        if(focus_current == null) {
+                            focus_current = focus_chain.first(); 
+                        }
+                        if(focus_current != null) {
+                            focus_current.data.focus = true;
+                        }
+                        return true;
+                        break;
+                    case EventCommand.DOWN:
+                        if(focus_chain == null) break;
+                        if(focus_current != null){
+                            focus_current.data.focus = false;
+                            focus_current = focus_current.next;
+                        }
+                        if(focus_current == null) {
+                            focus_current = focus_chain.first(); 
+                        }
+                        if(focus_current != null) {
+                            focus_current.data.focus = true;
+                        }
+                        return true;
+                        break;
+                    case EventCommand.RIGHT:
+                        if(focus_current != null) {
+                            if(focus_current.data is SDLWidgetActivate){
+                                GLib.debug("Active\n");
+                                (focus_current.data as SDLWidgetActivate).activate();
+                                return true;
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
             GLib.debug("handle event: %s", this.get_name());
             if(this.Event(ev)) {
                 GLib.debug("Took event: %s", this.get_name());
@@ -198,6 +253,7 @@ namespace SDLMpc
 
         public bool do_Motion(double x, double y, bool pressed, bool released)
         {
+
             if(this is SDLWidgetMotion)
             {
                 if((this as SDLWidgetMotion).motion(x,y,pressed, released)) return true;

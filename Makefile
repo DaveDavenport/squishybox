@@ -56,8 +56,9 @@ VAPI_DIR=\
 VALA_FLAGS=--thread --Xcc="-lSDL_ttf"
 
 ##################################################################################
-##          Pre-processing above information                                    ##
+##          processing above information                                        ##
 ##################################################################################
+OUTPUT=$(BUILD_DIR)/$(PROGRAM)
 
 ##
 # Make right syntax for vala
@@ -78,22 +79,35 @@ endif
 
 
 
+##
+# all clause. first one in the chain, so executed
+# when no command specified
+##
+all: $(OUTPUT) 
 
-all: $(PROGRAM) 
-
-
+##
+# Create the build dir 
+##
 $(BUILD_DIR):
 	$(info Create '$@' Directory)
 	$(QUIET)mkdir -p '$@'
-
-$(PROGRAM): $(SOURCES) $(BUILD_DIR)
-	$(info Building source files: '$(SOURCES)')
-	$(QUIET) $(VALAC) -o $@ $(SOURCES)  $(VAPI_DIRS)  $(VALA_PKG) $(VALA_FLAGS) -D PC -d $(BUILD_DIR)
-
+##
+# Create the source dir
+##
 $(SOURCE_DIR):
 	$(info Create '$@' Directory)
 	$(QUIET)mkdir -p '$@'
 
+##
+# Program compilation
+##
+$(OUTPUT): $(SOURCES) $(BUILD_DIR)
+	$(info Building source files: '$(SOURCES)')
+	$(QUIET) $(VALAC) -o $(PROGRAM) $(SOURCES)  $(VAPI_DIRS)  $(VALA_PKG) $(VALA_FLAGS) -D PC -d $(BUILD_DIR)
+
+##
+# Build source (for compilation on sbt)
+##
 source:  $(SOURCES) $(SOURCE_DIR)
 	$(info Creating source files: '$(SOURCES)')
 	$(QUIET) $(VALAC) $(SOURCES)  $(VAPI_DIRS) $(VALA_PKG) $(VALA_FLAGS) -C -d $(SOURCE_DIR)
@@ -103,8 +117,8 @@ source:  $(SOURCES) $(SOURCE_DIR)
 # Run it.
 ##
 .PHONY: run
-run:
-	$(BUILD_DIR)/$(PROGRAM)
+run: $(OUTPUT)
+	$(OUTPUT)
 
 ##
 # Clean up

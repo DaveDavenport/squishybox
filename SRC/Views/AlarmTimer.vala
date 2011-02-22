@@ -88,7 +88,7 @@ class AlarmTimer : SDLWidget, SDLWidgetDrawing
             
         });
         this.children.append(enable_button);
-        this.focus_chain.append(enable_button);
+        this.add_focus_widget(enable_button);
 
         /** 
          *
@@ -100,7 +100,7 @@ class AlarmTimer : SDLWidget, SDLWidgetDrawing
                 (uint16)56);
         hour_label.set_text("%02u".printf(alarm_hour));
         this.children.append(hour_label);
-        this.focus_chain.append(hour_label);
+        this.add_focus_widget(hour_label);
 
         var sep_label = new SDLMpc.Label(this.m,FontSize.LARGE, 
                 (int16)this.x+5+56,
@@ -117,7 +117,7 @@ class AlarmTimer : SDLWidget, SDLWidgetDrawing
                 (uint16)56);
         minute_label.set_text("%02u".printf(alarm_minute));
         this.children.append(minute_label);
-        this.focus_chain.append(minute_label);
+        this.add_focus_widget(minute_label);
 
     }
 
@@ -136,29 +136,8 @@ class AlarmTimer : SDLWidget, SDLWidgetDrawing
         if(ev.type == SDLMpc.EventType.KEY) {
             switch(ev.command)
             {
-               case EventCommand.DOWN:
-                    if(focus_chain == null) break;
-                    if(focus_current != null){
-                        focus_current.data.focus = false;
-                        focus_current = focus_current.next;
-                    }
-                    if(focus_current == null) {
-                       focus_current = focus_chain.first(); 
-                    }
-                    if(focus_current != null) {
-                        focus_current.data.focus = true;
-                    }
-                   break;
-               case EventCommand.RIGHT:
-                    if(focus_current != null) {
-                        if(focus_current.data is SDLWidgetActivate){
-                            GLib.debug("Active\n");
-                            (focus_current.data as SDLWidgetActivate).activate();
-                        }
-                    }
-                    break;
-               case EventCommand.K_1:
-                current = 1;
+                case EventCommand.K_1:
+                    current = 1;
                 break;
                case EventCommand.K_2:
                 current = 2;

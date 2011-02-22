@@ -66,6 +66,8 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
                 (uint16)60-43);
         this.children.append(pb);
 
+        this.add_focus_widget(pb);
+
         var frame   = new PlayerControl     (this.m,
                 (int16) this.x,
                 (int16) (this.y+this.h-38),
@@ -73,6 +75,14 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
                 38,
                 bpp);
         this.children.append(frame);
+
+        /* Add the children to the focus list of this widget. */
+        /* TODO: make this more intergrated. */
+        this.add_focus_widget(frame.prev_button);
+        this.add_focus_widget(frame.stop_button);
+        this.add_focus_widget(frame.pause_button);
+        this.add_focus_widget(frame.next_button);
+        this.add_focus_widget(frame.volume_bar);
 
         /* Title label */
         title_label = new SDLMpc.Label	(this.m,FontSize.LARGE,
@@ -506,12 +516,12 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
 
 
     /* Buttons */
-    private SDLMpc.Button prev_button;
-    private SDLMpc.Button pause_button;
-    private SDLMpc.Button next_button;
-    private SDLMpc.Button stop_button;
+    public SDLMpc.Button prev_button;
+    public SDLMpc.Button pause_button;
+    public SDLMpc.Button next_button;
+    public SDLMpc.Button stop_button;
 
-    private VolumeBar volume_bar;
+    public VolumeBar volume_bar;
 
     private bool stopped = false;
 
