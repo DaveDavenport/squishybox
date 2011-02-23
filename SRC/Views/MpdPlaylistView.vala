@@ -212,8 +212,6 @@ class MenuButton : SDLWidget, SDLWidgetActivate
     public void set_y(int y)
     {
         this.y = y;
-        this.b.y = y;
-        this.b.update();
     }
 
     public void update_entry(uint pos, string name)
@@ -271,7 +269,6 @@ class MenuButton : SDLWidget, SDLWidgetActivate
             this.b.update_text(this.name);
             this.m.MI.player_get_queue_pos(get_song, this.pos);
         }
-        else this.b.update();
     }
 
     public bool activate()

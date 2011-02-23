@@ -36,14 +36,12 @@ namespace SDLMpc
         private static Surface     sf_pressed = null;
         private static Surface     sf_highlight = null;
 		private bool pressed = false;
-        private bool highlight = false;
 
         private double _x_align =0.5;
         public double x_align
         {
             set { 
                 _x_align = value;
-                update();
             }
             get
             {
@@ -54,19 +52,16 @@ namespace SDLMpc
 
         public void set_highlight(bool val)
         {
-            highlight = val;
-            update();
+            focus = val; 
         }
 
-        public void update()
-        {
-        }
         public void update_text(string? text)
         {
 			if(text != null) {
 	            label.set_text(text);
 			}
-            update();
+            else
+                label.set_text("");
         }
 
         public Button(Main m,int16 x, int16 y, uint16 width, uint16 height, string text)
@@ -127,7 +122,7 @@ namespace SDLMpc
 			if(pressed)
 			{
 				sf_pressed.blit_surface(src_rect, screen, dest_rect);
-            }else if (highlight || focus ) {
+            }else if (focus ) {
 				sf_highlight.blit_surface(src_rect, screen, dest_rect);
             }else{
 				sf.blit_surface(src_rect, screen, dest_rect);
@@ -149,7 +144,6 @@ namespace SDLMpc
 		{
 			if(pressed) {
 				SDL.Rect rect = {0,0,(uint16)this.w,(uint16)this.h};
-				//sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
 				pressed = false;
 
 				if(inside) {
@@ -166,7 +160,7 @@ namespace SDLMpc
 
         public override bool Event(SDLMpc.Event ev)
         {
-            if(this.focus || this.highlight) {
+            if(this.focus) {
                 if(ev.type == SDLMpc.EventType.KEY) {
                     return key_pressed(ev.command);
                 }
