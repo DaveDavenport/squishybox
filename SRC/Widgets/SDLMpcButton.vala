@@ -162,6 +162,17 @@ namespace SDLMpc
 		}
 
 		public signal void b_clicked();
+        public signal bool key_pressed(EventCommand key);
+
+        public override bool Event(SDLMpc.Event ev)
+        {
+            if(this.focus || this.highlight) {
+                if(ev.type == SDLMpc.EventType.KEY) {
+                    return key_pressed(ev.command);
+                }
+            }
+            return false;
+        }
 
         public override void Tick(time_t t)
         {

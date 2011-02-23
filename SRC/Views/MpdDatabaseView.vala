@@ -47,28 +47,52 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
         GLib.debug("data directory: %u\n", entity_list.length());
         foreach(weak MPD.Entity entity in entity_list)
         {
+            SDLWidget b = null;
+            string path = null;
             if(entity.get_type() == MPD.Entity.Type.DIRECTORY)
             {
                 weak MPD.Directory directory = entity.get_directory();
-                string path;
                 path = directory.path;
                 var a = new MpdDatabaseView(
                         this.m, this.x, this.y, this.w, (uint32)this.h,32,
                         path
                         );
-                s.add_item(a); 
+                b = s.add_item(a); 
                 i++;
             }else if (entity.get_type() == MPD.Entity.Type.SONG)
             {
                 weak MPD.Song song = entity.get_song();
-                string path = song.uri;
-                var a = new Button(this.m, (int16)this.x, (int16)this.y, (uint16)this.w,38,format_song_title(song));
-                s.add_widget(a);
-                a.b_clicked.connect((source)=>{
+                path = song.uri;
+                b = new Button(this.m, (int16)this.x, (int16)this.y, (uint16)this.w,38,format_song_title(song));
+                s.add_widget(b);
+                (b as Button).b_clicked.connect((source)=>{
                     this.m.MI.queue_add_song(path);
                 });
 
 
+            }
+            if(b!=null && path != null)
+            {
+                (b as Button).key_pressed.connect((source, key)=>
+                {
+                  GLib.debug("Add key pressed connect");
+                  switch(key) 
+                  {
+                      case EventCommand.MORE:
+                      {
+                          GLib.debug("Add more: %s\n",path); 
+                          if(path != null) 
+                          {
+                               this.m.MI.queue_add_song(path);
+                               return true;
+                           }
+                      }
+                      break;
+                      default:
+                            break;
+                   }
+                   return false;
+                });
             }
         }
 
@@ -96,13 +120,6 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
         m.MI.player_status_changed.connect((source, status) => 
         {
         });
-        /*
-        m.MI.player_connection_changed.connect((source, connect) => {
-                if(connect) {
-                    source.database_get_directory(database_directory,directory); 
-                }
-        });
-*/
 
     }
     private bool init = false;
@@ -112,28 +129,7 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
             m.MI.database_get_directory(database_directory, directory);
             init = true;
         }
-//        this.s.activate();
-        return false;
-    }
-
-    public override bool Event(SDLMpc.Event ev)
-    {
-        if(ev.type == SDLMpc.EventType.KEY) {
-            switch(ev.command)
-            {
-                case EventCommand.MORE:
-                {
-                    GLib.debug("Add more: %s\n", this.directory);
-                    if(this.directory != null) {
-                        this.m.MI.queue_add_song(this.directory);
-                    }
-                    return true;
-                }
-                break;
-                default:
-                    break;
-            }
-        }
         return false;
     }
 }
+

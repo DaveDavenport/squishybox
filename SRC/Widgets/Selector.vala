@@ -83,7 +83,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         entries.append(i);
         Home();
     }
-    public void add_item(SDLWidget item)
+    public SDLWidget add_item(SDLWidget item)
     {
         Item i = new Item();
         i.type = Item.ItemType.SUBMENU;
@@ -107,6 +107,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
                 this.require_redraw = true;
                 });
         Home();
+        return i.button;
     }
 
     /* Return the surface it needs to draw */
