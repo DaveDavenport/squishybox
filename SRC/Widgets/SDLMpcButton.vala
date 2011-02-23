@@ -92,9 +92,9 @@ namespace SDLMpc
 			    sf_highlight = sf_highlight.DisplayFormatAlpha();
             }
             if(height < 30) {
-                label  = new Label(m, FontSize.SMALL,(int16)2,(int16)2,(uint16)w-4,(uint16)h-4,this);
+                label  = new Label(m, FontSize.SMALL,(int16)7,(int16)2,(uint16)w-14,(uint16)h-4,this);
             }else{
-                label = new Label(m, FontSize.NORMAL,(int16)2,(int16)2,(uint16)w-4,(uint16)h-4,this);
+                label = new Label(m, FontSize.NORMAL,(int16)7,(int16)2,(uint16)w-14,(uint16)h-4,this);
             }
 			this.children.append(label);
 			update_text(text);
@@ -134,7 +134,7 @@ namespace SDLMpc
 			if(!pressed)
 			{
 				pressed =true;
-				update_text(null);
+				//update_text(null);
 				this.require_redraw = true;;
                 return true;
 			}
@@ -150,7 +150,7 @@ namespace SDLMpc
 					/* Button release */
 					b_clicked();
 				}
-				update_text(null);
+				//update_text(null);
 				this.require_redraw = true;;
 			}
 		}

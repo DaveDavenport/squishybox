@@ -187,7 +187,7 @@ namespace SDLMpc
 
             fonts[FontSize.TINY]        = new Font("test.ttf", 10);
             fonts[FontSize.SMALL]       = new Font("test.ttf", 20);
-            fonts[FontSize.NORMAL]      = new Font("test.ttf", 30);
+            fonts[FontSize.NORMAL]      = new Font("test.ttf", 24);
             fonts[FontSize.LARGE]       = new Font("test.ttf", 40);
             fonts[FontSize.VERY_LARGE]  = new Font("test.ttf", 50);
 

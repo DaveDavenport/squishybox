@@ -736,6 +736,211 @@
            in="SourceGraphic" />
       </feMerge>
     </filter>
+    <inkscape:perspective
+       id="perspective3073"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <filter
+       color-interpolation-filters="sRGB"
+       id="filter3895-5-6-5-2-0"
+       inkscape:label="Drop shadow"
+       width="1.5"
+       height="1.5"
+       x="-0.25"
+       y="-0.25">
+      <feGaussianBlur
+         id="feGaussianBlur3897-9-1-4-1-5"
+         in="SourceAlpha"
+         stdDeviation="2.000000"
+         result="blur" />
+      <feColorMatrix
+         id="feColorMatrix3899-7-9-0-5-0"
+         result="bluralpha"
+         type="matrix"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.500000 0 " />
+      <feOffset
+         id="feOffset3901-9-8-9-2-2"
+         in="bluralpha"
+         dx="2.000000"
+         dy="2.000000"
+         result="offsetBlur" />
+      <feMerge
+         id="feMerge3903-9-9-2-5-9">
+        <feMergeNode
+           id="feMergeNode3905-0-0-1-8-4"
+           in="offsetBlur" />
+        <feMergeNode
+           id="feMergeNode3907-5-8-5-3-3"
+           in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <inkscape:perspective
+       id="perspective3130"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <filter
+       color-interpolation-filters="sRGB"
+       id="filter3895-5-6-5-2-0-1"
+       inkscape:label="Drop shadow"
+       width="1.5"
+       height="1.5"
+       x="-0.25"
+       y="-0.25">
+      <feGaussianBlur
+         id="feGaussianBlur3897-9-1-4-1-5-3"
+         in="SourceAlpha"
+         stdDeviation="2.000000"
+         result="blur" />
+      <feColorMatrix
+         id="feColorMatrix3899-7-9-0-5-0-7"
+         result="bluralpha"
+         type="matrix"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.500000 0 " />
+      <feOffset
+         id="feOffset3901-9-8-9-2-2-7"
+         in="bluralpha"
+         dx="2.000000"
+         dy="2.000000"
+         result="offsetBlur" />
+      <feMerge
+         id="feMerge3903-9-9-2-5-9-2">
+        <feMergeNode
+           id="feMergeNode3905-0-0-1-8-4-6"
+           in="offsetBlur" />
+        <feMergeNode
+           id="feMergeNode3907-5-8-5-3-3-4"
+           in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <inkscape:perspective
+       id="perspective3130-3"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <filter
+       color-interpolation-filters="sRGB"
+       id="filter3895-5-6-5-2-0-7"
+       inkscape:label="Drop shadow"
+       width="1.5"
+       height="1.5"
+       x="-0.25"
+       y="-0.25">
+      <feGaussianBlur
+         id="feGaussianBlur3897-9-1-4-1-5-8"
+         in="SourceAlpha"
+         stdDeviation="1"
+         result="blur" />
+      <feColorMatrix
+         id="feColorMatrix3899-7-9-0-5-0-8"
+         result="bluralpha"
+         type="matrix"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.500000 0 " />
+      <feOffset
+         id="feOffset3901-9-8-9-2-2-6"
+         in="bluralpha"
+         dx="2.000000"
+         dy="2.000000"
+         result="offsetBlur" />
+      <feMerge
+         id="feMerge3903-9-9-2-5-9-0">
+        <feMergeNode
+           id="feMergeNode3905-0-0-1-8-4-4"
+           in="offsetBlur" />
+        <feMergeNode
+           id="feMergeNode3907-5-8-5-3-3-6"
+           in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <inkscape:perspective
+       id="perspective4068"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <filter
+       color-interpolation-filters="sRGB"
+       id="filter3895-5-6-5-2-0-7-6"
+       inkscape:label="Drop shadow"
+       width="1.5"
+       height="1.5"
+       x="-0.25"
+       y="-0.25">
+      <feGaussianBlur
+         id="feGaussianBlur3897-9-1-4-1-5-8-6"
+         in="SourceAlpha"
+         stdDeviation="1"
+         result="blur" />
+      <feColorMatrix
+         id="feColorMatrix3899-7-9-0-5-0-8-5"
+         result="bluralpha"
+         type="matrix"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.500000 0 " />
+      <feOffset
+         id="feOffset3901-9-8-9-2-2-6-4"
+         in="bluralpha"
+         dx="2.000000"
+         dy="2.000000"
+         result="offsetBlur" />
+      <feMerge
+         id="feMerge3903-9-9-2-5-9-0-7">
+        <feMergeNode
+           id="feMergeNode3905-0-0-1-8-4-4-7"
+           in="offsetBlur" />
+        <feMergeNode
+           id="feMergeNode3907-5-8-5-3-3-6-2"
+           in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <inkscape:perspective
+       id="perspective4114"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <filter
+       color-interpolation-filters="sRGB"
+       id="filter3895-5-6-5-2-0-7-6-1"
+       inkscape:label="Drop shadow"
+       width="1.5"
+       height="1.5"
+       x="-0.25"
+       y="-0.25">
+      <feGaussianBlur
+         id="feGaussianBlur3897-9-1-4-1-5-8-6-1"
+         in="SourceAlpha"
+         stdDeviation="1"
+         result="blur" />
+      <feColorMatrix
+         id="feColorMatrix3899-7-9-0-5-0-8-5-1"
+         result="bluralpha"
+         type="matrix"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.500000 0 " />
+      <feOffset
+         id="feOffset3901-9-8-9-2-2-6-4-9"
+         in="bluralpha"
+         dx="2.000000"
+         dy="2.000000"
+         result="offsetBlur" />
+      <feMerge
+         id="feMerge3903-9-9-2-5-9-0-7-3">
+        <feMergeNode
+           id="feMergeNode3905-0-0-1-8-4-4-7-6"
+           in="offsetBlur" />
+        <feMergeNode
+           id="feMergeNode3907-5-8-5-3-3-6-2-7"
+           in="SourceGraphic" />
+      </feMerge>
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -744,9 +949,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.3995933"
-     inkscape:cx="307.2321"
-     inkscape:cy="260.78025"
+     inkscape:zoom="2.18"
+     inkscape:cx="301.23449"
+     inkscape:cy="420.08417"
      inkscape:document-units="px"
      inkscape:current-layer="layer6"
      showgrid="false"
@@ -765,10 +970,11 @@
      fit-margin-right="0"
      fit-margin-bottom="0"
      inkscape:snap-grids="false"
-     inkscape:snap-to-guides="false">
+     inkscape:snap-to-guides="false"
+     inkscape:snap-global="false">
     <sodipodi:guide
        orientation="0,1"
-       position="349.22329,540.92269"
+       position="545.87156,596.33028"
        id="guide4577" />
     <sodipodi:guide
        orientation="0,1"
@@ -798,6 +1004,22 @@
        orientation="0,1"
        position="62.160913,294.37122"
        id="guide4471" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="392.76486,574.677"
+       id="guide4052" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="494.15902,399.83064"
+       id="guide4054" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="575.70743,437.56199"
+       id="guide4056" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="549.08257,450.45872"
+       id="guide4058" />
   </sodipodi:namedview>
   <metadata
      id="metadata7">
@@ -1128,28 +1350,20 @@
          id="rect4209-9"
          style="fill:none;stroke:#0000ff;stroke-width:0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline" />
     </g>
-    <g
-       id="g4455"
-       inkscape:export-filename="/home/qball/Programming/Musicpd/sdlmpc/Data/check_button_highlight.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"
-       transform="translate(0,32)">
-      <rect
-         transform="translate(3.8146973e-6,0)"
-         y="128.99559"
-         x="88.00499"
-         height="19.18725"
-         width="19.187248"
-         id="rect2937-2-2-0-5"
-         style="fill:none;stroke:#bcffff;stroke-width:3;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;display:inline;filter:url(#filter3895-5-6-5)" />
-      <rect
-         y="118.99559"
-         x="80.004997"
-         height="38"
-         width="38"
-         id="rect4209-9-6"
-         style="fill:none;stroke:#0000ff;stroke-width:0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline" />
-    </g>
+    <rect
+       style="fill:none;stroke:#bcffff;stroke-width:3;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;display:inline;filter:url(#filter3895-5-6-5)"
+       id="rect2937-2-2-0-5"
+       width="19.187248"
+       height="19.18725"
+       x="88.004997"
+       y="160.99559" />
+    <rect
+       style="fill:none;stroke:#0000ff;stroke-width:0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+       id="rect4209-9-6"
+       width="38"
+       height="38"
+       x="80.004997"
+       y="150.99559" />
     <g
        id="g4599"
        inkscape:export-filename="/home/qball/Programming/Musicpd/sdlmpc/Data/check_button_active.png"
@@ -1200,7 +1414,7 @@
       </g>
     </g>
     <rect
-       style="fill:none;stroke:#00ff00;stroke-width:1.00000002;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:none;stroke:#00ff00;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="rect4609"
        width="111.46095"
        height="167.90591"
@@ -1216,6 +1430,66 @@
          id="tspan4613"
          x="77.868141"
          y="56.425388">Check Button</tspan></text>
+    <rect
+       style="fill:none;stroke:#00ff00;stroke-width:0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+       id="rect3063-7"
+       width="480"
+       height="38"
+       x="68.591354"
+       y="-30.479088"
+       inkscape:export-filename="/home/qball/Programming/Musicpd/sdlmpc/Data/button_pressed.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:none;stroke:#589b9b;stroke-width:3;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;display:inline;filter:url(#filter3895-5-6-5-2-0-7)"
+       id="rect2937-2-2-0-5-8-7-6"
+       width="469.59906"
+       height="30.265141"
+       x="69.954552"
+       y="-29.651268"
+       transform="matrix(1.0065094,0,0,1.025306,2.3364424,1.7604826)" />
+    <rect
+       style="fill:none;stroke:#00ff00;stroke-width:0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+       id="rect3063-7-5"
+       width="480"
+       height="38"
+       x="67.315224"
+       y="-69.744911"
+       inkscape:export-filename="/home/qball/Programming/Musicpd/sdlmpc/Data/button_highlight.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:none;stroke:#bcffff;stroke-width:3;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;display:inline;filter:url(#filter3895-5-6-5-2-0-7-6)"
+       id="rect2937-2-2-0-5-8-7-6-6"
+       width="469.59906"
+       height="30.265141"
+       x="69.954552"
+       y="-29.651268"
+       transform="matrix(1.0065094,0,0,1.025306,1.0603221,-37.505342)" />
+    <g
+       id="g4152"
+       inkscape:export-filename="/home/qball/Programming/Musicpd/sdlmpc/Data/button.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <rect
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="/home/qball/Programming/Musicpd/sdlmpc/Data/button_pressed.png"
+         y="-115.61648"
+         x="66.397781"
+         height="38"
+         width="480"
+         id="rect3063-7-5-2"
+         style="fill:none;stroke:#ffffff;stroke-width:0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline" />
+    </g>
+    <rect
+       style="fill:none;stroke:#ffffff;stroke-width:3;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;display:inline;filter:url(#filter3895-5-6-5-2-0-7-6-1)"
+       id="rect2937-2-2-0-5-8-7-6-6-4"
+       width="469.59906"
+       height="30.265141"
+       x="69.954552"
+       y="-29.651268"
+       transform="matrix(1.0065094,0,0,1.025306,0.14288651,-83.376902)" />
   </g>
   <g
      inkscape:groupmode="layer"
