@@ -35,6 +35,8 @@ namespace SDLMpc
         private static Surface     sf = null;
         private static Surface     sf_pressed = null;
         private static Surface     sf_highlight = null;
+
+        private Surface      sf_image = null;
 		private bool pressed = false;
 
         private double _x_align =0.5;
@@ -64,7 +66,11 @@ namespace SDLMpc
                 label.set_text("");
         }
 
-        public Button(Main m,int16 x, int16 y, uint16 width, uint16 height, string text)
+        public Button(Main m,
+                int16 x, int16 y, 
+                uint16 width, uint16 height,
+                string text,
+                string? image = null)
         {
             this.m = m;
 			
@@ -72,6 +78,8 @@ namespace SDLMpc
 			this.y = y;
 			this.w = width;
 			this.h = height;
+
+            uint16 child_offset = 5;
 
 
             //sf = new Surface.RGB(0, width,height,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
@@ -91,14 +99,20 @@ namespace SDLMpc
                 sf_highlight = SDLImage.load("Data/button_highlight.png");
 			    sf_highlight = sf_highlight.DisplayFormatAlpha();
             }
+            if(image != null) {
+                sf_image = SDLImage.load(image);
+			    sf_image = sf_image.DisplayFormatAlpha();
+                child_offset += (uint16)(sf_image.w+5);
+            }
             if(height < 30) {
-                label  = new Label(m, FontSize.SMALL,(int16)7,(int16)2,(uint16)w-14,(uint16)h-4,this);
+                label  = new Label(m, FontSize.SMALL,(int16)child_offset+2,(int16)2,(uint16)w-2-child_offset-4,(uint16)h-4,this);
             }else{
-                label = new Label(m, FontSize.NORMAL,(int16)7,(int16)2,(uint16)w-14,(uint16)h-4,this);
+                label = new Label(m, FontSize.NORMAL,(int16)child_offset+2,(int16)2,(uint16)w-2-child_offset-4,(uint16)h-4,this);
             }
 			this.children.append(label);
 			update_text(text);
         }
+
 
         ~Button()
         {
@@ -115,10 +129,10 @@ namespace SDLMpc
 
             src_rect.x =  (int16).max(orect.x, (int16)this.x)-(int16)this.x;
             src_rect.y =  (int16).max(orect.y, (int16)this.y)-(int16)this.y;
-            src_rect.w =  (uint16).min((uint16)this.w, (uint16)(orect.x+orect.w-this.x));
-            src_rect.h =  (uint16).min((uint16)this.h, (uint16)(orect.y+orect.h-this.y));
+            src_rect.w =  (uint16).min((uint16)this.w, (uint16)(orect.x+orect.w-dest_rect.x));
+            src_rect.h =  (uint16).min((uint16)this.h, (uint16)(orect.y+orect.h-dest_rect.y));
             GLib.debug("rect: %i %i %u %u", src_rect.x, src_rect.y, src_rect.w, src_rect.h);
-//            {(int16)this.x,(int16) this.y,(uint16)this.w,(uint16) this.h};
+
 			if(pressed)
 			{
 				sf_pressed.blit_surface(src_rect, screen, dest_rect);
@@ -127,6 +141,18 @@ namespace SDLMpc
             }else{
 				sf.blit_surface(src_rect, screen, dest_rect);
 			}
+
+            if(sf_image != null)
+            {
+                dest_rect.x = (int16).max((int16)this.x+5,orect.x);
+                dest_rect.y = int16.max((int16)this.y+5, orect.y);
+
+                src_rect.x =  (int16).max(orect.x, (int16)this.x+5)-(int16)(this.x+5);
+                src_rect.y =  (int16).max(orect.y, (int16)this.y)-(int16)this.y;
+                src_rect.w =  (uint16).min((uint16)this.h, (uint16)(orect.x+orect.w-this.x-5));
+                src_rect.h =  (uint16).min((uint16)this.h, (uint16)(orect.y+orect.h-this.y));
+                sf_image.blit_surface(src_rect, screen, dest_rect);
+            }
         }
 
 		public override bool button_press()
@@ -134,7 +160,6 @@ namespace SDLMpc
 			if(!pressed)
 			{
 				pressed =true;
-				//update_text(null);
 				this.require_redraw = true;;
                 return true;
 			}
@@ -150,7 +175,6 @@ namespace SDLMpc
 					/* Button release */
 					b_clicked();
 				}
-				//update_text(null);
 				this.require_redraw = true;;
 			}
 		}

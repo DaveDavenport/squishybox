@@ -83,14 +83,15 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         entries.append(i);
         Home();
     }
-    public SDLWidget add_item(SDLWidget item)
+
+    public SDLWidget add_item(SDLWidget item, string? button_icon = null) 
     {
         Item i = new Item();
         i.type = Item.ItemType.SUBMENU;
         i.button = new SDLMpc.Button(
                 this.m,
                 0,0,
-                (uint16)this.w, 40,item.get_name());
+                (uint16)this.w, 40,item.get_name(), button_icon);
         i.button.x_align = 0.03;
         i.widget = item;
         entries.append(i);

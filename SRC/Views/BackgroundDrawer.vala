@@ -88,7 +88,6 @@ class BackgroundDrawer : SDLWidget, SDLWidgetDrawing
     /* Return the surface it needs to draw */
     public void draw_drawing(Surface screen, SDL.Rect *rect)
     {
-//        SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
 		sf.blit_surface(*rect, screen, *rect);
     }
 

@@ -98,7 +98,7 @@ namespace SDLMpc
         private SDLWidget selector;
         private SDLWidget header;
         private Standby standby;
-        private Notification notification;
+        public Notification notification;
         /**
          * Object to set backlight
          */

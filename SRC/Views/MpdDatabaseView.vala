@@ -57,22 +57,8 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
                         this.m, this.x, this.y, this.w, (uint32)this.h,32,
                         path
                         );
-                b = s.add_item(a); 
-                i++;
-            }else if (entity.get_type() == MPD.Entity.Type.SONG)
-            {
-                weak MPD.Song song = entity.get_song();
-                path = song.uri;
-                b = new Button(this.m, (int16)this.x, (int16)this.y, (uint16)this.w,38,format_song_title(song));
-                s.add_widget(b);
-                (b as Button).b_clicked.connect((source)=>{
-                    this.m.MI.queue_add_song(path);
-                });
+                b = s.add_item(a, "Data/folder.png"); 
 
-
-            }
-            if(b!=null && path != null)
-            {
                 (b as Button).key_pressed.connect((source, key)=>
                 {
                   GLib.debug("Add key pressed connect");
@@ -84,6 +70,7 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
                           if(path != null) 
                           {
                                this.m.MI.queue_add_song(path);
+                               this.m.notification.push_mesg("Added 1 directory"); 
                                return true;
                            }
                       }
@@ -93,6 +80,40 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
                    }
                    return false;
                 });
+                i++;
+            }else if (entity.get_type() == MPD.Entity.Type.SONG)
+            {
+                weak MPD.Song song = entity.get_song();
+                path = song.uri;
+                b = new Button(this.m, (int16)this.x, (int16)this.y, (uint16)this.w,38,format_song_title(song), "Data/music.png");
+                s.add_widget(b);
+                (b as Button).b_clicked.connect((source)=>{
+                    this.m.MI.queue_add_song(path);
+                    this.m.notification.push_mesg("Added 1 song"); 
+                });
+
+                (b as Button).key_pressed.connect((source, key)=>
+                {
+                  GLib.debug("Add key pressed connect");
+                  switch(key) 
+                  {
+                      case EventCommand.MORE:
+                      {
+                          GLib.debug("Add more: %s\n",path); 
+                          if(path != null) 
+                          {
+                               this.m.MI.queue_add_song(path);
+                               this.m.notification.push_mesg("Added 1 song"); 
+                               return true;
+                           }
+                      }
+                      break;
+                      default:
+                            break;
+                   }
+                   return false;
+                });
+
             }
         }
 

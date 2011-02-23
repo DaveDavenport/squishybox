@@ -26,6 +26,7 @@ using SDLMpc;
 
 class Notification : SDLWidget, SDLWidgetDrawing
 {
+    private const int TIMEOUT = 2;
     private Main m;
     private Surface sf;
     public Label l;
@@ -132,8 +133,8 @@ class Notification : SDLWidget, SDLWidgetDrawing
 
             src_rect.x =  (int16).max(orect.x, (int16)this.x)-(int16)this.x;
             src_rect.y =  (int16).max(orect.y, (int16)this.y)-(int16)this.y;
-            src_rect.w =  (uint16).min((uint16)this.w, (uint16)(orect.x+orect.w-this.x));
-            src_rect.h =  (uint16).min((uint16)this.h, (uint16)(orect.y+orect.h-this.y));
+            src_rect.w =  (uint16).min((uint16)this.w, (uint16)(orect.x+orect.w-dest_rect.x));
+            src_rect.h =  (uint16).min((uint16)this.h, (uint16)(orect.y+orect.h-dest_rect.y));
             GLib.debug("rect: %i %i %u %u", src_rect.x, src_rect.y, src_rect.w, src_rect.h);
             sf.blit_surface(src_rect, screen, dest_rect);
 
@@ -146,7 +147,7 @@ class Notification : SDLWidget, SDLWidgetDrawing
     private time_t  start_msg = 0;
     public override void Tick (time_t now)
     {
-        if(visible && start_msg +5 < now) {
+        if(visible && start_msg +TIMEOUT <= now) {
             l.require_redraw = true; 
             this.require_redraw = true;
             l.visible = false;
