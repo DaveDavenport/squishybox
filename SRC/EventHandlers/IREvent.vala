@@ -308,11 +308,9 @@ class IREvent : GLib.Object
                     ev.command = SDLMpc.EventCommand.PAUSE;
                     break;
                 default:
-                    return null;
-                    /*
                     GLib.debug("IR::UNKNOWN");
                     ev.command = SDLMpc.EventCommand.UNKNOWN;
-                    break;*/
+                    break;
             }
         }
         else ev.type = SDLMpc.EventType.INVALID;

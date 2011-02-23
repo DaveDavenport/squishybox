@@ -248,7 +248,7 @@ class MenuButton : SDLWidget, SDLWidgetActivate
         this.pos = pos;
         this.name = "%u - loading".printf(pos);
         this.b = new  Button(m, x, y,w, h, this.name);
-        this.b.l.do_scrolling = false;
+        this.b.label.do_scrolling = false;
         this.b.x_align = 0.0;
         this.children.append(b);
         this.m.MI.player_get_queue_pos(get_song, this.pos);

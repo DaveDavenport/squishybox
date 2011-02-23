@@ -27,6 +27,11 @@ class ServerMenu : SDLWidget, SDLWidgetActivate
     private Main m;
     private Selector s;
 
+    private CheckBox repeat_button;
+    private CheckBox random_button;
+    private CheckBox single_button;
+    private CheckBox consume_button;
+
 
     public override unowned string get_name()
     {
@@ -45,11 +50,54 @@ class ServerMenu : SDLWidget, SDLWidgetActivate
         this.children.append(s);
 
         s.add_item(new ConnectButton(m, x,y,w,h,32));
-        s.add_item(new RepeatButton(m, x,y,w,h,32));
-        s.add_item(new RandomButton(m, x,y,w,h,32));
-        s.add_item(new SingleButton(m, x,y,w,h,32));
-        s.add_item(new ConsumeButton(m, x,y,w,h,32));
-        s.add_item(new  ReturnButton(m, x,y,w,h,32));
+        repeat_button = new CheckBox(m, (int16)x,(int16)y,(uint16)w,(uint16)38, "Repeat");
+        repeat_button.toggled.connect((source, active) => {
+                this.m.MI.player_set_repeat(active); 
+        });
+        s.add_widget(repeat_button);
+
+        random_button = new CheckBox(m, (int16)x,(int16)y,(uint16)w,(uint16)38, "Random");
+        random_button.toggled.connect((source, active) => {
+                this.m.MI.player_set_random(active); 
+        });
+        s.add_widget(random_button);
+
+        consume_button = new CheckBox(m, (int16)x,(int16)y,(uint16)w,(uint16)38, "Consume Mode");
+        consume_button.toggled.connect((source, active) => {
+                this.m.MI.player_set_consume_mode(active); 
+        });
+        s.add_widget(consume_button);
+
+        single_button = new CheckBox(m, (int16)x,(int16)y,(uint16)w,(uint16)38, "Single  Mode");
+        single_button.toggled.connect((source, active) => {
+                this.m.MI.player_set_single_mode(active); 
+        });
+        s.add_widget(single_button);
+
+
+
+        bool repeat = false;
+        bool random = false;
+        bool consume = false;
+        bool single =false;
+        this.m.MI.player_status_changed.connect((source,status)=> {
+            if(status.repeat != repeat) {
+                repeat_button.active = status.repeat;      
+                repeat = status.repeat;
+            }
+            if(status.random != random) {
+                random_button.active = status.random;      
+                random = status.random;
+            }
+            if(status.consume != consume) {
+                consume_button.active = status.consume;      
+                consume = status.consume;
+            }
+            if(status.single != single) {
+                single_button.active = status.single;      
+                single = status.single;
+            }
+        });
     }
 
 
@@ -98,177 +146,6 @@ class ConnectButton : SDLWidget, SDLWidgetActivate
             m.MI.mpd_disconnect();
         }
 		this.require_redraw = true;
-        return true;
-    }
-}
-class ReturnButton : SDLWidget, SDLWidgetActivate
-{
-    private Main m;
-    public ReturnButton(Main m, int x, int y, int w, int h, int bpp)
-    {
-        this.m = m;
-        this.x = x; this.y = y; this.w = w; this.h = h;
-    }
-    public override unowned string get_name()
-    {
-        return "... ";
-    }
-    public bool activate()
-    {
-        GLib.debug("activate");
-        SDLMpc.Event ev = new SDLMpc.Event();
-        ev.type = SDLMpc.EventType.COMMANDS;
-        ev.command = SDLMpc.EventCommand.BROWSE;
-        this.m.push_event((owned)ev);
-        return true;
-    }
-}
-
-class RepeatButton : SDLWidget, SDLWidgetActivate
-{
-    private Main m;
-    private string label = "N/A Repeat";
-    private bool enable = false;
-
-    public RepeatButton(Main m, int x, int y, int w, int h, int bpp)
-    {
-        this.m = m;
-
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
-        this.m.MI.player_status_changed.connect((source,status)=> {
-            enable = status.repeat;
-            GLib.debug("New repeat state: %s", (enable)?"true":"false");
-            if(enable) {
-                label = "Disable Repeat";
-            }else{
-                label = "Enable Repeat";
-            }
-		    this.require_redraw = true;
-        });
-        this.m.MI.player_fetch_status();
-
-    }
-    public override unowned string get_name()
-    {
-        return label;
-    }
-    public bool activate()
-    {
-        this.m.MI.player_set_repeat(!enable); 
-        return true;
-    }
-}
-class RandomButton : SDLWidget, SDLWidgetActivate
-{
-    private Main m;
-    private string label = "N/A Random";
-    private bool enable = false;
-
-    public RandomButton(Main m, int x, int y, int w, int h, int bpp)
-    {
-        this.m = m;
-
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
-        this.m.MI.player_status_changed.connect((source,status)=> {
-            enable = status.random;
-            GLib.debug("New Random state: %s", (enable)?"true":"false");
-            if(enable) {
-                label = "Disable Random";
-            }else{
-                label = "Enable Random";
-            }
-		    this.require_redraw = true;
-        });
-        this.m.MI.player_fetch_status();
-
-    }
-    public override unowned string get_name()
-    {
-        return label;
-    }
-    public bool activate()
-    {
-        this.m.MI.player_set_random(!enable); 
-        return true;
-    }
-}
-class SingleButton : SDLWidget, SDLWidgetActivate
-{
-    private Main m;
-    private string label = "N/A Single Mode";
-    private bool enable = false;
-
-    public SingleButton(Main m, int x, int y, int w, int h, int bpp)
-    {
-        this.m = m;
-
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
-        this.m.MI.player_status_changed.connect((source,status)=> {
-            enable = status.single;
-            GLib.debug("New Single state: %s", (enable)?"true":"false");
-            if(enable) {
-                label = "Disable Single Mode";
-            }else{
-                label = "Enable Single Mode";
-            }
-		    this.require_redraw = true;
-        });
-        this.m.MI.player_fetch_status();
-
-    }
-    public override unowned string get_name()
-    {
-        return label;
-    }
-    public bool activate()
-    {
-        this.m.MI.player_set_single_mode(!enable); 
-        return true;
-    }
-}
-class ConsumeButton : SDLWidget, SDLWidgetActivate
-{
-    private Main m;
-    private string label = "N/A Consume Mode";
-    private bool enable = false;
-
-    public ConsumeButton(Main m, int x, int y, int w, int h, int bpp)
-    {
-        this.m = m;
-
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
-        this.m.MI.player_status_changed.connect((source,status)=> {
-            enable = status.consume;
-            GLib.debug("New Consume state: %s", (enable)?"true":"false");
-            if(enable) {
-                label = "Disable Consume Mode";
-            }else{
-                label = "Enable Consume Mode";
-            }
-		    this.require_redraw = true;
-        });
-        this.m.MI.player_fetch_status();
-
-    }
-    public override unowned string get_name()
-    {
-        return label;
-    }
-    public bool activate()
-    {
-        this.m.MI.player_set_consume_mode(!enable); 
         return true;
     }
 }

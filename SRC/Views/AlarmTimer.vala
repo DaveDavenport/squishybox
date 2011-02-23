@@ -72,20 +72,15 @@ class AlarmTimer : SDLWidget, SDLWidgetDrawing
         /**
          * Enable, disable button
          */
-        var enable_button = new SDLMpc.Button(m, 
+        var enable_button = new SDLMpc.CheckBox(m, 
                 (int16) this.x+5,
                 (int16) this.y+5,
                 (uint16)this.w-10,
                 (uint16) 38,
-                "Enable");
-        enable_button.b_clicked.connect((source) => {
-            enabled = ! enabled;
-            if(enabled) {
-                source.update_text("Disable");
-            }else {
-                source.update_text("Enable");
-            }
-            
+                "Alarm 1");
+
+        enable_button.toggled.connect((source,state) => {
+            enabled = state;
         });
         this.children.append(enable_button);
         this.add_focus_widget(enable_button);

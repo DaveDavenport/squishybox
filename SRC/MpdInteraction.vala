@@ -43,6 +43,7 @@ namespace MPD
         DATABASE_GET_DIRECTORY,
 
         QUEUE_SEARCH_ANY,
+        QUEUE_ADD_SONG,
 
         CONNECTION_CHANGED,
         QUEUE_CHANGED,
@@ -137,6 +138,14 @@ namespace MPD
 		/**
 		 *  Player Commands
 		 */
+         public void queue_add_song(string path)
+         {
+            Task t = new Task();
+            t.type = TaskType.QUEUE_ADD_SONG;
+            t.param = GLib.Value(typeof(string));
+            t.param.set_string(path);
+            command_queue.push(t);
+         }
         public void queue_search_any(EntityListCallback callback, string query)
         {
             Task t = new Task();
@@ -690,6 +699,10 @@ namespace MPD
                                 GLib.Idle.add(process_result_queue);
                             }
                         }
+                    }else if (t.type == TaskType.QUEUE_ADD_SONG) {
+                        var path = t.param.get_string();
+                        MPD.Queue.add(connection, path);
+
                     }else if (t.type == TaskType.QUEUE_SEARCH_ANY) {
                             MPD.Entity? entity;
                             List<MPD.Entity>? entitys = null;

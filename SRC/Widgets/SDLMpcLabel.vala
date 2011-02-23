@@ -66,9 +66,10 @@ namespace SDLMpc
             return sf.h+shadow_offset;
         }
 
-        public Label(Main m, FontSize size, int16 x, int16 y, uint16 width, uint16 height)
+        public Label(Main m, FontSize size, int16 x, int16 y, uint16 width, uint16 height,SDLWidget? parent = null )
         {
             SDL.Color b = {255,255,255};
+            this.parent = parent;
             this.m = m;
 			this.x = x;
 			this.y = y;
@@ -100,23 +101,29 @@ namespace SDLMpc
 
         public void draw_drawing(Surface screen, SDL.Rect *orect)
         {
+            int tx=0, ty=0;
+            this.get_absolute_position(ref tx, ref ty);
+            if(this.parent != null) {
+                stdout.printf("tx: %i ty: %i\n" , tx,ty);
+            }
+
             SDL.Rect shadow_dst_rect = {0,0,0,0};
             SDL.Rect src_rect = {0,0,0,0};
             SDL.Rect dst_rect = {0,0,0,0};
 
 
-            dst_rect.x = (int16).max((int16)this.x,orect.x);
-            dst_rect.y = int16.max((int16)this.y, orect.y);
+            dst_rect.x = (int16).max((int16)tx,orect.x);
+            dst_rect.y = int16.max((int16)ty, orect.y);
 
             /* Shadow has an offset of shadow_offset */
-            shadow_dst_rect.x = (int16).max((int16)(x), orect.x)+shadow_offset;
-            shadow_dst_rect.y = (int16).max((int16)(y), orect.y)+shadow_offset;
+            shadow_dst_rect.x = (int16).max((int16)(tx), orect.x)+shadow_offset;
+            shadow_dst_rect.y = (int16).max((int16)(ty), orect.y)+shadow_offset;
 
            
            /* Check if we need todo scrolling, if so, scroll */
-            if(this.do_scrolling && sf.w > (screen.w-x)) {
+            if(this.do_scrolling && sf.w > (screen.w-tx)) {
                 /* Scroll */
-                if((screen.w-x) > (sf.w-offset)  || offset < 0 ) {
+                if((screen.w-tx) > (sf.w-offset)  || offset < 0 ) {
                     if((end_delay--)  == 0) {
                         step = -step;
                         offset += step;
@@ -132,11 +139,11 @@ namespace SDLMpc
                 offset = (int16)(-(this.w-sf.w)/2);
             }
 
-            src_rect.x =  (int16).max(orect.x, (int16)this.x)-(int16)(this.x)+(int16)offset;
-            src_rect.y =  (int16).max(orect.y, (int16)this.y)-(int16)this.y;
+            src_rect.x =  (int16).max(orect.x, (int16)tx)-(int16)(tx)+(int16)offset;
+            src_rect.y =  (int16).max(orect.y, (int16)ty)-(int16)ty;
 
-            src_rect.w = uint16.min((uint16)w, (uint16)(orect.x+orect.w-this.x))-shadow_offset;
-            src_rect.h = uint16.min((uint16)h, (uint16)(orect.y+orect.h-this.y))-shadow_offset;
+            src_rect.w = uint16.min((uint16)w, (uint16)(orect.x+orect.w-tx))-shadow_offset;
+            src_rect.h = uint16.min((uint16)h, (uint16)(orect.y+orect.h-ty))-shadow_offset;
             sf_shadow.blit_surface(src_rect, screen, shadow_dst_rect);
             //src_rect.h = (int16) (h);
             src_rect.w+=shadow_offset;

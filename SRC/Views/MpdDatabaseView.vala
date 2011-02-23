@@ -58,6 +58,17 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
                         );
                 s.add_item(a); 
                 i++;
+            }else if (entity.get_type() == MPD.Entity.Type.SONG)
+            {
+                weak MPD.Song song = entity.get_song();
+                string path = song.uri;
+                var a = new Button(this.m, (int16)this.x, (int16)this.y, (uint16)this.w,38,format_song_title(song));
+                s.add_widget(a);
+                a.b_clicked.connect((source)=>{
+                    this.m.MI.queue_add_song(path);
+                });
+
+
             }
         }
 
@@ -105,5 +116,24 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
         return false;
     }
 
-
+    public override bool Event(SDLMpc.Event ev)
+    {
+        if(ev.type == SDLMpc.EventType.KEY) {
+            switch(ev.command)
+            {
+                case EventCommand.MORE:
+                {
+                    GLib.debug("Add more: %s\n", this.directory);
+                    if(this.directory != null) {
+                        this.m.MI.queue_add_song(this.directory);
+                    }
+                    return true;
+                }
+                break;
+                default:
+                    break;
+            }
+        }
+        return false;
+    }
 }

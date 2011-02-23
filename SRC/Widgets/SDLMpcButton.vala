@@ -30,7 +30,7 @@ namespace SDLMpc
     class Button : SDLWidget, SDLWidgetDrawing, SDLWidgetActivate
     {
         private Main        m;
-        public Label       l;
+        public Label       label;
         /* Load the surfaces once */
         private static Surface     sf = null;
         private static Surface     sf_pressed = null;
@@ -60,30 +60,11 @@ namespace SDLMpc
 
         public void update()
         {
-            SDL.Rect rect = {0,0,(uint16)this.w,(uint16)this.h};
-/*
-            if(highlight){ 
-    			sf.fill(rect, sf.format.map_rgba(0,255,255,170)); 
-            }else{
-    			sf.fill(rect, sf.format.map_rgba(255,255,255,170)); 
-            }
-            rect.x = 1; rect.y=1; rect.w-=2;rect.h-=2;
-			if(pressed) {
-				sf.fill(rect, sf.format.map_rgba(0,255,255,170)); 
-			}else {
-				sf.fill(rect, sf.format.map_rgba(0,0,0,170)); 
-			}
-			l.x =  (int16)(this.x+ ((this.w -l.width())*_x_align)+1);
-            l.y =  (int16)(this.y+ (this.h-l.height())/2);
-            l.w =  (uint16)(this.w-(l.x-this.x))-1;
-            l.h =  (uint16)(this.h-(l.y-this.y))-1;
-			*/
-            this.l.require_redraw = true;;
         }
         public void update_text(string? text)
         {
 			if(text != null) {
-	            l.set_text(text);
+	            label.set_text(text);
 			}
             update();
         }
@@ -116,11 +97,11 @@ namespace SDLMpc
 			    sf_highlight = sf_highlight.DisplayFormatAlpha();
             }
             if(height < 30) {
-                l = new Label(m, FontSize.SMALL,(int16)this.x+2,(int16)this.y+2,(uint16)w-4,(uint16)h-4);
+                label  = new Label(m, FontSize.SMALL,(int16)2,(int16)2,(uint16)w-4,(uint16)h-4,this);
             }else{
-                l = new Label(m, FontSize.NORMAL,(int16)this.x+2,(int16)this.y+2,(uint16)w-4,(uint16)h-4);
+                label = new Label(m, FontSize.NORMAL,(int16)2,(int16)2,(uint16)w-4,(uint16)h-4,this);
             }
-			this.children.append(l);
+			this.children.append(label);
 			update_text(text);
         }
 
@@ -184,8 +165,9 @@ namespace SDLMpc
 
         public override void Tick(time_t t)
         {
-            if(l.scrolling){
-                update();
+            if(this.label.scrolling) {
+                
+                this.label.require_redraw = true;
             }
         }
         public bool activate()

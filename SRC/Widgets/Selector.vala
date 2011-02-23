@@ -25,6 +25,11 @@ using SDLMpc;
 [compact]
 private class Item 
 {
+    public enum ItemType {
+        SUBMENU,
+        WIDGET
+    }
+    public ItemType type;
     public SDLMpc.Button    button;
     public SDLWidget        widget;
 
@@ -69,10 +74,19 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
 
 
     }
+    public void add_widget(SDLWidget item)
+    {
 
+        Item i = new Item();
+        i.type = Item.ItemType.WIDGET;
+        i.widget = item;
+        entries.append(i);
+        Home();
+    }
     public void add_item(SDLWidget item)
     {
         Item i = new Item();
+        i.type = Item.ItemType.SUBMENU;
         i.button = new SDLMpc.Button(
                 this.m,
                 0,0,
@@ -103,7 +117,11 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
     public override void do_Tick(time_t t)
     {
         this.Tick(t);
-        if(current != null) current.data.button.Tick(t);
+        if(current != null){
+            if(current.data.type == Item.ItemType.SUBMENU) {
+                current.data.button.Tick(t);
+            }
+        }
         foreach ( var i in entries)
         {
             i.widget.do_Tick(t);
@@ -125,12 +143,21 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         unowned List<Item> start = current_start;
 
         do{
-            start.data.button.y = top;
-            start.data.button.l.y = top;
-            start.data.button.set_highlight(false);
-            start.data.button.update_text(start.data.widget.get_name());
-            this.children.append(start.data.button);
-            top += (int)start.data.button.h+3;
+            if(start.data.type == Item.ItemType.SUBMENU)
+            {
+                start.data.button.y = top;
+                start.data.button.set_highlight(false);
+                start.data.button.update_text(start.data.widget.get_name());
+                this.children.append(start.data.button);
+                top += (int)start.data.button.h+3;
+            }
+            else 
+            {
+                start.data.widget.focus = false;
+                start.data.widget.y = top;
+                this.children.append(start.data.widget);
+                top += (int)start.data.widget.h+3;
+            }
             start = start.next;
             current_end = start;
 			GLib.debug("top: %i\n", top);
@@ -139,7 +166,12 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
 
         if(current != null)
         {
-            current.data.button.set_highlight(true);
+            if(current.data.type == Item.ItemType.SUBMENU)
+            {
+                current.data.button.set_highlight(true);
+            }else{
+                current.data.widget.focus = true;
+            }
         }
         this.require_redraw = true;
     }
@@ -199,9 +231,17 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
             } else if(ev.command == SDLMpc.EventCommand.RIGHT)
             {
                 GLib.debug("Select: %s", current.data.widget.get_name());
-                if(current.data.widget is SDLMpc.SDLWidgetActivate) {
-                    var r = (current.data.widget as SDLMpc.SDLWidgetActivate).activate();
-                    if(r) return true;
+                if(current.data.type == Item.ItemType.SUBMENU)
+                {
+                    if(current.data.widget is SDLMpc.SDLWidgetActivate) {
+                        var r = (current.data.widget as SDLMpc.SDLWidgetActivate).activate();
+                        if(r) return true;
+                    }
+                }else{
+                    if(current.data.widget is SDLMpc.SDLWidgetActivate) {
+                        var r = (current.data.widget as SDLMpc.SDLWidgetActivate).activate();
+                        return true;
+                    }
                 }
                 this.in_sub_item = true;
                 this.children = null;

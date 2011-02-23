@@ -823,6 +823,12 @@ namespace MPD
                 public void set_volume(MPD.Connection server, uint volume);
 
         }
+        namespace Queue
+        {
+                [CCode (cname="mpd_run_add",
+                cheader_filename="mpd/queue.h")]
+                public void add(MPD.Connection server, string file);
+        }
         
         namespace Idle
         {

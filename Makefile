@@ -53,7 +53,7 @@ VAPI_DIR=\
 # Vala Flags
 # Manually add -lSDL_ttf, because that seems to be missing.
 ##
-VALA_FLAGS=--thread --Xcc="-lSDL_ttf"
+VALA_FLAGS=--thread --Xcc="-lSDL_ttf" --Xcc="-g"
 
 ##################################################################################
 ##          processing above information                                        ##

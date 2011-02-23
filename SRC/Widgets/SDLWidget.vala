@@ -21,6 +21,7 @@ namespace SDLMpc
 {
 	public class SDLWidget : GLib.Object 
 	{
+        public unowned SDLWidget parent = null;
 		public int x;
 		public int y;
 		public uint w;
@@ -69,11 +70,22 @@ namespace SDLMpc
         }
 
 
+        public void get_absolute_position(ref int nx, ref int ny)
+        {
+            nx += this.x;
+            ny += this.y;
+            if(this.parent!= null) {
+                this.parent.get_absolute_position(ref nx, ref ny);     
+            }
+        }
 		public bool inside(int x, int y)
 		{
-			if(x > this.x && (x) < (this.x+this.w)) 
+            int tx=0, ty=0;
+            this.get_absolute_position(ref tx, ref ty);
+
+			if(x > tx && (x) < (tx+this.w)) 
 			{
-				if(y > this.y && (y) < (this.y+this.h)) 
+				if(y > ty && (y) < (ty+this.h)) 
 				{
 					return true;
 				}
@@ -121,19 +133,22 @@ namespace SDLMpc
 		public virtual List<SDL.Rect ?> get_redraw_rect(owned List<SDL.Rect?> rr,SDL.Rect g)
 		{
             if(this.visible == false && this.require_redraw = false) return (owned)rr;
-			g.x += (int16)x;
-			g.y += (int16)y;
+            int tx=0, ty=0;
+            this.get_absolute_position(ref tx, ref ty);
+
+			g.x += (int16)tx;
+			g.y += (int16)ty;
 			foreach ( var child in children) 
 			{
 				rr = child.get_redraw_rect((owned)rr,g);
 			}  
-			g.x -= (int16)x;
-			g.y -= (int16)y;
+			g.x -= (int16)tx;
+			g.y -= (int16)ty;
 			if(this.check_redraw()) {
 				if((w) > 0 && (h) > 0)
 				{
 					SDL.Rect r = {0,0,0,0};
-					r.x =(int16) this.x; r.y =(int16) this.y; r.w =(uint16)this.w; r.h =(uint16) this.h;
+					r.x =(int16) tx; r.y =(int16) ty; r.w =(uint16)this.w; r.h =(uint16) this.h;
 					rr.append(r);
 				}
 			}     
@@ -146,8 +161,10 @@ namespace SDLMpc
 		{
             if(visible == false) return false;
             if(r.x == 0 && r.y == 0 && r.h == 272 && r.w == 480) return true;
-            return !(this.x> (r.x+r.w) || (this.x+this.w) <= r.x ||
-                    this.y > (r.y+r.h) || (this.y+this.h) <= r.y);
+            int tx=0, ty=0;
+            this.get_absolute_position(ref tx, ref ty);
+            return !(tx> (r.x+r.w) || (tx+this.w) <= r.x ||
+                    ty > (r.y+r.h) || (ty+this.h) <= r.y);
 			return false;
 		}
 		public virtual void draw(Surface screen, SDL.Rect *rect)

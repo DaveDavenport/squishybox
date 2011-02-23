@@ -113,7 +113,7 @@ namespace SDLMpc
          * Main event queue
          * Event queue.
          */
-        private Queue<SDLMpc.Event> events= new Queue<SDLMpc.Event>();
+        private GLib.Queue<SDLMpc.Event> events= new GLib.Queue<SDLMpc.Event>();
 
         /**
          * Add push event
