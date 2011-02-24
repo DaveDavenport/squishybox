@@ -30,10 +30,11 @@ namespace SDLMpc
     class Button : SDLWidget, SDLWidgetDrawing, SDLWidgetActivate
     {
         private Main        m;
-        public Label       label;
+        public Label       label = null;
         /* Load the surfaces once */
         private Surface      sf_image = null;
         private Theme.Icons  icon = Theme.Icons.NO_ICON;
+        private Theme.Element   element = Theme.Element.BUTTON_LARGE;
 		private bool pressed = false;
 
         private double _x_align =0.5;
@@ -56,17 +57,20 @@ namespace SDLMpc
 
         public void update_text(string? text)
         {
-			if(text != null) {
-	            label.set_text(text);
-			}
-            else
-                label.set_text("");
+            if(label != null)
+            {
+                if(text != null) {
+                    label.set_text(text);
+                }
+                else
+                    label.set_text("");
+            }
         }
 
         public Button(Main m,
                 int16 x, int16 y, 
                 uint16 width, uint16 height,
-                string text,
+                string? text,
                 Theme.Icons icon = Theme.Icons.NO_ICON)
         {
             this.m = m;
@@ -78,7 +82,7 @@ namespace SDLMpc
 
             uint16 child_offset = 5;
 
-
+            if(width < 50) element = Theme.Element.BUTTON_SMALL;
             //sf = new Surface.RGB(0, width,height,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
 
             this.icon = icon;
@@ -86,13 +90,16 @@ namespace SDLMpc
                 unowned Surface sf_image = this.m.theme.get_icon(this.icon);
                 child_offset += (uint16)(sf_image.w+5);
             }
-            if(height < 30) {
-                label  = new Label(m, FontSize.SMALL,(int16)child_offset+2,(int16)2,(uint16)w-2-child_offset-4,(uint16)h-4,this);
-            }else{
-                label = new Label(m, FontSize.NORMAL,(int16)child_offset+2,(int16)2,(uint16)w-2-child_offset-4,(uint16)h-4,this);
+            if(text != null)
+            {
+                if(height < 30) {
+                    label  = new Label(m, FontSize.SMALL,(int16)child_offset+2,(int16)2,(uint16)w-2-child_offset-4,(uint16)h-4,this);
+                }else{
+                    label = new Label(m, FontSize.NORMAL,(int16)child_offset+2,(int16)2,(uint16)w-2-child_offset-4,(uint16)h-4,this);
+                }
+                this.children.append(label);
+                update_text(text);
             }
-			this.children.append(label);
-			update_text(text);
         }
 
 
@@ -117,13 +124,13 @@ namespace SDLMpc
 
 			if(pressed)
 			{
-                weak Surface sf = this.m.theme.get_element(Theme.Element.BUTTON_LARGE, Theme.ElementState.PRESSED);
+                weak Surface sf = this.m.theme.get_element(element, Theme.ElementState.PRESSED);
 				sf.blit_surface(src_rect, screen, dest_rect);
             }else if (focus ) {
-                weak Surface sf= this.m.theme.get_element(Theme.Element.BUTTON_LARGE, Theme.ElementState.HIGHLIGHT);
+                weak Surface sf= this.m.theme.get_element(element, Theme.ElementState.HIGHLIGHT);
 				sf.blit_surface(src_rect, screen, dest_rect);
             }else{
-                weak Surface sf = this.m.theme.get_element(Theme.Element.BUTTON_LARGE, Theme.ElementState.NORMAL);
+                weak Surface sf = this.m.theme.get_element(element, Theme.ElementState.NORMAL);
 				sf.blit_surface(src_rect, screen, dest_rect);
 			}
 
@@ -180,15 +187,22 @@ namespace SDLMpc
 
         public override void Tick(time_t t)
         {
-            if(this.label.scrolling) {
-                
-                this.label.require_redraw = true;
+            if(this.label != null) {
+                if(this.label.scrolling) {
+
+                    this.label.require_redraw = true;
+                }
             }
         }
         public bool activate()
         {
             b_clicked();
             return false;
+        }
+        public void set_icon(Theme.Icons icon)
+        {
+            this.icon = icon;
+            this.require_redraw = true;
         }
     }
 }

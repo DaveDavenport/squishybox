@@ -209,6 +209,8 @@ namespace SDLMpc
             GLib.debug("Create background draw object");
 
 
+            /* Theme */
+            theme = new Theme();
             /* Prepare basic widget */
             /* Create a background widget that always draws the background */
             bg       = new BackgroundDrawer  (this,  0,      0,  480, 272, 32);
@@ -236,7 +238,6 @@ namespace SDLMpc
 
 
             notification = new Notification(this, 0,0, 480, 272,32);
-            theme = new Theme();
             
             bg.children.append(notification);
             notification.push_mesg("Welcome");

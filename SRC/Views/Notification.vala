@@ -28,7 +28,6 @@ class Notification : SDLWidget, SDLWidgetDrawing
 {
     private const int TIMEOUT = 2;
     private Main m;
-    private Surface sf;
     public Label l;
 
     public override unowned string get_name()
@@ -46,9 +45,7 @@ class Notification : SDLWidget, SDLWidgetDrawing
         this.w = w;
         this.h = h;
 
-        sf =  SDLImage.load("Data/Basic/notification.png");
-        sf = sf.DisplayFormatAlpha();
-
+        unowned SDL.Surface sf = this.m.theme.get_element(Theme.Element.NOTIFICATION, Theme.ElementState.NORMAL);
         /* Center widget */
         this.x = (int)((this.w - sf.w)/2);
         this.y = (int)((this.h - sf.h)/2);
@@ -136,6 +133,8 @@ class Notification : SDLWidget, SDLWidgetDrawing
             src_rect.w =  (uint16).min((uint16)this.w, (uint16)(orect.x+orect.w-dest_rect.x));
             src_rect.h =  (uint16).min((uint16)this.h, (uint16)(orect.y+orect.h-dest_rect.y));
             GLib.debug("rect: %i %i %u %u", src_rect.x, src_rect.y, src_rect.w, src_rect.h);
+
+            unowned SDL.Surface sf = this.m.theme.get_element(Theme.Element.NOTIFICATION, Theme.ElementState.NORMAL);
             sf.blit_surface(src_rect, screen, dest_rect);
 
         }

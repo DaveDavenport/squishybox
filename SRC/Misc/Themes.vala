@@ -53,13 +53,22 @@ namespace SDLMpc
             CHECK_BOX,
             /* Checkbox 38x38 but checked */
             CHECK_BOX_ACTIVE,
+            /* The notification popup background */
+            NOTIFICATION,
+            /* Header background */
+            HEADER,
+            /* Button small (38x28) */
+            BUTTON_SMALL,
             /* */
             NUM_ELEMENTS
         }
         private string[] element_names = { 
             "button_large",
             "check_button",
-            "check_button_active"
+            "check_button_active",
+            "notification",
+            "header",
+            "button_small"
         };
         public enum ElementState {
             NORMAL,
@@ -129,12 +138,22 @@ namespace SDLMpc
         public enum Icons {
             MUSIC,
             FOLDER,
+            PLAY,
+            PAUSE,
+            STOP,
+            FORWARD,
+            BACKWARD,
             NUM_ICONS,
             NO_ICON
         }
         private string[] icon_names = {
             "music",
-            "folder"
+            "folder",
+            "play",
+            "pause",
+            "stop",
+            "forward",
+            "backward"
         };
 
         public unowned SDL.Surface? get_icon(Theme.Icons icon)

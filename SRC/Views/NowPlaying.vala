@@ -553,7 +553,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         }
 */
         /* Previous button */
-        prev_button = new SDLMpc.Button(m, (int16) this.x+ 0,(int16) this.y+0,  38, 38, "◂◂");
+        prev_button = new SDLMpc.Button(m, (int16) this.x+ 0,(int16) this.y+0,  38, 38, null,Theme.Icons.BACKWARD);
         prev_button.b_clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
@@ -563,7 +563,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
 
 
         /* Stop button */
-        stop_button = new SDLMpc.Button(m, (int16) this.x+ 38,(int16) this.y+0,  38, 38, "■");
+        stop_button = new SDLMpc.Button(m, (int16) this.x+ 38,(int16) this.y+0,  38, 38, null,Theme.Icons.STOP);
         stop_button.b_clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
@@ -574,7 +574,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
     
 
         /* Play/pause button */
-        pause_button = new SDLMpc.Button(m,(int16) this.x+ 76,(int16) this.y+0, 38, 38, "▶");
+        pause_button = new SDLMpc.Button(m,(int16) this.x+ 76,(int16) this.y+0, 38, 38, null,Theme.Icons.PLAY);
         pause_button.b_clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
@@ -585,7 +585,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
                 }
                 m.push_event((owned)ev);
                 });
-        next_button = new SDLMpc.Button(m, (int16) this.x+ 114,(int16) this.y+0, 38, 38, "▸▸");
+        next_button = new SDLMpc.Button(m, (int16) this.x+ 114,(int16) this.y+0, 38, 38, null,Theme.Icons.FORWARD);
         next_button.b_clicked.connect((source) => {
                 SDLMpc.Event ev = new SDLMpc.Event();
                 ev.type = SDLMpc.EventType.COMMANDS;
@@ -597,9 +597,11 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         m.MI.player_status_changed.connect((source, status) => {
                 stopped = false;
                 if(status.state == MPD.Status.State.PLAY) {
-                    pause_button.update_text("▮▮");
+                    pause_button.set_icon(Theme.Icons.PAUSE);
+  //                  pause_button.update_text("");
                 }else {
-                    pause_button.update_text("▶");
+                    pause_button.set_icon(Theme.Icons.PLAY);
+//                    pause_button.update_text("▶");
                     if(status.state == MPD.Status.State.STOP){
                         stopped = true;
                     }

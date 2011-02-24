@@ -27,8 +27,6 @@ class Header : SDLWidget, SDLWidgetDrawing
     private const int OFFSET = 5;
     /* Pointer to the main object */
     private weak Main m;
-    /* Surface that draws the background of the header */
-    private Surface sf;
     /* Quit button */
     private SDLMpc.Button quit_button;
     private SDLMpc.Button up_button;
@@ -65,20 +63,9 @@ class Header : SDLWidget, SDLWidgetDrawing
         this.m = m;
         this.x = x; this.y  = y; this.w = w; this.h = h;
 
-        /* Create surface */
-     //   sf = new Surface.RGB(0, w,h,bpp,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
 
-		sf = SDLImage.load("Data/Basic/header.png");
-		sf = sf.DisplayFormat();
-
-        /* Draw background /
-        SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
-        sf.fill(rect, sf.format.map_rgba(0,0,0,200)); 
-
-        SDL.Rect rect_line = {0,(int16)(this.h-2), (uint16)w, 2};
-        sf.fill(rect_line, sf.format.map_rgba(255,255,255,255)); 
-		 */
-		/* Quit button */
+        unowned SDL.Surface sf = this.m.theme.get_element(Theme.Element.HEADER, Theme.ElementState.NORMAL);
+        /* Quit button */
         quit_button = new SDLMpc.Button(m, 
                             (int16) this.x,
                             (int16) this.y,
@@ -122,6 +109,7 @@ class Header : SDLWidget, SDLWidgetDrawing
 
     public void draw_drawing(Surface screen, SDL.Rect *orect)
     {
+        unowned SDL.Surface sf = this.m.theme.get_element(Theme.Element.HEADER, Theme.ElementState.NORMAL);
         SDL.Rect dest_rect = {0,0,0,0};
         SDL.Rect src_rect = {0,0,0,0};
 
