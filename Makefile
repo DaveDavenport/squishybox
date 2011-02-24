@@ -118,9 +118,11 @@ OBJECT_FILES=$(foreach p,$(SOURCES:.vala=.o),$(BUILD_DIR)/$p)
 
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c | $(BUILD_DIR)
+	$(info create object file $@)
 	$(QUIET) $(CC) $(PKG_CFLAGS) $(CFLAGS)  -g -c  $< -o $@
 
 $(OUTPUT): $(OBJECT_FILES) | $(BUILD_DIR)
+	$(info Linking..... $@)
 	$(QUIET) $(CC)  $^ $(LIBS) $(PKG_LIBS) $(CFLAGS) $(PKG_CFLAGS)-o $@
 
 
