@@ -1,4 +1,4 @@
-QUIET=
+QUIET=@
 #@
 #
 # Vala compiler binary
@@ -57,7 +57,7 @@ VAPI_DIR=\
 VALA_FLAGS=--thread --Xcc="-lSDL_ttf"
 OUTPUT=$(BUILD_DIR)/$(PROGRAM)
 
-LIBS+="-lSDL_ttf"
+LIBS+=-lSDL_ttf 
 
 ##################################################################################
 ##          Pre-processing above information                                    ##
@@ -87,61 +87,46 @@ C_SOURCES=$(foreach p,$(SOURCES:.vala=.c),$(SOURCE_DIR)/$p)
 FVAPI_SOURCES=$(foreach p,$(SOURCES:.vala=.vapi),$(SOURCE_DIR)/$p)
 FVAPI_SOURCES_STAMP=$(foreach p,$(SOURCES:.vala=.vapi.stamp),$(SOURCE_DIR)/$p)
 FVAPI_SOURCES_DEPS=$(foreach p,$(SOURCES:.vala=.dep),$(SOURCE_DIR)/$p)
-$(info test)
 
+DIR_SOURCES=$(foreach p,$(SOURCES), $(SOURCE_DIR)/$(dir $p))
+BUILD_DIR_SOURCES=$(foreach p,$(SOURCES), $(BUILD_DIR)/$(dir $p))
 
-all: $(C_SOURCES)
+all: $(OUTPUT) 
 
-
-
-$(SOURCE_DIR)/%.vapi.stamp: %.vala
-	$(QUIET) mkdir -p $(dir $@)
-	$(QUIET) $(VALAC) --fast-vapi=$(@:.stamp=) $<  && touch $@
-
-
-$(SOURCE_DIR)/%.dep: %.vala | $(FVAPI_SOURCES_STAMP)
-	$(QUIET) mkdir -p $(dir $@)
-	$(QUIET) $(VALAC) -C --deps=$@ $(addprefix --use-fast-vapi=,$(subst $(@:.dep=.vapi),,$(FVAPI_SOURCES))) $(VAPI_DIRS) $(VALA_PKG) $(VALA_FLAGS) -D PC $<
-
-
-
-$(SOURCE_DIR)/%.c: %.vala | $(FVAPI_SOURCES_DEPS)
-	$(QUIET) mkdir -p $(dir $@)
-	$(QUIET) $(VALAC) -C  $(addprefix --use-fast-vapi=,$(subst $(@:.c=.vapi),,$(FVAPI_SOURCES))) $(VAPI_DIRS) $(VALA_PKG) $(VALA_FLAGS) -D PC -d $(SOURCE_DIR) $<
-
-
-
-include $(FVAPI_SOURCES_DEPS)
-
-OBJECT_FILES=$(foreach p,$(SOURCES:.vala=.o),$(BUILD_DIR)/$p)
-
-
-$(info $(PKG_CFLAGS))
-$(info $(PKG_LIBS))
-$(BUILD_DIR)/%.o: %.c
-	$(QUIET) mkdir -p $(dir $@)
-	$(QUIET) $(CC) $(PKG_CFLAGS) $(CFLAGS)  -c -o $@ $<
-
-$(PROGRAM): $(OBJECT_FILES)
-	$(QUIET) $(CC) -o $@ $^ $(LIBS) $(CFLAGS) $(PKG_LIBS) $(PKG_CFLAGS)
 
 $(BUILD_DIR):
 	$(info Create '$@' Directory)
 	$(QUIET)mkdir -p '$@'
-
-$(OUTPUT): $(SOURCES) $(BUILD_DIR)
-	$(info Building source files: '$(SOURCES)')
-	$(QUIET) $(VALAC) -o $(PROGRAM) $(SOURCES)  $(VAPI_DIRS)  $(VALA_PKG) $(VALA_FLAGS) -D PC -d $(BUILD_DIR)
+	$(QUIET) mkdir -p $(BUILD_DIR_SOURCES)
 
 $(SOURCE_DIR):
 	$(info Create '$@' Directory)
 	$(QUIET)mkdir -p '$@'
-
-#source:  $(SOURCES) $(SOURCE_DIR)
-#	$(info Creating source files: '$(SOURCES)')
-#	$(QUIET) $(VALAC) $(SOURCES)  $(VAPI_DIRS) $(VALA_PKG) $(VALA_FLAGS) -C -d $(SOURCE_DIR)
+	$(QUIET) mkdir -p $(DIR_SOURCES)
 
 
+$(SOURCE_DIR)/%.vapi.stamp: %.vala | $(SOURCE_DIR)
+	$(QUIET) $(VALAC) --fast-vapi=$(@:.stamp=) $<  && touch $@
+
+
+$(SOURCE_DIR)/%.dep: %.vala | $(FVAPI_SOURCES_STAMP)
+	$(QUIET) $(VALAC) -C --deps=$@ $(addprefix --use-fast-vapi=,$(subst $(@:.dep=.vapi),,$(FVAPI_SOURCES))) $(VAPI_DIRS) $(VALA_PKG) $(VALA_FLAGS) -D PC -d $(SOURCE_DIR) $<
+
+-include $(FVAPI_SOURCES_DEPS)
+
+OBJECT_FILES=$(foreach p,$(SOURCES:.vala=.o),$(BUILD_DIR)/$p)
+
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c | $(BUILD_DIR)
+	$(QUIET) $(CC) $(PKG_CFLAGS) $(CFLAGS)  -g -c  $< -o $@
+
+$(OUTPUT): $(OBJECT_FILES) | $(BUILD_DIR)
+	$(QUIET) $(CC)  $^ $(LIBS) $(PKG_LIBS) $(CFLAGS) $(PKG_CFLAGS)-o $@
+
+
+source:  $(SOURCES) $(SOURCE_DIR)
+	$(info Creating source files: '$(SOURCES)')
+	$(QUIET) $(VALAC) $(SOURCES)  $(VAPI_DIRS) $(VALA_PKG) $(VALA_FLAGS) -C -d $(SOURCE_DIR)
 ##
 # Run it.
 ##

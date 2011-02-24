@@ -68,7 +68,7 @@ namespace SDLMpc
 
     class Main : GLib.Object
     {
-        public Font fonts[5/*FontSize.NUM_FONTS*/];
+        public Font[] fonts = new Font[5];
         /**
          * The main screen
          */

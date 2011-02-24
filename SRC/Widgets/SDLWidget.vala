@@ -165,7 +165,6 @@ namespace SDLMpc
             this.get_absolute_position(ref tx, ref ty);
             return !(tx> (r.x+r.w) || (tx+this.w) <= r.x ||
                     ty > (r.y+r.h) || (ty+this.h) <= r.y);
-			return false;
 		}
 		public virtual void draw(Surface screen, SDL.Rect *rect)
 		{
@@ -232,7 +231,6 @@ namespace SDLMpc
                             focus_current.data.focus = true;
                         }
                         return true;
-                        break;
                     case EventCommand.DOWN:
                         if(focus_chain == null) break;
                         if(focus_current != null){

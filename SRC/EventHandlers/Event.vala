@@ -81,7 +81,6 @@ namespace SDLMpc
         public bool     released;
     }
 
-    [Compact]
     public class Event {
         public Posix.timeval    time;
         public EventType        type;

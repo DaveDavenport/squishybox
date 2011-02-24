@@ -1,4 +1,4 @@
-QUIET=@
+QUIET=
 #
 # Vala compiler binary
 #
@@ -103,7 +103,7 @@ $(SOURCE_DIR):
 ##
 $(OUTPUT): $(SOURCES) $(BUILD_DIR)
 	$(info Building source files: '$(SOURCES)')
-	$(QUIET) $(VALAC) -o $(PROGRAM) $(SOURCES)  $(VAPI_DIRS)  $(VALA_PKG) $(VALA_FLAGS) -D PC -d $(BUILD_DIR)
+	$(QUIET) $(VALAC) -v --save-temps -g -o $(PROGRAM) $(SOURCES)  $(VAPI_DIRS)  $(VALA_PKG) $(VALA_FLAGS) -D PC -d $(BUILD_DIR)
 
 ##
 # Build source (for compilation on sbt)
