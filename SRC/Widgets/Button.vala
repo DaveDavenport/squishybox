@@ -138,12 +138,13 @@ namespace SDLMpc
             {
                 unowned Surface sf_image = this.m.theme.get_icon(this.icon);
                 dest_rect.x = (int16).max((int16)this.x+5,orect.x);
-                dest_rect.y = int16.max((int16)this.y+5, orect.y);
+                dest_rect.y = int16.max((int16)(this.y+(this.h-sf_image.h)/2), orect.y);
 
                 src_rect.x =  (int16).max(orect.x, (int16)this.x+5)-(int16)(this.x+5);
                 src_rect.y =  (int16).max(orect.y, (int16)this.y)-(int16)this.y;
-                src_rect.w =  (uint16).min((uint16)this.h, (uint16)(orect.x+orect.w-this.x-5));
-                src_rect.h =  (uint16).min((uint16)this.h, (uint16)(orect.y+orect.h-this.y));
+                src_rect.w =  (uint16).min((uint16)sf_image.h, (uint16)(orect.x+orect.w-this.x-5));
+                src_rect.h =  (uint16).min((uint16)sf_image.h, 
+                        (uint16)(orect.y+orect.h-(this.y+(this.h-sf_image.h)/2)));
                 sf_image.blit_surface(src_rect, screen, dest_rect);
             }
         }

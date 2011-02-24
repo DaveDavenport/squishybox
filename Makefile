@@ -1,4 +1,5 @@
-QUIET=@
+QUIET=
+#@
 #
 # Vala compiler binary
 #
@@ -53,19 +54,20 @@ VAPI_DIR=\
 # Vala Flags
 # Manually add -lSDL_ttf, because that seems to be missing.
 ##
-VALA_FLAGS=--thread --Xcc="-lSDL_ttf" --Xcc="-g"
+VALA_FLAGS=--thread --Xcc="-lSDL_ttf"
+OUTPUT=$(BUILD_DIR)/$(PROGRAM)
+
+LIBS+="-lSDL_ttf"
 
 ##################################################################################
-##          processing above information                                        ##
+##          Pre-processing above information                                    ##
 ##################################################################################
-OUTPUT=$(BUILD_DIR)/$(PROGRAM)
 
 ##
 # Make right syntax for vala
 ##
 VALA_PKG=$(foreach p,$(VALA_PACKAGES) $(PKGCONFIG_PACKAGES),--pkg=$p)
 VAPI_DIRS=$(foreach p,$(VAPI_DIR), --vapidir=$p)
-
 
 ##
 # Check if packages are available
@@ -77,40 +79,67 @@ else
     $(error One or more packages missing from: $(PKGCONFIG_PACKAGES))
 endif
 
+PKG_CFLAGS=$(shell pkg-config --cflags $(PKGCONFIG_PACKAGES) gobject-2.0 gthread-2.0 )
+PKG_LIBS=$(shell pkg-config --libs $(PKGCONFIG_PACKAGES) gobject-2.0 gthread-2.0)
 
 
-##
-# all clause. first one in the chain, so executed
-# when no command specified
-##
-all: $(OUTPUT) 
+C_SOURCES=$(foreach p,$(SOURCES:.vala=.c),$(SOURCE_DIR)/$p)
+FVAPI_SOURCES=$(foreach p,$(SOURCES:.vala=.vapi),$(SOURCE_DIR)/$p)
+FVAPI_SOURCES_STAMP=$(foreach p,$(SOURCES:.vala=.vapi.stamp),$(SOURCE_DIR)/$p)
+FVAPI_SOURCES_DEPS=$(foreach p,$(SOURCES:.vala=.dep),$(SOURCE_DIR)/$p)
+$(info test)
 
-##
-# Create the build dir 
-##
+
+all: $(C_SOURCES)
+
+
+
+$(SOURCE_DIR)/%.vapi.stamp: %.vala
+	$(QUIET) mkdir -p $(dir $@)
+	$(QUIET) $(VALAC) --fast-vapi=$(@:.stamp=) $<  && touch $@
+
+
+$(SOURCE_DIR)/%.dep: %.vala | $(FVAPI_SOURCES_STAMP)
+	$(QUIET) mkdir -p $(dir $@)
+	$(QUIET) $(VALAC) -C --deps=$@ $(addprefix --use-fast-vapi=,$(subst $(@:.dep=.vapi),,$(FVAPI_SOURCES))) $(VAPI_DIRS) $(VALA_PKG) $(VALA_FLAGS) -D PC $<
+
+
+
+$(SOURCE_DIR)/%.c: %.vala | $(FVAPI_SOURCES_DEPS)
+	$(QUIET) mkdir -p $(dir $@)
+	$(QUIET) $(VALAC) -C  $(addprefix --use-fast-vapi=,$(subst $(@:.c=.vapi),,$(FVAPI_SOURCES))) $(VAPI_DIRS) $(VALA_PKG) $(VALA_FLAGS) -D PC -d $(SOURCE_DIR) $<
+
+
+
+include $(FVAPI_SOURCES_DEPS)
+
+OBJECT_FILES=$(foreach p,$(SOURCES:.vala=.o),$(BUILD_DIR)/$p)
+
+
+$(info $(PKG_CFLAGS))
+$(info $(PKG_LIBS))
+$(BUILD_DIR)/%.o: %.c
+	$(QUIET) mkdir -p $(dir $@)
+	$(QUIET) $(CC) $(PKG_CFLAGS) $(CFLAGS)  -c -o $@ $<
+
+$(PROGRAM): $(OBJECT_FILES)
+	$(QUIET) $(CC) -o $@ $^ $(LIBS) $(CFLAGS) $(PKG_LIBS) $(PKG_CFLAGS)
+
 $(BUILD_DIR):
 	$(info Create '$@' Directory)
 	$(QUIET)mkdir -p '$@'
-##
-# Create the source dir
-##
-$(SOURCE_DIR):
-	$(info Create '$@' Directory)
-	$(QUIET)mkdir -p '$@'
 
-##
-# Program compilation
-##
 $(OUTPUT): $(SOURCES) $(BUILD_DIR)
 	$(info Building source files: '$(SOURCES)')
 	$(QUIET) $(VALAC) -o $(PROGRAM) $(SOURCES)  $(VAPI_DIRS)  $(VALA_PKG) $(VALA_FLAGS) -D PC -d $(BUILD_DIR)
 
-##
-# Build source (for compilation on sbt)
-##
-source:  $(SOURCES) $(SOURCE_DIR)
-	$(info Creating source files: '$(SOURCES)')
-	$(QUIET) $(VALAC) $(SOURCES)  $(VAPI_DIRS) $(VALA_PKG) $(VALA_FLAGS) -C -d $(SOURCE_DIR)
+$(SOURCE_DIR):
+	$(info Create '$@' Directory)
+	$(QUIET)mkdir -p '$@'
+
+#source:  $(SOURCES) $(SOURCE_DIR)
+#	$(info Creating source files: '$(SOURCES)')
+#	$(QUIET) $(VALAC) $(SOURCES)  $(VAPI_DIRS) $(VALA_PKG) $(VALA_FLAGS) -C -d $(SOURCE_DIR)
 
 
 ##
