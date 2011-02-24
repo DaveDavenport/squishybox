@@ -84,7 +84,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         Home();
     }
 
-    public SDLWidget add_item(SDLWidget item, string? button_icon = null) 
+    public SDLWidget add_item(SDLWidget item, Theme.Icons button_icon =  Theme.Icons.NO_ICON)
     {
         Item i = new Item();
         i.type = Item.ItemType.SUBMENU;

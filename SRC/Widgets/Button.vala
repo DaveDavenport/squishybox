@@ -32,11 +32,8 @@ namespace SDLMpc
         private Main        m;
         public Label       label;
         /* Load the surfaces once */
-        private static Surface     sf = null;
-        private static Surface     sf_pressed = null;
-        private static Surface     sf_highlight = null;
-
         private Surface      sf_image = null;
+        private Theme.Icons  icon = Theme.Icons.NO_ICON;
 		private bool pressed = false;
 
         private double _x_align =0.5;
@@ -70,7 +67,7 @@ namespace SDLMpc
                 int16 x, int16 y, 
                 uint16 width, uint16 height,
                 string text,
-                string? image = null)
+                Theme.Icons icon = Theme.Icons.NO_ICON)
         {
             this.m = m;
 			
@@ -84,9 +81,9 @@ namespace SDLMpc
 
             //sf = new Surface.RGB(0, width,height,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
 
-            if(image != null) {
-                sf_image = SDLImage.load(image);
-			    sf_image = sf_image.DisplayFormatAlpha();
+            this.icon = icon;
+            if(this.icon != Theme.Icons.NO_ICON) {
+                unowned Surface sf_image = this.m.theme.get_icon(this.icon);
                 child_offset += (uint16)(sf_image.w+5);
             }
             if(height < 30) {
@@ -130,8 +127,9 @@ namespace SDLMpc
 				sf.blit_surface(src_rect, screen, dest_rect);
 			}
 
-            if(sf_image != null)
+            if(this.icon != Theme.Icons.NO_ICON)
             {
+                unowned Surface sf_image = this.m.theme.get_icon(this.icon);
                 dest_rect.x = (int16).max((int16)this.x+5,orect.x);
                 dest_rect.y = int16.max((int16)this.y+5, orect.y);
 

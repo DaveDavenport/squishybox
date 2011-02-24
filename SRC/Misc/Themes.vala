@@ -45,7 +45,7 @@ namespace SDLMpc
             }
         }
 
-        /* A list of available elements */
+        /* A list of available Interface elements */
         public enum Element {
             /* Large button 38x480 */
             BUTTON_LARGE,
@@ -73,10 +73,15 @@ namespace SDLMpc
             "_pressed"
         };
 
-        private ElementItem surfaces[3]; 
+
+
+        private ElementItem?[] surfaces = new ElementItem[Element.NUM_ELEMENTS]; 
         /* This 'pre-loads' all the surfaces */
         private void update_surfaces()
         {
+            for(int i=0; i < Icons.NUM_ICONS;i++){
+                icons[i] = null;
+            }
              for(int i=0; i < Element.NUM_ELEMENTS; i++)
              {
                 /* Create element when needed */
@@ -119,7 +124,36 @@ namespace SDLMpc
             }
         }
 
+        /* List of available icons */
+        private SDL.Surface?[] icons = new SDL.Surface[Icons.NUM_ICONS];
+        public enum Icons {
+            MUSIC,
+            FOLDER,
+            NUM_ICONS,
+            NO_ICON
+        }
+        private string[] icon_names = {
+            "music",
+            "folder"
+        };
 
+        public unowned SDL.Surface? get_icon(Theme.Icons icon)
+        {
+            if(icons[icon] == null)
+            {
+                string filename = "%s.png".printf(icon_names[icon]);
+                string Path = GLib.Path.build_filename(directory, _theme_name, filename);
+                icons[icon]= SDLImage.load(Path);
+                if(icons[icon]!= null)
+                    icons[icon] = icons[icon].DisplayFormatAlpha();
+            }
+            return icons[icon];
+        }
+
+
+        /**
+         * Constructor 
+         */
         public Theme()
         {
             update_surfaces();
