@@ -84,21 +84,6 @@ namespace SDLMpc
 
             //sf = new Surface.RGB(0, width,height,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
 
-            if(sf == null)
-            {
-			    sf = SDLImage.load("Data/button.png");
-			    sf = sf.DisplayFormatAlpha();
-            }
-            if(sf_pressed == null)
-            {
-                sf_pressed = SDLImage.load("Data/button_pressed.png");
-			    sf_pressed = sf_pressed.DisplayFormatAlpha();
-            }
-            if(sf_highlight == null)
-            {
-                sf_highlight = SDLImage.load("Data/button_highlight.png");
-			    sf_highlight = sf_highlight.DisplayFormatAlpha();
-            }
             if(image != null) {
                 sf_image = SDLImage.load(image);
 			    sf_image = sf_image.DisplayFormatAlpha();
@@ -135,10 +120,13 @@ namespace SDLMpc
 
 			if(pressed)
 			{
-				sf_pressed.blit_surface(src_rect, screen, dest_rect);
+                weak Surface sf = this.m.theme.get_element(Theme.Element.BUTTON_LARGE, Theme.ElementState.PRESSED);
+				sf.blit_surface(src_rect, screen, dest_rect);
             }else if (focus ) {
-				sf_highlight.blit_surface(src_rect, screen, dest_rect);
+                weak Surface sf= this.m.theme.get_element(Theme.Element.BUTTON_LARGE, Theme.ElementState.HIGHLIGHT);
+				sf.blit_surface(src_rect, screen, dest_rect);
             }else{
+                weak Surface sf = this.m.theme.get_element(Theme.Element.BUTTON_LARGE, Theme.ElementState.NORMAL);
 				sf.blit_surface(src_rect, screen, dest_rect);
 			}
 

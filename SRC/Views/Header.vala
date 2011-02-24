@@ -68,7 +68,7 @@ class Header : SDLWidget, SDLWidgetDrawing
         /* Create surface */
      //   sf = new Surface.RGB(0, w,h,bpp,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
 
-		sf = SDLImage.load("Data/header.png");
+		sf = SDLImage.load("Data/Basic/header.png");
 		sf = sf.DisplayFormat();
 
         /* Draw background /

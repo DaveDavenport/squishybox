@@ -31,11 +31,6 @@ namespace SDLMpc
     {
         private Main        m;
         public Label       l;
-        /* Load the surfaces once */
-        private static Surface     sf                    = null;
-        private static Surface     sf_active             = null;
-        private static Surface     sf_highlight          = null;
-        private static Surface     sf_highlight_active   = null;
 
 
 		private bool pressed = false;
@@ -71,26 +66,6 @@ namespace SDLMpc
 
             //sf = new Surface.RGB(0, width,height,32,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
 
-            if(sf == null)
-            {
-			    sf = SDLImage.load("Data/check_button.png");
-			    sf = sf.DisplayFormatAlpha();
-            }
-            if(sf_active == null)
-            {
-                sf_active = SDLImage.load("Data/check_button_active.png");
-			    sf_active = sf_active.DisplayFormatAlpha();
-            }
-            if(sf_highlight == null)
-            {
-                sf_highlight = SDLImage.load("Data/check_button_highlight.png");
-			    sf_highlight = sf_highlight.DisplayFormatAlpha();
-            }
-            if(sf_highlight_active == null)
-            {
-                sf_highlight_active = SDLImage.load("Data/check_button_active_highlight.png");
-			    sf_highlight_active = sf_highlight_active.DisplayFormatAlpha();
-            }
 
             l = new Label(m, FontSize.NORMAL,(int16)42,(int16)2,(uint16)w-4-38,(uint16)h-4, this);
             this.children.append(l);
@@ -120,17 +95,22 @@ namespace SDLMpc
             if(src_rect.x >= tx+38) return;
             if(active)
             {
+                weak Surface sf;
                 if(this.focus) {
-                    sf_highlight_active.blit_surface(src_rect, screen, dest_rect);
+                    sf = this.m.theme.get_element(Theme.Element.CHECK_BOX_ACTIVE, Theme.ElementState.HIGHLIGHT);
                 }else{
-                    sf_active.blit_surface(src_rect, screen, dest_rect);
+                    sf = this.m.theme.get_element(Theme.Element.CHECK_BOX_ACTIVE, Theme.ElementState.NORMAL);
                 }
+
+                sf.blit_surface(src_rect, screen, dest_rect);
             }else{
+                weak Surface sf;
                 if(this.focus) {
-                    sf_highlight.blit_surface(src_rect, screen, dest_rect);
+                    sf = this.m.theme.get_element(Theme.Element.CHECK_BOX, Theme.ElementState.HIGHLIGHT);
                 }else{
-                    sf.blit_surface(src_rect, screen, dest_rect);
+                    sf = this.m.theme.get_element(Theme.Element.CHECK_BOX, Theme.ElementState.NORMAL);
                 }
+                sf.blit_surface(src_rect, screen, dest_rect);
             }
         }
 

@@ -46,7 +46,7 @@ class Notification : SDLWidget, SDLWidgetDrawing
         this.w = w;
         this.h = h;
 
-        sf =  SDLImage.load("Data/notification.png");
+        sf =  SDLImage.load("Data/Basic/notification.png");
         sf = sf.DisplayFormatAlpha();
 
         /* Center widget */

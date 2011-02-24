@@ -541,7 +541,7 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
         sf = new Surface.RGB(0, w,h,bpp,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
         sf = sf.DisplayFormatAlpha();
 		*/
-		sf = SDLImage.load("Data/player_control.png");
+		sf = SDLImage.load("Data/Basic/player_control.png");
 		sf = sf.DisplayFormat();
 /*
         SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};

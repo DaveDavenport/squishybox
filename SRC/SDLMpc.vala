@@ -99,6 +99,7 @@ namespace SDLMpc
         private SDLWidget header;
         private Standby standby;
         public Notification notification;
+        public Theme theme;
         /**
          * Object to set backlight
          */
@@ -235,6 +236,8 @@ namespace SDLMpc
 
 
             notification = new Notification(this, 0,0, 480, 272,32);
+            theme = new Theme();
+            
             bg.children.append(notification);
             notification.push_mesg("Welcome");
 

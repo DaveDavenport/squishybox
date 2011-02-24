@@ -57,7 +57,7 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
                         this.m, this.x, this.y, this.w, (uint32)this.h,32,
                         path
                         );
-                b = s.add_item(a, "Data/folder.png"); 
+                b = s.add_item(a, "Data/Basic/folder.png"); 
 
                 (b as Button).key_pressed.connect((source, key)=>
                 {
@@ -85,7 +85,7 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
             {
                 weak MPD.Song song = entity.get_song();
                 path = song.uri;
-                b = new Button(this.m, (int16)this.x, (int16)this.y, (uint16)this.w,38,format_song_title(song), "Data/music.png");
+                b = new Button(this.m, (int16)this.x, (int16)this.y, (uint16)this.w,38,format_song_title(song), "Data/Basic/music.png");
                 s.add_widget(b);
                 (b as Button).b_clicked.connect((source)=>{
                     this.m.MI.queue_add_song(path);
