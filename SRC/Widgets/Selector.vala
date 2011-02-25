@@ -123,7 +123,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
     public void draw_drawing(Surface screen, SDL.Rect *orect)
     {
     }
-
+/*
     public override void do_Tick(time_t t)
     {
         this.Tick(t);
@@ -137,6 +137,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
             i.widget.do_Tick(t);
         }
     }
+    */
     public void Home()
     {
         this.in_sub_item = false;
@@ -193,8 +194,10 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
             {
                 if(i.widget.require_redraw) {
                     GLib.debug("redraw button text");
-                    i.button.update_text(i.widget.get_name());
-                    i.widget.require_redraw = false;
+                    if(i.type == Item.ItemType.SUBMENU) {
+                        i.button.update_text(i.widget.get_name());
+                        i.widget.require_redraw = false;
+                    }
                 }
             }
         }
@@ -207,7 +210,10 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         {
             if (ev.command == EventCommand.BROWSE) {
                 GLib.debug("Return home: %s", this.get_name());
-                if(this.current.data.widget != null) {
+                if(
+                        this.current != null && 
+                        this.current.data != null && 
+                        this.current.data.widget != null) {
                     if(current.data.widget is SDLMpc.SDLWidgetActivate) {
                         (current.data.widget as SDLMpc.SDLWidgetActivate).leave();
                     }

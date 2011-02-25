@@ -199,10 +199,14 @@ namespace SDLMpc
         public override void Tick(time_t t)
         {
             if(this.label != null) {
-                if(this.label.scrolling) {
+                if(this.label.scrolling && this.focus) {
 
                     this.label.require_redraw = true;
                 }
+            }
+            if(pressed)GLib.debug("%i", (int)(t-press_time));
+            if(pressed && (t-press_time) >=2){
+                button_release(true);
             }
         }
         public bool activate()
