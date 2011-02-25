@@ -12,7 +12,6 @@ namespace MPD
             free_function = "mpd_async_free",
             cheader_filename = "mpd/async.h")]
         [Compact]
-        [Immutable]
         public class Async 
         {
             [CCode (cprefix="MPD_ASYNC_EVENT_", cname="enum mpd_async_event")]
@@ -226,7 +225,6 @@ namespace MPD
                 free_function = "mpd_connection_free",
                 cheader_filename = "mpd/client.h")]
         [Compact]
-        [Immutable]
         public class Connection
         {
             /**
@@ -607,7 +605,6 @@ namespace MPD
             free_function = "mpd_status_free",
             cheader_filename = "mpd/client.h")]
         [Compact]
-        [Immutable]
         public class Status {
             [CCode (cprefix="MPD_STATE_",cname="enum mpd_state")]
             public enum State {
@@ -800,7 +797,6 @@ namespace MPD
             free_function = "mpd_parser_free",
             cheader_filename = "mpd/parser.h")]
         [Compact]
-        [Immutable]
         public class Parser 
         {
           [CCode (cprefix="MPD_PARSER_",cname="enum mpd_parser_result")]

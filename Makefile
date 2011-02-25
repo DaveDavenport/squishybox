@@ -93,6 +93,8 @@ BUILD_DIR_SOURCES=$(foreach p,$(SOURCES), $(BUILD_DIR)/$(dir $p))
 
 all: $(OUTPUT) 
 
+# tell it not to remove the stamp files, this way we can avoid even more re-builds
+.SECONDARY: $(FVAPI_SOURCES_STAMP)
 
 $(BUILD_DIR):
 	$(info Create '$@' Directory)
@@ -106,10 +108,12 @@ $(SOURCE_DIR):
 
 
 $(SOURCE_DIR)/%.vapi.stamp: %.vala | $(SOURCE_DIR)
+	$(info Create fast vapi file: $@)
 	$(QUIET) $(VALAC) --fast-vapi=$(@:.stamp=) $<  && touch $@
 
 
 $(SOURCE_DIR)/%.dep: %.vala | $(FVAPI_SOURCES_STAMP)
+	$(info Create dep and C file: $@)
 	$(QUIET) $(VALAC) -C --deps=$@ $(addprefix --use-fast-vapi=,$(subst $(@:.dep=.vapi),,$(FVAPI_SOURCES))) $(VAPI_DIRS) $(VALA_PKG) $(VALA_FLAGS) -D PC -d $(SOURCE_DIR) $<
 
 -include $(FVAPI_SOURCES_DEPS)

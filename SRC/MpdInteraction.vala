@@ -55,6 +55,7 @@ namespace MPD
     public delegate void CurrentSongCallback(MPD.Song? current_song);
     public delegate void EntityListCallback(List<MPD.Entity>? song_list);
     static int uid_c = 0;
+    [Compact]
     private class Task{
         public Task()
         {
@@ -64,7 +65,8 @@ namespace MPD
         public TaskType type;
         public GLib.Value param;
 
-        public void *result;
+        public MPD.Status? status = null;
+        public MPD.Song ? song = null;
         /* Vala does not allow me to pack this */
         public List<MPD.Entity>? entity_list = null;
 
@@ -106,12 +108,13 @@ namespace MPD
             Task t = new Task();
             t.type = TaskType.ERROR_CALLBACK;
             /* Force a copy */
-            t.result = (void *)error_message.printf();
-            result_queue.push_unlocked(t);
+            t.param = GLib.Value(typeof(string));
+            t.param.set_string(error_message);
+            result_queue.push_unlocked((owned)t);
 
             t = new Task();
             t.type = TaskType.DISCONNECT;
-            command_queue.push_unlocked(t);
+            command_queue.push_unlocked((owned)t);
             /* Do disconnect */
             io_channel = null;
             connection = null;
@@ -131,7 +134,7 @@ namespace MPD
             t.slcallback =  callback;
             t.param = GLib.Value(typeof(string));
             t.param.set_string(directory);
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
 
 
@@ -144,7 +147,7 @@ namespace MPD
             t.type = TaskType.QUEUE_ADD_SONG;
             t.param = GLib.Value(typeof(string));
             t.param.set_string(path);
-            command_queue.push(t);
+            command_queue.push((owned)t);
          }
         public void queue_search_any(EntityListCallback callback, string query)
         {
@@ -153,7 +156,7 @@ namespace MPD
             t.slcallback =  callback;
             t.param = GLib.Value(typeof(string));
             t.param.set_string(query);
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
         public void player_get_queue_pos(CurrentSongCallback callback, uint pos)
         {
@@ -162,45 +165,45 @@ namespace MPD
             t.cscallback =  callback;
             t.param = GLib.Value(typeof(uint));
             t.param.set_uint(pos);
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
         public void player_get_current_song(CurrentSongCallback callback)
         {
             Task t = new Task();
             t.type = TaskType.PLAYER_GET_CURRENT_SONG;
             t.cscallback =  callback;
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
         public void player_get_queue(EntityListCallback callback)
         {
             Task t = new Task();
             t.type = TaskType.PLAYER_GET_QUEUE;
             t.slcallback =  callback;
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
 		public void player_next()
 		{
             Task t = new Task();
             t.type = TaskType.PLAYER_NEXT;
-            command_queue.push(t);
+            command_queue.push((owned)t);
         } 
         public void player_previous()
 		{
             Task t = new Task();
             t.type = TaskType.PLAYER_PREVIOUS;
-            command_queue.push(t);
+            command_queue.push((owned)t);
 		} 
 		public void player_toggle_pause()
 		{
             Task t = new Task();
             t.type = TaskType.PLAYER_PAUSE;
-            command_queue.push(t);
+            command_queue.push((owned)t);
 		} 
 		public void player_stop()
 		{
             Task t = new Task();
             t.type = TaskType.PLAYER_STOP;
-            command_queue.push(t);
+            command_queue.push((owned)t);
 		} 
         public void player_seek(uint time)
         {
@@ -208,13 +211,13 @@ namespace MPD
             t.type = TaskType.PLAYER_SEEK;
             t.param = GLib.Value(typeof(uint));
             t.param.set_uint(time);
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
 		public void player_play()
 		{
             Task t = new Task();
             t.type = TaskType.PLAYER_PLAY;
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
 		public void player_play_id(uint id)
 		{
@@ -222,7 +225,7 @@ namespace MPD
             t.type = TaskType.PLAYER_PLAY_ID;
             t.param = GLib.Value(typeof(uint));
             t.param.set_uint(id);
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
 		public void player_play_pos(uint pos)
 		{
@@ -230,13 +233,13 @@ namespace MPD
             t.type = TaskType.PLAYER_PLAY_POS;
             t.param = GLib.Value(typeof(uint));
             t.param.set_uint(pos);
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
         public void player_fetch_status()
         {
             Task t = new Task();
             t.type = TaskType.STATUS_CHANGED;
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
         public void player_set_repeat(bool state)
         {
@@ -244,7 +247,7 @@ namespace MPD
             t.type = TaskType.PLAYER_REPEAT;
             t.param = GLib.Value(typeof(bool));
             t.param.set_boolean(state);
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
         public void player_set_random(bool state)
         {
@@ -252,7 +255,7 @@ namespace MPD
             t.type = TaskType.PLAYER_RANDOM;
             t.param = GLib.Value(typeof(bool));
             t.param.set_boolean(state);
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
         public void player_set_consume_mode(bool state)
         {
@@ -260,7 +263,7 @@ namespace MPD
             t.type = TaskType.PLAYER_CONSUME_MODE;
             t.param = GLib.Value(typeof(bool));
             t.param.set_boolean(state);
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
         public void player_set_single_mode(bool state)
         {
@@ -268,7 +271,7 @@ namespace MPD
             t.type = TaskType.PLAYER_SINGLE_MODE;
             t.param = GLib.Value(typeof(bool));
             t.param.set_boolean(state);
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
 
         public void mixer_set_volume(uint volume)
@@ -277,7 +280,7 @@ namespace MPD
             t.type = TaskType.MIXER_SET_VOLUME;
             t.param = GLib.Value(typeof(uint));
             t.param.set_uint(volume);
-            command_queue.push(t);
+            command_queue.push((owned)t);
         }
 
         private bool process_result_queue()
@@ -288,28 +291,28 @@ namespace MPD
                 GLib.debug("Processing result: %i", t.uid);
                 if(t.type == TaskType.STATUS_CHANGED){
                     GLib.debug("Status changed");
-                    MPD.Status st = (MPD.Status) t.result;
+                    unowned MPD.Status st = t.status; 
                     GLib.debug("status: %i\n", st.state);
                     player_status_changed(st);
                 }else if (t.type == TaskType.QUEUE_CHANGED) {
                     GLib.debug("Queue changed");
                     player_queue_changed();
                 } else if (t.type == TaskType.PLAYER_GET_CURRENT_SONG) {
-                    MPD.Song song = (MPD.Song)t.result;
+                    unowned MPD.Song song = t.song;
                     t.cscallback(song);
                 }  else if (t.type == TaskType.PLAYER_GET_QUEUE) {
                     t.slcallback(t.entity_list);
                 }  else if (t.type == TaskType.QUEUE_SEARCH_ANY) {
                     t.slcallback(t.entity_list);
                 } else if (t.type == TaskType.PLAYER_GET_QUEUE_POS) {
-                    MPD.Song song = (MPD.Song)t.result;
+                    unowned MPD.Song song = t.song;
                     t.cscallback(song);
                 } else if (t.type == TaskType.DATABASE_GET_DIRECTORY) {
                     t.slcallback(t.entity_list);
                 } else if (t.type == TaskType.CONNECTION_CHANGED) {
                     player_connection_changed((this.connection == null)?false:true);
                 } else if (t.type == TaskType.ERROR_CALLBACK) {
-                     string ms = (string)t.result;
+                     string ms = t.param.get_string();
                      error_callback(ms);
                 }
 
@@ -329,14 +332,14 @@ namespace MPD
                 ){
                 Task t = new Task();
                 t.type = TaskType.STATUS_CHANGED;
-                t.result = (void *)connection.run_status();
-                result_queue.push(t);
+                t.status = connection.run_status();
+                result_queue.push((owned)t);
             }
             if((events&MPD.Idle.Events.QUEUE) > 0){
 
                 Task t = new Task();
                 t.type = TaskType.QUEUE_CHANGED;
-                result_queue.push(t);
+                result_queue.push((owned)t);
             }
             if(result_queue.length() > 0) {
                 GLib.Idle.add(process_result_queue);
@@ -516,7 +519,7 @@ namespace MPD
 		t.type = TaskType.CONNECT;
 
 
-		command_queue.push(t);
+		command_queue.push((owned)t);
 	}
 	public void mpd_disconnect()
 	{
@@ -524,7 +527,7 @@ namespace MPD
 		t.type = TaskType.DISCONNECT;
 
 
-		command_queue.push(t);
+		command_queue.push((owned)t);
 	}
 	private void mpd_connect_real()
 	{
@@ -545,12 +548,12 @@ namespace MPD
             /* Tell that player has changed */
             Task t = new Task();
             t.type = TaskType.CONNECTION_CHANGED;
-            result_queue.push(t);
+            result_queue.push((owned)t);
             t = new Task();
             t.type = TaskType.STATUS_CHANGED;
-            t.result = (void *)connection.run_status();
-            GLib.debug("got state: %i\n", ((MPD.Status)t.result).state);
-            result_queue.push(t);
+            t.status = connection.run_status();
+            GLib.debug("got state: %i\n", ((MPD.Status)t.status).state);
+            result_queue.push((owned)t);
             GLib.Idle.add(process_result_queue);
             /* Get IOChannel */
             io_channel = new GLib.IOChannel.unix_new(async.get_fd());
@@ -610,7 +613,7 @@ namespace MPD
 
                         Task r = new Task();
                         r.type = TaskType.CONNECTION_CHANGED;
-                        result_queue.push(r);
+                        result_queue.push((owned)r);
                         GLib.Idle.add(process_result_queue);
                     }
                     else if (t.type == TaskType.PLAYER_PLAY) {
@@ -639,12 +642,12 @@ namespace MPD
                             GLib.critical("failed to send toggle_pause: %s\n", async.get_error_message());
                         }
                     } else if (t.type == TaskType.PLAYER_GET_CURRENT_SONG) {
-                        t.result = (void *)connection.run_current_song();
-                        result_queue.push(t);
+                        t.song = connection.run_current_song();
+                        result_queue.push((owned)t);
                         GLib.Idle.add(process_result_queue);
                     } else if (t.type == TaskType.PLAYER_GET_QUEUE_POS) {
-                        t.result = (void *)connection.run_get_queue_song_pos(t.param.get_uint());
-                        result_queue.push(t);
+                        t.song = connection.run_get_queue_song_pos(t.param.get_uint());
+                        result_queue.push((owned)t);
                         GLib.Idle.add(process_result_queue);
                     } else if (t.type == TaskType.PLAYER_SEEK) {
                         var song = connection.run_current_song();
@@ -695,7 +698,7 @@ namespace MPD
                                 j.type = TaskType.PLAYER_GET_QUEUE;
                                 j.slcallback = t.slcallback;
                                 j.entity_list = (owned)entitys;
-                                result_queue.push(j);
+                                result_queue.push((owned)j);
                                 GLib.Idle.add(process_result_queue);
                             }
                         }
@@ -722,7 +725,7 @@ namespace MPD
                                     j.type = TaskType.QUEUE_SEARCH_ANY;
                                     j.slcallback = t.slcallback;
                                     j.entity_list = (owned)entitys;
-                                    result_queue.push(j);
+                                    result_queue.push((owned)j);
                                     GLib.Idle.add(process_result_queue);
                                 }
                             }
@@ -742,7 +745,7 @@ namespace MPD
                             j.type = TaskType.DATABASE_GET_DIRECTORY;
                             j.slcallback = t.slcallback;
                             j.entity_list = (owned)entities;
-                            result_queue.push(j);
+                            result_queue.push((owned)j);
                             GLib.Idle.add(process_result_queue);
                         }
                     }
@@ -773,7 +776,7 @@ namespace MPD
             while(command_queue.length_unlocked() > 0) command_queue.pop_unlocked();
             Task t = new Task();
             t.type = TaskType.QUIT;
-            command_queue.push_unlocked(t);
+            command_queue.push_unlocked((owned)t);
             result_queue.unlock();
             command_queue.unlock();
             void *a;
