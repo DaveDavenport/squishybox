@@ -161,5 +161,14 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
         }
         return false;
     }
+    public void leave()
+    {
+        if(init){
+            GLib.debug("Clearing entries");
+            this.s.clear();
+            init = false;
+        }
+    }
+
 }
 

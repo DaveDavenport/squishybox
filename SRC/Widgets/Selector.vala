@@ -207,6 +207,11 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         {
             if (ev.command == EventCommand.BROWSE) {
                 GLib.debug("Return home: %s", this.get_name());
+                if(this.current.data.widget != null) {
+                    if(current.data.widget is SDLMpc.SDLWidgetActivate) {
+                        (current.data.widget as SDLMpc.SDLWidgetActivate).leave();
+                    }
+                }
                 Home();
                 return true;
             }
