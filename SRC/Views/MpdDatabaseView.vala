@@ -59,6 +59,11 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
                         );
                 b = s.add_item(a, Theme.Icons.FOLDER); 
 
+                (b as Button).long_clicked.connect((source)=>{
+                        this.m.MI.queue_add_song(path);
+                        this.m.notification.push_mesg("Added 1 directory"); 
+                });
+
                 (b as Button).key_pressed.connect((source, key)=>
                 {
                   GLib.debug("Add key pressed connect");
@@ -92,7 +97,10 @@ class MpdDatabaseView : SDLWidget, SDLWidgetActivate
                     this.m.MI.queue_add_song(path);
                     this.m.notification.push_mesg("Added 1 song"); 
                 });
-
+                (b as Button).long_clicked.connect((source)=>{
+                        this.m.MI.queue_add_song(path);
+                        this.m.notification.push_mesg("Added 1 song"); 
+                });
                 (b as Button).key_pressed.connect((source, key)=>
                 {
                   GLib.debug("Add key pressed connect");

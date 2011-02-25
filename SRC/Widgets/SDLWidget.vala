@@ -125,6 +125,7 @@ namespace SDLMpc
 		}
 		public virtual void button_release(bool inside)
 		{
+            
 		}
 
 		public virtual bool check_redraw()

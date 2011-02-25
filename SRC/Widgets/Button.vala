@@ -149,11 +149,13 @@ namespace SDLMpc
             }
         }
 
+        private time_t press_time = 0;
 		public override bool button_press()
 		{
 			if(!pressed)
 			{
 				pressed =true;
+                press_time = time_t();
 				this.require_redraw = true;;
                 return true;
 			}
@@ -167,13 +169,21 @@ namespace SDLMpc
 
 				if(inside) {
 					/* Button release */
-					b_clicked();
-				}
+                    if((time_t()-press_time) >= 2)
+                    {
+                        GLib.debug("Long click");
+                        long_clicked();
+                    }else{
+                        GLib.debug("Short click");
+                        b_clicked();
+                    }
+                }
 				this.require_redraw = true;;
 			}
 		}
 
 		public signal void b_clicked();
+		public signal void long_clicked();
         public signal bool key_pressed(EventCommand key);
 
         public override bool Event(SDLMpc.Event ev)
