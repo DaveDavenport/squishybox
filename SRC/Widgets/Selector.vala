@@ -192,9 +192,9 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         if(!this.in_sub_item) {
             foreach(Item i in entries)
             {
-                if(i.widget.require_redraw) {
-                    GLib.debug("redraw button text");
-                    if(i.type == Item.ItemType.SUBMENU) {
+                if(i.type == Item.ItemType.SUBMENU) {
+                    if(i.widget.require_redraw) {
+                        GLib.debug("redraw button text");
                         i.button.update_text(i.widget.get_name());
                         i.widget.require_redraw = false;
                     }
