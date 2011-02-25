@@ -205,9 +205,9 @@ namespace SDLMpc
                 }
             }
             if(pressed)GLib.debug("%i", (int)(t-press_time));
-/*            if(pressed && (t-press_time) >=2){
+            if(pressed && (t-press_time) >=2){
                 button_release(true);
-            }*/
+            }
         }
         public bool activate()
         {
