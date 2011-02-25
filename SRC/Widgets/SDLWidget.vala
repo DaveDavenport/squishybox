@@ -27,6 +27,9 @@ namespace SDLMpc
 		public uint w;
 		public uint h;
 
+        ~SDLWidget()
+        {
+        }
         /**
          * Flag indicating that the widget is visible
          */

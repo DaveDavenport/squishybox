@@ -255,9 +255,7 @@ namespace SDLMpc
          */
         ~Main()
         {
-
             GLib.debug("Running SDL.quit()");
-            SDL.quit();
         }
 
         /**
@@ -351,13 +349,20 @@ namespace SDLMpc
                         /* Quit the program */
                         case EventCommand.QUIT:
                             GLib.debug("request quit");
-                            MI = null;
+                            /* It seems main does not get free'ed, so do some manually, so I can track leaks more easy */
+                            sdl_events = null;
+                            ir_events = null;
+                            tc_events = null;
                             bg = null;
-                            (selector as Selector).clear();
                             selector = null;
+                            header = null;
+                            standby = null;
                             display_control = null;
+                            notification = null;
+                            theme = null;
                             loop.quit();
                             loop = null;
+                            sf = null;
                             return false;
 
                         case EventCommand.PAUSE:
@@ -436,7 +441,10 @@ static int main (string[] argv)
     GLib.debug("Run main loop");
     /* Run the main loop */
     m.run();
+    GLib.debug ("done running");
+    m = null;
     /* Cleanup */
+    SDLTTF.quit();
     SDL.quit();
 
     return 0;

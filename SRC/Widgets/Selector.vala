@@ -22,7 +22,6 @@ using MPD;
 using Posix;
 using SDLMpc;
 
-[compact]
 private class Item 
 {
     public enum ItemType {
@@ -49,6 +48,10 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
     private unowned List<unowned Item> current_end= null;
 
 
+	public override unowned string get_name()
+	{
+		return "Selector";
+	}
 
     public void clear()
     {
@@ -62,6 +65,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
     ~Selector()
     {
         GLib.debug("Quit: %s", this.get_name());
+        this.clear();
     }
     public Selector(Main m, int x, int y, int w, int h, int bpp)
     {
@@ -84,6 +88,19 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         Home();
     }
 
+    private void button_pressed(Button but)
+    {
+        unowned Item i = but.get_data<unowned Item>("item");
+        if(i.widget is SDLMpc.SDLWidgetActivate) {
+            var r = (i.widget as SDLMpc.SDLWidgetActivate).activate();
+            if(r) return;
+        }
+        this.children = null;
+        this.current = null;
+        this.children.append(i.widget);
+        this.in_sub_item = true;
+        this.require_redraw = true;
+    }
     public SDLWidget add_item(SDLWidget item, Theme.Icons button_icon =  Theme.Icons.NO_ICON)
     {
         Item i = new Item();
@@ -94,19 +111,10 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
                 (uint16)this.w, 40,item.get_name(), button_icon);
         i.button.x_align = 0.03;
         i.widget = item;
-        entries.append(i);
 
-        i.button.b_clicked.connect((source) => {
-                if(item is SDLMpc.SDLWidgetActivate) {
-                    var r = (item as SDLMpc.SDLWidgetActivate).activate();
-                    if(r) return;
-                }
-                this.children = null;
-                this.current = null;
-                this.children.append(item);
-                this.in_sub_item = true;
-                this.require_redraw = true;
-                });
+        i.button.set_data<unowned Item>("item", i);
+        i.button.b_clicked.connect(button_pressed);
+        entries.append(i);
         Home();
         return i.button;
     }

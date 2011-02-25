@@ -25,7 +25,7 @@ using SDLMpc;
 class BackgroundDrawer : SDLWidget, SDLWidgetDrawing
 {
     private Surface sf;
-    private weak Main m;
+    private unowned Main m;
 
 
     public int period_time {
@@ -38,7 +38,7 @@ class BackgroundDrawer : SDLWidget, SDLWidgetDrawing
      * List of backgrounds
      */
     private List<string>  backgrounds       = null;
-    private weak List<string> current_bg    = null;
+    private unowned List<string> current_bg    = null;
     private string directory = "Wallpapers/";
 
 
@@ -108,5 +108,9 @@ class BackgroundDrawer : SDLWidget, SDLWidgetDrawing
 			this.require_redraw = true;
             last_time = now; 
         }
+    }
+    ~Background()
+    {
+        GLib.debug("BG destroy\n");
     }
 }

@@ -57,6 +57,21 @@ class Header : SDLWidget, SDLWidgetDrawing
 		return "Header";
 	}
 
+    private void power_button_pressed()
+    {
+        SDLMpc.Event ev = new SDLMpc.Event();
+        ev.type = SDLMpc.EventType.COMMANDS;
+        ev.command = SDLMpc.EventCommand.POWER;
+        m.push_event((owned)ev);
+    }
+    private void up_button_pressed()
+    {
+        SDLMpc.Event ev = new SDLMpc.Event();
+        ev.type = SDLMpc.EventType.KEY;
+        ev.command = SDLMpc.EventCommand.BROWSE;
+        m.push_event((owned)ev);
+    }
+
     public Header(Main m,int x, int y, int w, int h, int bpp)
     {
         /* Set constructor variables to SDLWidget */
@@ -73,12 +88,7 @@ class Header : SDLWidget, SDLWidgetDrawing
                             (uint16)this.h,
                             "Q");
         this.children.append(quit_button);
-        quit_button.b_clicked.connect((source) => {
-                SDLMpc.Event ev = new SDLMpc.Event();
-                ev.type = SDLMpc.EventType.COMMANDS;
-                ev.command = SDLMpc.EventCommand.POWER;
-                m.push_event((owned)ev);
-        });
+        quit_button.b_clicked.connect(power_button_pressed);
 
 
         /* Up button */
@@ -88,12 +98,7 @@ class Header : SDLWidget, SDLWidgetDrawing
                             (uint16)this.h,
                             "U");
         this.children.append(up_button);
-        up_button.b_clicked.connect((source) => {
-                SDLMpc.Event ev = new SDLMpc.Event();
-                ev.type = SDLMpc.EventType.KEY;
-                ev.command = SDLMpc.EventCommand.BROWSE;
-                m.push_event((owned)ev);
-        });
+        up_button.b_clicked.connect(up_button_pressed);
 
         title_label = new SDLMpc.Label (this.m,
                 FontSize.NORMAL,
@@ -130,5 +135,9 @@ class Header : SDLWidget, SDLWidgetDrawing
     public void set_title(string title)
     {
         title_label.set_text(title);
+    }
+    ~Header()
+    {
+        GLib.debug("header destroy");
     }
 }

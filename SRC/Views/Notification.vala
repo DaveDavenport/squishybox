@@ -35,6 +35,11 @@ class Notification : SDLWidget, SDLWidgetDrawing
         return "Notification";
     }
 
+        private bool first_time  = true;
+        private bool single = false; 
+        private bool repeat = false;
+        private bool random = false;
+        private bool consume = false;
 
     public Notification(Main m, int x, int y, int w, int h, int bpp)
     {
@@ -63,9 +68,6 @@ class Notification : SDLWidget, SDLWidgetDrawing
         this.visible = false;
 
 
-        bool first_time  = true;
-        bool single = false; bool repeat = false;
-        bool random = false; bool consume = false;
         this.m.MI.player_status_changed.connect((source,status)=> {
                 if(first_time) {
                     single = status.single;
@@ -162,7 +164,10 @@ class Notification : SDLWidget, SDLWidgetDrawing
         l.set_text(message);
         this.require_redraw = true;
     }
-
+    ~Notification()
+    {
+        GLib.debug("Destroy\n");
+    }
 
 
 }

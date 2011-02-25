@@ -42,9 +42,9 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
         return "Now playing";
     }
 
-    public NowPlaying(Main m,int16 x, int16 y, uint16 w, uint16 h, int bpp)
+    public NowPlaying(Main main,int16 x, int16 y, uint16 w, uint16 h, int bpp)
     {
-        this.m = m;
+        this.m = main;
 
         this.x = x;
         this.y = y;
@@ -108,35 +108,38 @@ class NowPlaying : SDLWidget, SDLWidgetDrawing
 
 		title_label.set_text("Disconnected");
 
-        m.MI.player_get_current_song(got_current_song);
-        m.MI.player_connection_changed.connect((source, connected) => {
+        this.m.MI.player_get_current_song(got_current_song);
+        this.m.MI.player_connection_changed.connect(connection_changed_callback);
+        
+        this.m.MI.player_status_changed.connect(status_changed_callback);
+
+    }
+    private void status_changed_callback(MPD.Interaction mi, MPD.Status status)
+    {
+        if((status.state == MPD.Status.State.PLAY || status.state == MPD.Status.State.PAUSE))
+        {
+            /* Update the text */
+            if(status.song_id != current_song_id) {
+                this.m.MI.player_get_current_song(got_current_song);
+                this.current_song_id = status.song_id;
+            }
+        }else{
+            this.title_label.set_text("Music Player Daemon");
+            this.album_label.set_text(null);
+            if(status.state == MPD.Status.State.STOP) {
+                this.artist_label.set_text("Stopped");
+            }
+            this.current_song_id = -1;
+        }
+
+    }
+    private void connection_changed_callback(MPD.Interaction mi, bool connected)
+    {
 		if(connected) {
 			title_label.set_text("");
 		}else{
 			title_label.set_text("Disconnected");
 		}
-	});
-        m.MI.player_status_changed.connect((source, status) => {
-                if((status.state == MPD.Status.State.PLAY ||
-                    status.state == MPD.Status.State.PAUSE) 
-                    )
-                {
-                    /* Update the text */
-                    if(status.song_id != current_song_id) {
-                        m.MI.player_get_current_song(got_current_song);
-                        current_song_id = status.song_id;
-                    }
-                }else{
-                    title_label.set_text("Music Player Daemon");
-                    album_label.set_text(null);
-                    if(status.state == MPD.Status.State.STOP) {
-                        artist_label.set_text("Stopped");
-                    }
-                    current_song_id = -1;
-                }
-        });
-
-
     }
     public void draw_drawing(Surface screen, SDL.Rect *orect)
     {
@@ -220,17 +223,17 @@ class SongProgress : SDLWidget, SDLWidgetDrawing
 
         /* initialize */
         m.MI.player_status_changed.connect((source, status) => {
-                elapsed_time = status.get_elapsed_time(); 
-                total_time = status.get_total_time(); 
+                this.elapsed_time = status.get_elapsed_time(); 
+                this.total_time = status.get_total_time(); 
 
                 /* Update total time string */
 
-                if(current_song_id != status.song_id)
+                if(this.current_song_id != status.song_id)
                 {
-                    current_song_id = status.song_id;
+                    this.current_song_id = status.song_id;
                 }
-                if(status.state == MPD.Status.State.PLAY) progressing = true;
-                else progressing = false;
+                if(status.state == MPD.Status.State.PLAY) this.progressing = true;
+                else this.progressing = false;
                 update_time();
                 });
 
@@ -530,84 +533,76 @@ class PlayerControl : SDLWidget, SDLWidgetDrawing
 	{
 		return "PlayerControl";
 	}
+    private void previous_pressed(Button but)
+    {
+        SDLMpc.Event ev = new SDLMpc.Event();
+        ev.type = SDLMpc.EventType.COMMANDS;
+        ev.command = SDLMpc.EventCommand.PREVIOUS;
+        this.m.push_event((owned)ev);
+    }
+    private void next_pressed(Button but)
+    {
+        SDLMpc.Event ev = new SDLMpc.Event();
+        ev.type = SDLMpc.EventType.COMMANDS;
+        ev.command = SDLMpc.EventCommand.NEXT;
+        this.m.push_event((owned)ev);
+    }
+    private void stop_pressed(Button but)
+    {
+        SDLMpc.Event ev = new SDLMpc.Event();
+        ev.type = SDLMpc.EventType.COMMANDS;
+        ev.command = SDLMpc.EventCommand.STOP;
+        this.m.push_event((owned)ev);
+    }
+    private void play_pressed(Button but)
+    {
+        SDLMpc.Event ev = new SDLMpc.Event();
+        ev.type = SDLMpc.EventType.COMMANDS;
+        if(stopped) {
+            ev.command = SDLMpc.EventCommand.PLAY;
+        }else{
+            ev.command = SDLMpc.EventCommand.PAUSE;
+        }
+        m.push_event((owned)ev);
+    }
+    public void status_changed_callback(MPD.Interaction mi, MPD.Status status)
+    {
+        this.stopped = false;
+        if(status.state == MPD.Status.State.PLAY) {
+            this.pause_button.set_icon(Theme.Icons.PAUSE);
+        }else {
+            this.pause_button.set_icon(Theme.Icons.PLAY);
+            if(status.state == MPD.Status.State.STOP){
+                this.stopped = true;
+            }
+        }
 
+    }
     public PlayerControl(Main m,int x, int y, int w, int h, int bpp)
     {
         this.m = m;
 
         this.x = x; this.y  = y; this.w = w; this.h = h;
 
-/*
-        sf = new Surface.RGB(0, w,h,bpp,(uint32)0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
-        sf = sf.DisplayFormatAlpha();
-		*/
 		sf = SDLImage.load("Data/Basic/player_control.png");
 		sf = sf.DisplayFormat();
-/*
-        SDL.Rect rect = {0,0,(uint16)sf.w,(uint16)sf.h};
-        rect.h = (uint16)this.h;
-        if(pressed) {
-            sf.fill(rect, sf.format.map_rgba(200,30,30,128)); 
-        }else{
-            sf.fill(rect, sf.format.map_rgba(30,30,30,128)); 
-        }
-*/
+
         /* Previous button */
         prev_button = new SDLMpc.Button(m, (int16) this.x+ 0,(int16) this.y+0,  38, 38, null,Theme.Icons.BACKWARD);
-        prev_button.b_clicked.connect((source) => {
-                SDLMpc.Event ev = new SDLMpc.Event();
-                ev.type = SDLMpc.EventType.COMMANDS;
-                ev.command = SDLMpc.EventCommand.PREVIOUS;
-                m.push_event((owned)ev);
-                });
-
+        prev_button.b_clicked.connect(previous_pressed);
 
         /* Stop button */
         stop_button = new SDLMpc.Button(m, (int16) this.x+ 38,(int16) this.y+0,  38, 38, null,Theme.Icons.STOP);
-        stop_button.b_clicked.connect((source) => {
-                SDLMpc.Event ev = new SDLMpc.Event();
-                ev.type = SDLMpc.EventType.COMMANDS;
-                ev.command = SDLMpc.EventCommand.STOP;
-                m.push_event((owned)ev);
-                });
-
-    
+        stop_button.b_clicked.connect(stop_pressed);
 
         /* Play/pause button */
         pause_button = new SDLMpc.Button(m,(int16) this.x+ 76,(int16) this.y+0, 38, 38, null,Theme.Icons.PLAY);
-        pause_button.b_clicked.connect((source) => {
-                SDLMpc.Event ev = new SDLMpc.Event();
-                ev.type = SDLMpc.EventType.COMMANDS;
-                if(stopped) {
-                    ev.command = SDLMpc.EventCommand.PLAY;
-                }else{
-                    ev.command = SDLMpc.EventCommand.PAUSE;
-                }
-                m.push_event((owned)ev);
-                });
+        pause_button.b_clicked.connect(play_pressed);
+
         next_button = new SDLMpc.Button(m, (int16) this.x+ 114,(int16) this.y+0, 38, 38, null,Theme.Icons.FORWARD);
-        next_button.b_clicked.connect((source) => {
-                SDLMpc.Event ev = new SDLMpc.Event();
-                ev.type = SDLMpc.EventType.COMMANDS;
-                ev.command = SDLMpc.EventCommand.NEXT;
-                m.push_event((owned)ev);
-                });
+        next_button.b_clicked.connect(next_pressed);
 
-
-        m.MI.player_status_changed.connect((source, status) => {
-                stopped = false;
-                if(status.state == MPD.Status.State.PLAY) {
-                    pause_button.set_icon(Theme.Icons.PAUSE);
-  //                  pause_button.update_text("");
-                }else {
-                    pause_button.set_icon(Theme.Icons.PLAY);
-//                    pause_button.update_text("▶");
-                    if(status.state == MPD.Status.State.STOP){
-                        stopped = true;
-                    }
-                }
-        });
-
+        m.MI.player_status_changed.connect(status_changed_callback);
         volume_bar = new VolumeBar(m, (int16) this.x+ 280,(int16) this.y+10,(uint16)(this.w-300), 20);
 
         this.children.append(prev_button);

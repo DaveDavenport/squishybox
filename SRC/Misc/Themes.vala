@@ -177,6 +177,9 @@ namespace SDLMpc
         {
             update_surfaces();
         }
-
+        ~Theme()
+        {
+            GLib.debug("destroy theme");
+        }
     }
 }

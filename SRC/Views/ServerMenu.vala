@@ -37,6 +37,11 @@ class ServerMenu : SDLWidget, SDLWidgetActivate
     {
         return "Server Menu";
     }
+
+    private bool repeat = false;
+    private bool random = false;
+    private bool consume = false;
+    private bool single =false;
     public ServerMenu(Main m, int x, int y, int w, int h, int bpp)
     {
         this.m = m;
@@ -76,10 +81,6 @@ class ServerMenu : SDLWidget, SDLWidgetActivate
 
 
 
-        bool repeat = false;
-        bool random = false;
-        bool consume = false;
-        bool single =false;
         this.m.MI.player_status_changed.connect((source,status)=> {
             if(status.repeat != repeat) {
                 repeat_button.active = status.repeat;      
@@ -113,9 +114,9 @@ class ServerMenu : SDLWidget, SDLWidgetActivate
 class ConnectButton : SDLWidget, SDLWidgetActivate
 {
     private Main m;
-    public ConnectButton(Main m, int x, int y, int w, int h, int bpp)
+    public ConnectButton(Main main, int x, int y, int w, int h, int bpp)
     {
-        this.m = m;
+        this.m = main;
 
         this.x = x;
         this.y = y;
