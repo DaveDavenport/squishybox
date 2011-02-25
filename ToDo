@@ -1,5 +1,4 @@
 * Make wallpaper dir a cmd option.
 * Make font a cmd option.
 * Add spinbutton widget (edit time?)
-
-* Add an object that maintains all image Surfaces (and therefor supports themeing. 
+* Make propper event system with moving etc.
