@@ -109,7 +109,11 @@ namespace SDLMpc
         private double old_pos_x = 0.0;
         private double old_pos_y = 0.0;
 
-
+        public void get_position( out int x, out int y)
+        {
+            x = (int)old_pos_x;
+            y = (int)old_pos_y;
+        }
         /**
          * Main event queue
          * Event queue.

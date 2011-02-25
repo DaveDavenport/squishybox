@@ -172,7 +172,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
             start = start.next;
             current_end = start;
 			GLib.debug("top: %i\n", top);
-		}while((top+OFFSET) < this.h && start != null);
+		}while((top+OFFSET) < (this.h + 38) && start != null);
         GLib.debug("top: %i\n", top);
 
         if(current != null)
@@ -292,24 +292,41 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
     private int offset = 0;
     public bool motion(double x, double y, bool pushed, bool released)
     {
-        /*
-           if(current == null) return false;
-           if(pushed) {
-           d_start = y;
-           start = y;
-           }
-           offset += y-start;
-           start = y;
-           if(offset > 0 ) offset = 0;
-           if(released){
-           start = 0;
-           d_start = 0;
-           }
+        if(current == null) return false;
+        if(pushed) {
+            d_start = (int)y;
+            start = (int)y;
+        }
+        offset =  (int)(y-start);
+         {
+            if(offset > 42) {
+                start = (int)y;
+                if(current_start.prev != null){
+                    GLib.debug("setting\n");
+                    current_start = current_start.prev;
+                    Home();
+                }
+            }
+            if(offset <-42) {
+                start = (int)y;
+                if(current_start.next!= null){
+                    GLib.debug("setting\n");
+                    current_start = current_start.next;
+                    Home();
+                }
+            }
+
+         }
+
+        GLib.debug("offset: %i", (int)x - start); 
+        if(released){
+            start = 0;
+            d_start = 0;
+        }
         //if(offset.abs() > 10) {
         Home();
         this.require_redraw = true;;
         //}
-         */
         return false;
     }
 
