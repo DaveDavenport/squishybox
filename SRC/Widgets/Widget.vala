@@ -37,7 +37,7 @@ namespace SDLMpc
         /**
          * Flag indicating that the widget has focus 
          */
-        private bool _focus;
+        private bool _focus = false;
         public bool focus {
             get{return _focus;}
             set {
@@ -96,11 +96,12 @@ namespace SDLMpc
 			return false;
 		}
 
-		public bool clicked(int x, int y, bool press_state)
+        private bool __in_motion = false;
+		public bool __clicked(int x, int y, bool press_state)
 		{
 			foreach (var child in children)
 			{
-				if(child.clicked(x, y, press_state))return true;
+				if(child.__clicked(x, y, press_state))return true;
 			}
 			if(this.inside(x,y))
 			{
@@ -108,14 +109,16 @@ namespace SDLMpc
 					if(this.button_press()) return true;
 				}
 				else
-					this.button_release(true);
-//				return press_state;
+					this.button_release(!__in_motion);
 			}
 			else {
 				if(!press_state) {
 					this.button_release(false);
 				}
 			}
+            if(press_state == false) {
+                __in_motion = false;
+            }
 			return false;
 		}
 		
@@ -272,6 +275,10 @@ namespace SDLMpc
 
         public bool do_Motion(double x, double y, bool pressed, bool released)
         {
+            if(!__in_motion && !this.inside((int)x, (int)y)){
+                __in_motion= true;
+                __clicked((int16)x, (int16)y, false);
+            }
 
             if(this is SDLWidgetMotion)
             {

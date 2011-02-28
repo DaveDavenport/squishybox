@@ -401,11 +401,11 @@ namespace SDLMpc
                         GLib.debug("push %.2f %.2f", ev.motion.x, ev.motion.y); 
 
                         bg.do_Motion(ev.motion.x, ev.motion.y, ev.motion.pushed, ev.motion.released);
-                        bg.clicked((int16)old_pos_x,(int16) old_pos_y, true);
+                        bg.__clicked((int16)old_pos_x,(int16) old_pos_y, true);
                     }
                     else if (ev.motion.released) {
                         bg.do_Motion(old_pos_x, old_pos_y, ev.motion.pushed, ev.motion.released);
-                        bg.clicked((int16)old_pos_x,(int16) old_pos_y, false);
+                        bg.__clicked((int16)old_pos_x,(int16) old_pos_y, false);
                         old_pos_x = 0;
                         old_pos_y = 0;
                         /* Make sure there is a correct pos on release */
