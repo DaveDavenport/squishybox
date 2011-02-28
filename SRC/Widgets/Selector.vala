@@ -28,6 +28,7 @@ private class Item
         SUBMENU,
         WIDGET
     }
+    public bool own_button = false;
     public ItemType type;
     public SDLMpc.Button    button;
     public SDLWidget        widget;
@@ -101,6 +102,19 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
         this.in_sub_item = true;
         this.require_redraw = true;
     }
+
+    public void add(Button button, SDLWidget item)
+    {
+        Item i = new Item();
+        i.type = Item.ItemType.SUBMENU;
+        i.button = button;
+        i.widget = item;
+
+        i.button.set_data<unowned Item>("item", i);
+        i.button.b_clicked.connect(button_pressed);
+        entries.append(i);
+        Home();
+    }
     public SDLWidget add_item(SDLWidget item, Theme.Icons button_icon =  Theme.Icons.NO_ICON)
     {
         Item i = new Item();
@@ -158,7 +172,8 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
             {
                 start.data.button.y = top;
                 start.data.button.set_highlight(false);
-                start.data.button.update_text(start.data.widget.get_name());
+                if(start.data.own_button)
+                    start.data.button.update_text(start.data.widget.get_name());
                 this.children.append(start.data.button);
                 top += (int)start.data.button.h+3;
             }
@@ -195,7 +210,8 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
                 if(i.type == Item.ItemType.SUBMENU) {
                     if(i.widget.require_redraw) {
                         GLib.debug("redraw button text");
-                        i.button.update_text(i.widget.get_name());
+                        if(i.own_button)
+                            i.button.update_text(i.widget.get_name());
                         i.widget.require_redraw = false;
                     }
                 }

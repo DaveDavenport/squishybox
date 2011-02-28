@@ -22,17 +22,74 @@ using MPD;
 using Posix;
 using SDLMpc;
 
-class AlarmTimer : SDLWidget, SDLWidgetDrawing
+/**
+ * This class represent and executes an alarm event
+ * 
+ */
+public class AEvent 
 {
+    /* if enabled */
+    private bool _enabled = false;
+    public bool enabled {
+        get {
+            return _enabled;
+        }
+        set {
+            _enabled = value;
+            changed();
+        }
+    } 
+    /* The minute */
+    public uint minute;
+    /* The hour */
+    public uint hour;
+    /* The action to perform */
+    public enum Action {
+        START_PLAYBACK,
+            STOP_PLAYBACK
+    }
+    public Action action = Action.START_PLAYBACK;
+
+    public AEvent()
+    {
+        this.enabled = false;
+        this.minute = 0;
+        this.hour = 8;
+
+    }
+
+    /* Call this function every minute (not more then once)  */
+    public void check(Time now)
+    {
+        if(this.enabled &&
+                this.hour == now.hour &&
+                this.minute == now.minute)
+        {
+            this.fire();
+        }
+    }
+    private void fire()
+    {
+
+    }
+
+    public string get_name()
+    {
+        string retv = "Alarm: %02u:%02u".printf(this.hour, this.minute);
+        if(!this.enabled) retv+= " (disabled)";
+        return retv;
+    }
+
+    public signal void changed();
+}
+class AlarmTimer : SDLWidget
+{
+
+    private List<AEvent> alarms = null;
+    private weak List<AEvent> current_alarm = null;
+
     /* Pointer to the main object */
     private weak Main m;
-    private bool enabled = false;
-    private uint alarm_minute = 0;
-    private uint alarm_hour = 8;
-    private SDLMpc.Label hour_label;
-    private SDLMpc.Label minute_label;
-
-
 
     public override unowned string get_name()
     {
@@ -47,21 +104,48 @@ class AlarmTimer : SDLWidget, SDLWidgetDrawing
             old_time.hour != new_time.hour
           )
         {
-            /* Check alarm */
-            if(enabled && alarm_hour == new_time.hour && alarm_minute == new_time.minute)
-            {
-                SDLMpc.Event ev = new SDLMpc.Event();
-                ev.type = SDLMpc.EventType.COMMANDS;
-                ev.command = SDLMpc.EventCommand.PLAY;
-                m.push_event((owned)ev);
+            foreach (AEvent e in alarms) {
+                e.check(new_time);
             }
             old_time = new_time;
         }
 
 
     }
+    private void add_ae(AEvent ea)
+    {
+        var butt = new Button(this.m, 0,0, (uint16)this.w, 38, 
+                ea.get_name());
+        ea.changed.connect((source) => {
+                butt.update_text(source.get_name());
+                });
+        var edit_win = new EditAlarmTimer(m, this, ea, this.x, this.y, (int)this.w, (int)this.h);
 
+        this.s.add(butt,edit_win);
 
+        butt.long_clicked.connect((source)=> {
+                this.alarms.remove(ea);
+                this.m.notification.push_mesg("Removed 1 Alarm");
+                update();
+                });
+    }
+    private void update()
+    {
+        s.clear();
+        var but = new Button(this.m, 0,0,(uint16)this.w, 38, "Add");
+        but.b_clicked.connect((source)=>{
+                AEvent e = new AEvent();
+                add_ae(e);
+                this.alarms.append((owned)e);
+                });
+        this.s.add_widget(but);
+        foreach(AEvent e in alarms)
+        {
+            add_ae(e);
+        }
+    }
+
+    private Selector s;
 
     public AlarmTimer(Main m,int x, int y, int w, int h, int bpp)
     {
@@ -69,129 +153,44 @@ class AlarmTimer : SDLWidget, SDLWidgetDrawing
         this.m = m;
         this.x = x; this.y  = y; this.w = w; this.h = h;
 
-        /**
-         * Enable, disable button
-         */
-        var enable_button = new SDLMpc.CheckBox(m, 
+        s = new Selector(m,x,y,w,h,bpp);
+    
+        this.children.append(s);
+
+        update();
+    }
+}
+
+class EditAlarmTimer : SDLWidget
+{
+    /* Pointer to the main object */
+    private weak Main m;
+    private weak AlarmTimer parent;
+    private AEvent alarm_event;
+    private CheckBox check;
+
+    public EditAlarmTimer(Main m, AlarmTimer p, AEvent ae, int x, int y, int w, int h)
+    {
+        /* Set constructor variables to SDLWidget */
+        this.alarm_event = ae;
+        this.m = m;
+        this.parent = p;
+        this.x = x; this.y  = y; this.w = w; this.h = h;
+
+        this.check = new CheckBox(this.m,
                 (int16) this.x+5,
                 (int16) this.y+5,
                 (uint16)this.w-10,
                 (uint16) 38,
-                "Alarm 1");
-
-        enable_button.toggled.connect((source,state) => {
-            enabled = state;
+                "Enabled");
+        this.check.toggled.connect((source, state) =>{
+            if(this.alarm_event.enabled != state) {
+                this.alarm_event.enabled = state;
+            }
         });
-        this.children.append(enable_button);
-        this.add_focus_widget(enable_button);
-
-        /** 
-         *
-         */
-        hour_label = new SDLMpc.Label(this.m,FontSize.LARGE, 
-                (int16)this.x+5,
-                (int16)this.y+5+38+5,
-                (uint16)50,
-                (uint16)56);
-        hour_label.set_text("%02u".printf(alarm_hour));
-        this.children.append(hour_label);
-        this.add_focus_widget(hour_label);
-
-        var sep_label = new SDLMpc.Label(this.m,FontSize.LARGE, 
-                (int16)this.x+5+56,
-                (int16)this.y+5+38,
-                (uint16)20,
-                (uint16)56);
-        
-        sep_label.set_text(":");
-        this.children.append(sep_label);
-        minute_label = new SDLMpc.Label(this.m,FontSize.LARGE, 
-                (int16)this.x+5+56+20,
-                (int16)this.y+5+38+5,
-                (uint16)50,
-                (uint16)56);
-        minute_label.set_text("%02u".printf(alarm_minute));
-        this.children.append(minute_label);
-        this.add_focus_widget(minute_label);
-
-    }
-
-
-    public void draw_drawing(Surface screen, SDL.Rect *orect)
-    {
+        this.children.append(this.check);
+        this.add_focus_widget(this.check);
 
 
     }
-
-    private int index = 3;
-    public override bool Event(SDLMpc.Event ev)
-    {
-        GLib.debug("KEY: %i", ev.command);
-        int current = -1;
-        if(ev.type == SDLMpc.EventType.KEY) {
-            switch(ev.command)
-            {
-                case EventCommand.K_1:
-                    current = 1;
-                break;
-               case EventCommand.K_2:
-                current = 2;
-                break;
-               case EventCommand.K_3:
-                current = 3;
-                break;
-               case EventCommand.K_4:
-                current = 4;
-                break;
-               case EventCommand.K_5:
-                current = 5;
-                break;
-               case EventCommand.K_6:
-                current = 6;
-                break;
-               case EventCommand.K_7:
-                current = 7;
-                break;
-               case EventCommand.K_8:
-                current = 8;
-                break;
-               case EventCommand.K_9:
-                current = 9;
-                break;
-               case EventCommand.K_0:
-                current = 0;
-                break;
-               default:
-                   break;
-            }
-        }
-        if(current >= 0) {
-            if(index == 3) {
-                if(current >= 0 && current <= 2) {
-                    alarm_hour = alarm_hour%10+current*10;
-                }
-            }else if (index == 2) {
-                if((alarm_hour > 20 && current >= 0 && current <= 4) ||
-                    (alarm_hour < 20)
-                )
-                
-                {
-                    alarm_hour = (alarm_hour -alarm_hour%10)+current;
-                }
-            }else if (index == 1) {
-                if(current >= 0 && current <= 5) {
-                    alarm_minute = alarm_minute%10+current*10;
-                }
-            }else {
-                alarm_minute = alarm_minute - alarm_minute%10+current;
-            }
-
-            index--;
-            if(index < 0) index = 3;
-            hour_label.set_text("%02u".printf(alarm_hour));
-            minute_label.set_text("%02u".printf(alarm_minute));
-        }
-        return false;
-    }
-
 }
