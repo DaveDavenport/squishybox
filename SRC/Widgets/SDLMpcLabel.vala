@@ -31,6 +31,7 @@ namespace SDLMpc
         private SDLMpc.Main        m;
         private weak Font        font;
         private Surface     sf;
+        private Surface     sf_focus;
         private Surface     sf_shadow;
 		private int16 		shadow_offset 	= 2;
         public bool            do_scrolling = true;
@@ -48,6 +49,7 @@ namespace SDLMpc
         private const SDL.Color c_shadow = {0,0,0};
         /* Text color */
         private const SDL.Color fg_shadow = {255,255,255};
+        private const SDL.Color fg_focus = {255,128,128};
 
         /**
          * Get the Width off the label 
@@ -77,18 +79,20 @@ namespace SDLMpc
 			this.h = height;
             font = this.m.fonts[size];
             sf = font.render_blended_utf8(" ",b); 
+            sf_focus = font.render_blended_utf8(" ",fg_focus); 
             sf_shadow = font.render_blended_utf8(" ", c_shadow);
 			this.require_redraw = true;
         }
-
         public void set_text(string? a)
         {
             SDL.Color b = {255,255,255};
             if(a != null && a.length > 0) {
                 sf = font.render_blended_utf8(a,b); 
+                sf_focus = font.render_blended_utf8(a,fg_focus); 
                 sf_shadow = font.render_blended_utf8(a, c_shadow);
             }else{
                 sf = font.render_blended_utf8(" ",b); 
+            sf_focus = font.render_blended_utf8(" ",fg_focus); 
                 sf_shadow = font.render_blended_utf8(" ", c_shadow);
             }
             scrolling = false;
@@ -148,8 +152,11 @@ namespace SDLMpc
             //src_rect.h = (int16) (h);
             src_rect.w+=shadow_offset;
             src_rect.h+=shadow_offset;
-
-            sf.blit_surface(src_rect, screen, dst_rect);
+            if(this.focus) {
+                sf_focus.blit_surface(src_rect, screen, dst_rect);
+            }else{
+                sf.blit_surface(src_rect, screen, dst_rect);
+            }
         }
     }
 }

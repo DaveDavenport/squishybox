@@ -229,7 +229,10 @@ namespace SDLMpc
                         if(focus_chain == null) break;
                         if(focus_current != null){
                             focus_current.data.focus = false;
-                            focus_current = focus_current.prev;
+                            if(focus_current.prev == null){
+                                focus_current = focus_current.last();
+                            }else
+                                focus_current = focus_current.prev;
                         }
                         if(focus_current == null) {
                             focus_current = focus_chain.first(); 
@@ -242,6 +245,9 @@ namespace SDLMpc
                         if(focus_chain == null) break;
                         if(focus_current != null){
                             focus_current.data.focus = false;
+                            if(focus_current.next == null){
+                                focus_current = focus_current.first();
+                            }else
                             focus_current = focus_current.next;
                         }
                         if(focus_current == null) {

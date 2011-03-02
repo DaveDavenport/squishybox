@@ -54,8 +54,9 @@ namespace SDLMpc
 			}
         }
 
-        public CheckBox(Main m,int16 x, int16 y, uint16 width, uint16 height, string text)
+        public CheckBox(Main m,int16 x, int16 y, uint16 width, uint16 height, string text,SDLWidget? parent = null)
         {
+            this.parent = parent;
             this.m = m;
 			
 			this.x = x;

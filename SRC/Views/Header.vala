@@ -96,7 +96,7 @@ class Header : SDLWidget, SDLWidgetDrawing
                             (int16) this.y,
                             (uint16)this.h,
                             (uint16)this.h,
-                            "U");
+                            "H");
         this.children.append(up_button);
         up_button.b_clicked.connect(up_button_pressed);
 

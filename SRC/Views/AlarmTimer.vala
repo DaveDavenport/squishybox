@@ -124,7 +124,7 @@ class AlarmTimer : SDLWidget
 	private void event_button_long_clicked_callback(Button butt)
 	{
 		AEvent event = butt.get_data("event");
-		this.alarms.remove(event);
+		this.alarms.remove((owned)event);
 		this.m.notification.push_mesg("Removed 1 Alarm");
 		save_alarms();
 		update();
@@ -138,7 +138,7 @@ class AlarmTimer : SDLWidget
 		{
 			butt.update_text(source.get_name());
 		});
-		var edit_win = new EditAlarmTimer(m, this, ea, this.x, this.y, (int)this.w, (int)this.h);
+		var edit_win = new EditAlarmTimer(m, this, ea,0,0, (int)this.w, (int)this.h);
 
 		this.s.add(butt,edit_win);
 
@@ -265,11 +265,11 @@ class EditAlarmTimer : SDLWidget
 		this.x = x; this.y  = y; this.w = w; this.h = h;
 
 		this.check = new CheckBox(this.m,
-			(int16) this.x+5,
-			(int16) this.y+5,
+			(int16) 5,
+			(int16) 5,
 			(uint16)this.w-10,
 			(uint16) 38,
-			"Enabled");
+			"Enabled",this);
 		this.check.toggled.connect((source, state) =>
 		{
 			if(this.alarm_event.enabled != state)
@@ -279,5 +279,31 @@ class EditAlarmTimer : SDLWidget
 		});
 		this.children.append(this.check);
 		this.add_focus_widget(this.check);
+
+        /* Add label */
+        var l = new Label(this.m, FontSize.NORMAL, (int16)20,(int16)40,100, 38,this);
+        l.set_text("Time:");
+        this.children.append(l);
+
+
+        var ht_n = new SpinButton(this.m, 120,40,this);
+        this.children.append(ht_n);
+        this.add_focus_widget(ht_n);
+
+        var h_n = new SpinButton(this.m, 150,40,this);
+        this.children.append(h_n);
+        this.add_focus_widget(h_n);
+
+        l = new Label(this.m, FontSize.NORMAL, (int16)180,(int16)40,100, 38,this);
+        l.set_text(":");
+        this.children.append(l);
+
+        var mt_n = new SpinButton(this.m, 210,40,this);
+        this.children.append(mt_n);
+        this.add_focus_widget(mt_n);
+
+        var m_n = new SpinButton(this.m, 240,40,this);
+        this.children.append(m_n);
+        this.add_focus_widget(m_n);
 	}
 }
