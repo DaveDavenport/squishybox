@@ -283,7 +283,7 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
                 this.in_sub_item = true;
                 this.children = null;
                 this.children.append(current.data.widget);
-                //this.current = null;
+                this.current = null;
                 this.require_redraw = true;
                 return true;
             }

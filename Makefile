@@ -58,6 +58,7 @@ VALA_FLAGS=--thread --Xcc="-lSDL_ttf"
 OUTPUT=$(BUILD_DIR)/$(PROGRAM)
 
 LIBS+=-lSDL_ttf 
+CFLAGS+=-Wall -Wextra
 
 ##################################################################################
 ##          Pre-processing above information                                    ##
