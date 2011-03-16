@@ -187,6 +187,13 @@ class SDLEvent
                         ev.command = EventCommand.RIGHT;
                         this.m.push_event((owned)ev);
                     }
+                    else if (event.key.keysym.sym == KeySymbol.LEFT)
+                    {
+                        ev = new SDLMpc.Event();
+                        ev.type = SDLMpc.EventType.KEY;
+                        ev.command = EventCommand.LEFT;
+                        this.m.push_event((owned)ev);
+                    }
                     else if (event.key.keysym.sym == KeySymbol.m)
                     {
                         ev = new SDLMpc.Event();

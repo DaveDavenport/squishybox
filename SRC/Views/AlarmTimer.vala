@@ -313,10 +313,12 @@ class EditAlarmTimer : SDLWidget
         ht_n = new SpinButton(this.m, 120,40,this);
         this.children.append(ht_n);
         ht_n.set_range(0,2);
+        ht_n.set_value((int)(this.alarm_event.hour/10));
         this.add_focus_widget(ht_n);
 
         h_n = new SpinButton(this.m, 150,40,this);
         h_n.set_range(0,9);
+        h_n.set_value((int)(this.alarm_event.hour%10));
         this.children.append(h_n);
         this.add_focus_widget(h_n);
 
@@ -326,11 +328,13 @@ class EditAlarmTimer : SDLWidget
 
         mt_n = new SpinButton(this.m, 210,40,this);
         mt_n.set_range(0,5);
+        mt_n.set_value((int)(this.alarm_event.minute/10));
         this.children.append(mt_n);
         this.add_focus_widget(mt_n);
 
         m_n = new SpinButton(this.m, 240,40,this);
         m_n.set_range(0,9);
+        m_n.set_value((int)(this.alarm_event.minute%10));
         this.children.append(m_n);
         this.add_focus_widget(m_n);
 
