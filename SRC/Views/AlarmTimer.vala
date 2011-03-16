@@ -43,9 +43,31 @@ public class AEvent
 		}
 	}
 	/* The minute */
-	public uint minute;
+	private uint _minute = 0;
+    public uint minute {
+           get
+           {
+            return _minute;
+           }
+           set
+           {
+            _minute = value;
+            changed();
+           }
+    }
 	/* The hour */
-	public uint hour;
+	private uint _hour = 8;
+    public uint hour {
+           get
+           {
+            return _hour;
+           }
+           set
+           {
+            _hour = value;
+            changed();
+           }
+    }
 	/* The action to perform */
 	public enum Action
 	{
@@ -56,10 +78,6 @@ public class AEvent
 
 	public AEvent()
 	{
-		this.enabled = false;
-		this.minute = 0;
-		this.hour = 8;
-
 	}
 
 	/* Call this function every minute (not more then once)  */
@@ -256,6 +274,11 @@ class EditAlarmTimer : SDLWidget
 	private AEvent alarm_event;
 	private CheckBox check;
 
+    private SpinButton h_n = null;
+    private SpinButton ht_n = null;
+    private SpinButton m_n = null;
+    private SpinButton mt_n = null;
+
 	public EditAlarmTimer(Main m, AlarmTimer p, AEvent ae, int x, int y, int w, int h)
 	{
 		/* Set constructor variables to SDLWidget */
@@ -270,7 +293,8 @@ class EditAlarmTimer : SDLWidget
 			(uint16)this.w-10,
 			(uint16) 38,
 			"Enabled",this);
-		this.check.toggled.connect((source, state) =>
+        this.check.active = this.alarm_event.enabled;
+        this.check.toggled.connect((source, state) =>
 		{
 			if(this.alarm_event.enabled != state)
 			{
@@ -286,11 +310,13 @@ class EditAlarmTimer : SDLWidget
         this.children.append(l);
 
 
-        var ht_n = new SpinButton(this.m, 120,40,this);
+        ht_n = new SpinButton(this.m, 120,40,this);
         this.children.append(ht_n);
+        ht_n.set_range(0,2);
         this.add_focus_widget(ht_n);
 
-        var h_n = new SpinButton(this.m, 150,40,this);
+        h_n = new SpinButton(this.m, 150,40,this);
+        h_n.set_range(0,9);
         this.children.append(h_n);
         this.add_focus_widget(h_n);
 
@@ -298,12 +324,30 @@ class EditAlarmTimer : SDLWidget
         l.set_text(":");
         this.children.append(l);
 
-        var mt_n = new SpinButton(this.m, 210,40,this);
+        mt_n = new SpinButton(this.m, 210,40,this);
+        mt_n.set_range(0,5);
         this.children.append(mt_n);
         this.add_focus_widget(mt_n);
 
-        var m_n = new SpinButton(this.m, 240,40,this);
+        m_n = new SpinButton(this.m, 240,40,this);
+        m_n.set_range(0,9);
         this.children.append(m_n);
         this.add_focus_widget(m_n);
+
+        ht_n.notify["val"].connect((source)=>{
+            int val = ht_n.val;
+            if(val == 2) h_n.set_range(0,3);
+            else h_n.set_range(0,9);
+            this.alarm_event.hour = ht_n.val*10+h_n.val;
+        });
+        h_n.notify["val"].connect((source)=>{
+            this.alarm_event.hour = ht_n.val*10+h_n.val;
+        });
+        mt_n.notify["val"].connect((source)=>{
+            this.alarm_event.minute= mt_n.val*10+m_n.val;
+        });
+        m_n.notify["val"].connect((source)=>{
+            this.alarm_event.minute= mt_n.val*10+m_n.val;
+        });
 	}
 }
