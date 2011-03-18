@@ -251,6 +251,12 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
                     current = current.prev;
                     Home();
                 }
+                else
+                {
+                    current = current.last();
+                    current_start = current;
+                    Home();
+                }
                 return true;
             }
             else if(ev.command == SDLMpc.EventCommand.DOWN)
@@ -262,6 +268,11 @@ class Selector : SDLWidget,  SDLWidgetMotion, SDLWidgetActivate
                         current_start = current_start.next;
                     }
                     current = current.next;
+                    Home();
+                }
+                else {
+                    current = current.first();
+                    current_start = current;
                     Home();
                 }
                 return true;
