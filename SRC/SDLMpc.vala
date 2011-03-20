@@ -86,6 +86,8 @@ namespace SDLMpc
         private IREvent  ir_events;
         private TCEvent  tc_events;
 
+        private DefaultHandler defhandler = null;
+
         /**
          * The mainloop
          */
@@ -208,6 +210,8 @@ namespace SDLMpc
             ir_events = new IREvent(this);
             /* Touchscreen input event handling */
             tc_events = new TCEvent(this);
+
+            defhandler = new DefaultHandler(this);
 
             /* Create background drawer */
             GLib.debug("Create background draw object");
@@ -343,7 +347,11 @@ namespace SDLMpc
                             break;
                         default:
                             /* Forward */
-                            bg.do_Event(ev);
+                            if(!bg.do_Event(ev)){
+                                /* Call generic handler */
+                                defhandler.process(ev);
+
+                            }
                             break;
                     }
                 }
@@ -418,7 +426,11 @@ namespace SDLMpc
                 }
                 else {
                     GLib.debug("Key event");
-                    bg.do_Event(ev);
+                    if(!bg.do_Event(ev)){
+                        /* Call generic handler */
+                        defhandler.process(ev);
+
+                    }
                 }
 
             }

@@ -201,6 +201,22 @@ class SDLEvent
                         ev.command = EventCommand.MORE;
                         this.m.push_event((owned)ev);
                     }
+                    else if (event.key.keysym.sym == KeySymbol.MINUS)
+                    {
+                        ev = new SDLMpc.Event();
+                        ev.type = SDLMpc.EventType.KEY;
+                        ev.command = EventCommand.VOL_DOWN;
+                        this.m.push_event((owned)ev);
+                    }
+                    else if (event.key.keysym.sym == KeySymbol.PLUS ||
+                            event.key.keysym.sym == KeySymbol.EQUALS
+                            )
+                    {
+                        ev = new SDLMpc.Event();
+                        ev.type = SDLMpc.EventType.KEY;
+                        ev.command = EventCommand.VOL_UP;
+                        this.m.push_event((owned)ev);
+                    }
                     break;
                 default:
                     break;

@@ -131,9 +131,10 @@ $(OUTPUT): $(OBJECT_FILES) | $(BUILD_DIR)
 	$(QUIET) $(CC)  $^ $(LIBS) $(PKG_LIBS) $(CFLAGS) $(PKG_CFLAGS)-o $@
 
 
-source:  $(SOURCES) $(SOURCE_DIR)
+source:
 	$(info Creating source files: '$(SOURCES)')
 	$(QUIET) $(VALAC) $(SOURCES)  $(VAPI_DIRS) $(VALA_PKG) $(VALA_FLAGS) -C -d $(SOURCE_DIR)
+
 ##
 # Run it.
 ##
