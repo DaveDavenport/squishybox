@@ -219,19 +219,28 @@ namespace SDLMpc
 
             /* Theme */
             theme = new Theme();
+
+			GLib.debug("theme created");
             /* Prepare basic widget */
             /* Create a background widget that always draws the background */
             bg       = new BackgroundDrawer  (this,  0,      0,  480, 272, 32);
 
+			GLib.debug("background drawer");
             /* Main menu */
             selector = new Selector (this,  0,      38,  480, 234, 32);
+			GLib.debug("selector");
 
             /* Add items */
             (selector as Selector).add_item(new NowPlaying      (this, 0, 38,  480, 234, 32));
+			GLib.debug("now playing");
             (selector as Selector).add_item(new MpdPlaylistView (this, 0, 38,  480, 234, 32));
+			GLib.debug("mpd playlist view");
             (selector as Selector).add_item(new MpdDatabaseView (this, 0, 38,  480, 234, 32,null));
+			GLib.debug("mpd database view");
             (selector as Selector).add_item(new ServerMenu      (this, 0, 38,  480, 234, 32));
+			GLib.debug("server menu");
             (selector as Selector).add_item(new AlarmTimer      (this, 0, 38,  480, 234, 32));
+			GLib.debug("Standby object");
             standby = new Standby(this);
 
 
@@ -272,7 +281,6 @@ namespace SDLMpc
         private bool main_draw()
         {
             bool cc = false;
-
 
             /* Time Tick */
             time_t now = time_t();

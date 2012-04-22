@@ -38,8 +38,10 @@ class SDLEvent
     {
         SDL.Event event = SDL.Event();
         SDLMpc.Event ev; 
-        while(SDL.Event.poll(event)>0){
-            switch(event.type)
+        while(SDL.Event.poll(event)>0)
+		{
+			GLib.stdout.printf("Event: %i\n", event.type);
+			switch(event.type)
             {
                 case SDL.EventType.MOUSEMOTION:
                     if(event.motion.state > 0)

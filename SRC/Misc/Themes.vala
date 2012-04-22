@@ -84,7 +84,7 @@ namespace SDLMpc
 
 
 
-        private ElementItem?[] surfaces = new ElementItem[Element.NUM_ELEMENTS]; 
+        private ElementItem[] surfaces = new ElementItem[Element.NUM_ELEMENTS]; 
         /* This 'pre-loads' all the surfaces */
         private void update_surfaces()
         {
@@ -134,7 +134,7 @@ namespace SDLMpc
         }
 
         /* List of available icons */
-        private SDL.Surface?[] icons = new SDL.Surface[Icons.NUM_ICONS];
+        private SDL.Surface[] icons = new SDL.Surface[Icons.NUM_ICONS];
         public enum Icons {
             MUSIC,
             FOLDER,

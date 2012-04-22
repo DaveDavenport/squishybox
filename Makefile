@@ -58,7 +58,7 @@ VALA_FLAGS=--thread --Xcc="-lSDL_ttf"
 OUTPUT=$(BUILD_DIR)/$(PROGRAM)
 
 LIBS+=-lSDL_ttf 
-CFLAGS+=-Wall -Wextra
+CFLAGS+=-Wall -Wextra -g3
 
 ##################################################################################
 ##          Pre-processing above information                                    ##
@@ -74,6 +74,7 @@ VAPI_DIRS=$(foreach p,$(VAPI_DIR), --vapidir=$p)
 # Check if packages are available
 ##
 PACKAGES_EXISTS=$(shell pkg-config --exists $(PKGCONFIG_PACKAGES); echo $$?)
+$(info $(PACKAGES_EXISTS))
 ifeq ($(PACKAGES_EXISTS),0)
     $(info ** $(PKGCONFIG_PACKAGES) packages found)
 else
