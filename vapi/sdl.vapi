@@ -541,7 +541,7 @@ namespace SDL {
 			EventAction action, EventMask mask);
 
 		[CCode (cname="SDL_PollEvent")]
-		public static int poll(Event ev);
+		public static int poll(out Event ev);
 
 		[CCode (cname="SDL_WaitEvent")]
 		public static int wait(Event ev);
